@@ -1,0 +1,101 @@
+--------------------------------------------------------------------------------
+Codebook for Social Explorer report ID: R12559881
+--------------------------------------------------------------------------------
+
+Contents
+    - Table Summary
+    - Data Dictionary
+    - Citation and Use
+
+
+--------------------------------------------------------------------------------
+Table Summary
+--------------------------------------------------------------------------------
+ 
+Survey:           Census 1990
+Dataset:          Social Explorer - Custom tables made from STF1 and STF3
+Tables:
+
+      1. Total Population
+         Universe:  Total Population
+         Name:      T1
+         Variables:
+            T001_001:   Total Population
+
+
+      2. Land Area (sq. miles)
+         Universe:  Area Total
+         Name:      T3
+         Variables:
+            T003_001:   Area Total:
+            T003_002:      Area (Land)
+            T003_003:      Area (Water)
+
+
+      3. Urban And Rural
+         Universe:  Persons
+         Name:      T4
+         Variables:
+            T004_001:   Persons:
+            T004_002:      Urban:
+            T004_003:         Inside urbanized area
+            T004_004:         Outside urbanized area
+            T004_005:      Rural:
+            T004_006:         Farm
+            T004_007:         Nonfarm
+
+
+
+
+
+ 
+ 
+ 
+--------------------------------------------------------------------------------
+Data Dictionary
+--------------------------------------------------------------------------------
+ 
+Variables 
+      NAME:           Area Name-Legal/Statistical Area Description (LSAD) Term-Part Indicator
+      QName:          Qualifying Name
+      SUMLEV:         Summary Level
+      GEOCOMP:        Geographic Component
+      REGION:         Region
+      DIVISION:       Division
+      FIPS:           FIPS
+      STATE:          State-FIPS
+      COUNTY:         County
+      T001_001:       Total Population
+      T003_001:       Area Total (sq. miles)
+      T003_002:       Land Area (sq. miles)
+      T003_003:       Water Area (sq. miles)
+      T004_001:       Persons
+      T004_002:       Persons: Urban
+      T004_003:       Persons: Urban: Inside urbanized area
+      T004_004:       Persons: Urban: Outside urbanized area
+      T004_005:       Persons: Rural
+      T004_006:       Persons: Rural: Farm
+      T004_007:       Persons: Rural: Nonfarm
+
+
+
+
+--------------------------------------------------------------------------------
+Citation and Use of Data
+--------------------------------------------------------------------------------
+ 
+All persons are granted a limited license to use this documentation and the
+accompanying data, subject to the following conditions:
+
+* Publications and research reports employing the data
+  must cite it appropriately. The citation should include the following:
+
+	  www.socialexplorer.com
+	  New York City, NY: Social Explorer 2020
+
+
+* Citations should also include the URL for this report:
+
+    http://www.socialexplorer.com/pub/reportdata/HtmlResults.aspx?reportid=R12559881
+
+If you have any questions contact info@socialexplorer.com

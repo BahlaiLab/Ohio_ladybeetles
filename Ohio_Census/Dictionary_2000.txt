@@ -1,0 +1,99 @@
+--------------------------------------------------------------------------------
+Codebook for Social Explorer report ID: R12559884
+--------------------------------------------------------------------------------
+
+Contents
+    - Table Summary
+    - Data Dictionary
+    - Citation and Use
+
+
+--------------------------------------------------------------------------------
+Table Summary
+--------------------------------------------------------------------------------
+ 
+Survey:           Census 2000
+Dataset:          Social Explorer Tables (made from SF1 and SF3)
+Tables:
+
+      1. Total Population
+         Universe:  Total Population
+         Name:      T1
+         Variables:
+            T001_001:   Total Population
+
+
+      2. Urban And Rural
+         Universe:  Total Population
+         Name:      T2
+         Variables:
+            T002_001:   Total Population:
+            T002_002:      Urban:
+            T002_003:         Inside urbanized areas
+            T002_004:         Inside urban clusters
+            T002_005:      Rural
+
+
+      3. Land Area (sq. miles)
+         Universe:  Area Total
+         Name:      T4
+         Variables:
+            T004_001:   Area Total:
+            T004_002:      Area (Land)
+            T004_003:      Area (Water)
+
+
+
+
+
+ 
+ 
+ 
+--------------------------------------------------------------------------------
+Data Dictionary
+--------------------------------------------------------------------------------
+ 
+Variables 
+      NAME:           Area Name-Legal/Statistical Area Description
+      QName:          Qualifying Name
+      AREALAND:       Area (Land)
+      AREAWATR:       Area (Water)
+      SUMLEV:         Summary Level
+      GEOCOMP:        Geographic Component
+      REGION:         Region
+      DIVISION:       Division
+      FIPS:           FIPS
+      STATE:          State (FIPS)
+      COUNTY:         County
+      T001_001:       Total Population
+      T002_001:       Total Population
+      T002_002:       Urban
+      T002_003:       Urban: Inside urbanized areas
+      T002_004:       Urban: Inside urban clusters
+      T002_005:       Rural
+      T004_001:       Area Total
+      T004_002:       Area (Land)
+      T004_003:       Area (Water)
+
+
+
+
+--------------------------------------------------------------------------------
+Citation and Use of Data
+--------------------------------------------------------------------------------
+ 
+All persons are granted a limited license to use this documentation and the
+accompanying data, subject to the following conditions:
+
+* Publications and research reports employing the data
+  must cite it appropriately. The citation should include the following:
+
+	  www.socialexplorer.com
+	  New York City, NY: Social Explorer 2020
+
+
+* Citations should also include the URL for this report:
+
+    http://www.socialexplorer.com/pub/reportdata/HtmlResults.aspx?reportid=R12559884
+
+If you have any questions contact info@socialexplorer.com

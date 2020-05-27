@@ -1,0 +1,125 @@
+--------------------------------------------------------------------------------
+Codebook for Social Explorer report ID: R12559852
+--------------------------------------------------------------------------------
+
+Contents
+    - Table Summary
+    - Data Dictionary
+    - Citation and Use
+
+
+--------------------------------------------------------------------------------
+Table Summary
+--------------------------------------------------------------------------------
+ 
+Survey:           Census 1930
+Dataset:          Social Explorer Dataset
+Tables:
+
+      1. Total Population
+         Universe:  Total Population
+         Name:      T1
+         Variables:
+            T001_001:   Total Population
+
+
+      2. Area (square miles)
+         Universe:  Total Area
+         Name:      A2
+         Variables:
+            A002_001:   Total Area in Square Miles
+
+
+      3. Urban Population
+         Universe:  Total Population
+         Name:      T2
+         Variables:
+            T002_001:   Total Population:
+            T002_002:      Urban Population:
+            T002_003:         Farm
+            T002_004:         Non-Farm
+
+
+      4. Urban Population (Cities of 25,000 and over)
+         Universe:  Total Population
+         Name:      T3
+         Variables:
+            T003_001:   Total Population:
+            T003_002:      Population of Cities With 25,000 People and Over
+
+
+      5. Farm Acres
+         Universe:  Approximate Land Area in Acres
+         Name:      T160
+         Variables:
+            T160_001:   Approximate Land Area in Acres:
+            T160_002:      Acres of Land in Farms
+
+
+      6. Farm Land By Type
+         Universe:  Acres of Land in Farms
+         Name:      T164
+         Variables:
+            T164_001:   Acres of Land in Farms:
+            T164_002:      Acres of Cropland
+            T164_003:      Acres of Pasture Land
+            T164_004:      Acres of Woodland Not Pastured
+            T164_005:      Acres of All Other Land
+
+
+
+
+
+ 
+ 
+ 
+--------------------------------------------------------------------------------
+Data Dictionary
+--------------------------------------------------------------------------------
+ 
+Variables 
+      name:           Area Name
+      QName:          Qualifying Area Name
+      AREAL:          Land Area
+      SUMLEV:         Summary Level
+      FIPS:           FIPS
+      STATE:          State FIPS
+      COUNTY:         County FIPS
+      T001_001:       Total Population
+      A002_001:       Total Area in Square Miles
+      T002_001:       Total Population
+      T002_002:       Urban Population
+      T002_003:       Urban Population: Farm
+      T002_004:       Urban Population: Non-Farm
+      T003_001:       Total Population
+      T003_002:       Population of Cities With 25,000 People and Over
+      T160_001:       Approximate Land Area in Acres
+      T160_002:       Acres of Land in Farms
+      T164_001:       Acres of Land in Farms
+      T164_002:       Acres of Cropland
+      T164_003:       Acres of Pasture Land
+      T164_004:       Acres of Woodland Not Pastured
+      T164_005:       Acres of All Other Land
+
+
+
+
+--------------------------------------------------------------------------------
+Citation and Use of Data
+--------------------------------------------------------------------------------
+ 
+All persons are granted a limited license to use this documentation and the
+accompanying data, subject to the following conditions:
+
+* Publications and research reports employing the data
+  must cite it appropriately. The citation should include the following:
+
+	  www.socialexplorer.com
+	  New York City, NY: Social Explorer 2020
+
+
+* Citations should also include the URL for this report:
+
+    http://www.socialexplorer.com/pub/reportdata/HtmlResults.aspx?reportid=R12559852
+
+If you have any questions contact info@socialexplorer.com

@@ -1,0 +1,74 @@
+--------------------------------------------------------------------------------
+Codebook for Social Explorer report ID: R12559857
+--------------------------------------------------------------------------------
+
+Contents
+    - Table Summary
+    - Data Dictionary
+    - Citation and Use
+
+
+--------------------------------------------------------------------------------
+Table Summary
+--------------------------------------------------------------------------------
+ 
+Survey:           Census 1940 Census Tract, County, State and US
+Dataset:          Social Explorer Tables
+Tables:
+
+      1. Total Population
+         Universe:  Total Population
+         Name:      T1
+         Variables:
+            T001_001:   Total Population
+
+
+      2. Area
+         Universe:  Total area (land & water)
+         Name:      T2
+         Variables:
+            T002_001:   Total Area (sq. miles)
+
+
+
+
+
+ 
+ 
+ 
+--------------------------------------------------------------------------------
+Data Dictionary
+--------------------------------------------------------------------------------
+ 
+Variables 
+      Name:           Name
+      QName:          Full Name
+      SUMLEV:         Summary Level
+      FIPS:           Federal Information Processing System Code
+      state:          State Code
+      county:         County Code
+      T001_001:       Total Population
+      T002_001:       Total Area (sq. miles)
+
+
+
+
+--------------------------------------------------------------------------------
+Citation and Use of Data
+--------------------------------------------------------------------------------
+ 
+All persons are granted a limited license to use this documentation and the
+accompanying data, subject to the following conditions:
+
+* Publications and research reports employing the data
+  must cite it appropriately. The citation should include the following:
+
+	  www.socialexplorer.com
+	  New York City, NY: Social Explorer 2020
+
+
+* Citations should also include the URL for this report:
+
+    http://www.socialexplorer.com/pub/reportdata/HtmlResults.aspx?reportid=R12559857
+
+If you have any questions contact info@socialexplorer.com
