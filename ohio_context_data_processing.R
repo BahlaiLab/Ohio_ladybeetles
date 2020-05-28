@@ -15,7 +15,7 @@ plot(sf_cent)
 
 
 counties_df<-fortify(sf_cent)
-write.csv(counties_df, file="oh_co_centroids.csv")
+write.csv(counties_df, file="intermediate_data/oh_co_centroids.csv")
 
 #now we need to bring in the census data and lightly pre-process it to pull out the useful information
 
@@ -290,4 +290,69 @@ cleaned1990$Density<-cleaned1990$Population/cleaned1990$Area
 cleaned1990$Prop_urban<-cleaned1990$Urban_pop/cleaned1990$Population
 
 
+#2000census
 
+census2000<-read.csv("Ohio_census/Census_2000.csv")
+
+#need to create a new dataframe with only relevant, mergable info. Love a probram that assigns different column names 
+#to the same data entity, ugh. Use data dictonaries to figure out which columns are the stuff we want
+
+data2000<-census2000[c(1,12,18,14)]#name,population, area, "urban population"
+
+#so we'll want to rename for consistency, then get a bit of derrived data (humans/area, % urban), 
+#add a year column for merging later
+#2000 has no metrics for urbanization so let's set those metrics to NA
+
+Year<-rep(2000, length(data2000$Geo_NAME))
+
+names(data2000)<-c("County","Population", "Area", "Urban_pop")
+
+cleaned2000<-cbind(Year, data2000)
+
+cleaned2000$Density<-cleaned2000$Population/cleaned2000$Area
+cleaned2000$Prop_urban<-cleaned2000$Urban_pop/cleaned2000$Population
+
+
+
+#2010census
+
+census2010<-read.csv("Ohio_census/Census_2010.csv")
+
+#need to create a new dataframe with only relevant, mergable info. Love a probram that assigns different column names 
+#to the same data entity, ugh. Use data dictonaries to figure out which columns are the stuff we want
+
+data2010<-census2010[c(1,12,13)]#name,population, area
+
+#so we'll want to rename for consistency, then get a bit of derrived data (humans/area, % urban), 
+#add a year column for merging later
+#2010 has no metrics for urbanization so let's set those metrics to NA
+
+Year<-rep(2010, length(data2010$Geo_NAME))
+Urban_pop<-rep(NA, length(data2010$Geo_NAME))
+
+names(data2010)<-c("County","Population", "Area")
+
+cleaned2010<-cbind(Year, data2010, Urban_pop)
+
+cleaned2010$Density<-cleaned2010$Population/cleaned2010$Area
+cleaned2010$Prop_urban<-cleaned2010$Urban_pop/cleaned2010$Population
+
+
+
+#okay let's bring it all together and then do the last bit of QC
+
+allcensus<-rbind(cleaned1890, cleaned1900, cleaned1910, cleaned1920, cleaned1930, cleaned1940,
+                 cleaned1950, cleaned1960, cleaned1970, cleaned1980, cleaned1990, cleaned2000, cleaned2010)
+
+
+str(allcensus)
+#so county names are the first obvious problem, looks like they're both called by their names and then also by 
+# x.....space county
+allcensus$County<-gsub(" County", "", allcensus$County)
+
+str(allcensus)
+levels(as.factor(allcensus$County))
+length(levels(as.factor(allcensus$County)))
+
+#ok, looks good, let's export the data
+write.csv(allcensus, file="intermediate_data/oh_co_census.csv")
