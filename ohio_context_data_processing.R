@@ -151,17 +151,143 @@ census1940<-read.csv("Ohio_census/Census_1940.csv")
 #need to create a new dataframe with only relevant, mergable info. Love a probram that assigns different column names 
 #to the same data entity, ugh. Use data dictonaries to figure out which columns are the stuff we want
 
-data1940<-census1940[c(1,8,9,11)]#name,population, area, Urban Population of Places With 2,500 People and Over
+data1940<-census1940[c(1,7,8)]#name,population, area
 
 #so we'll want to rename for consistency, then get a bit of derrived data (humans/area, % urban), 
 #add a year column for merging later
+#1940 has no metrics for urbanization so let's set those metrics to NA
 
-Year<-rep(1940, length(data1940$Geo_name))
+Year<-rep(1940, length(data1940$Geo_Name))#tricky, they change the capitalization in this variable name here
+Urban_pop<-rep(NA, length(data1940$Geo_Name))
 
-names(data1940)<-c("County","Population", "Area", "Urban_pop")
+names(data1940)<-c("County","Population", "Area")
 
-cleaned1940<-cbind(Year, data1940)
+cleaned1940<-cbind(Year, data1940, Urban_pop)
 
 cleaned1940$Density<-cleaned1940$Population/cleaned1940$Area
 cleaned1940$Prop_urban<-cleaned1940$Urban_pop/cleaned1940$Population
+
+
+
+#1950census
+
+census1950<-read.csv("Ohio_census/Census_1950.csv")
+
+#need to create a new dataframe with only relevant, mergable info. Love a probram that assigns different column names 
+#to the same data entity, ugh. Use data dictonaries to figure out which columns are the stuff we want
+
+data1950<-census1950[c(1,7,8)]#name,population, area
+
+#so we'll want to rename for consistency, then get a bit of derrived data (humans/area, % urban), 
+#add a year column for merging later
+#1950 has no metrics for urbanization so let's set those metrics to NA
+
+Year<-rep(1950, length(data1950$Geo_Name))
+Urban_pop<-rep(NA, length(data1950$Geo_Name))
+
+names(data1950)<-c("County","Population", "Area")
+
+cleaned1950<-cbind(Year, data1950, Urban_pop)
+
+cleaned1950$Density<-cleaned1950$Population/cleaned1950$Area
+cleaned1950$Prop_urban<-cleaned1950$Urban_pop/cleaned1950$Population
+
+
+#1960census
+
+census1960<-read.csv("Ohio_census/Census_1960.csv")
+
+#need to create a new dataframe with only relevant, mergable info. Love a probram that assigns different column names 
+#to the same data entity, ugh. Use data dictonaries to figure out which columns are the stuff we want
+
+data1960<-census1960[c(1,11,12)]#name,population, area
+
+#so we'll want to rename for consistency, then get a bit of derrived data (humans/area, % urban), 
+#add a year column for merging later
+#1960 has no metrics for urbanization so let's set those metrics to NA
+
+Year<-rep(1960, length(data1960$Geo_name))#back to previous case. cute.
+Urban_pop<-rep(NA, length(data1960$Geo_name))
+
+names(data1960)<-c("County","Population", "Area")
+
+cleaned1960<-cbind(Year, data1960, Urban_pop)
+
+cleaned1960$Density<-cleaned1960$Population/cleaned1960$Area
+cleaned1960$Prop_urban<-cleaned1960$Urban_pop/cleaned1960$Population
+
+
+#1970census
+
+census1970<-read.csv("Ohio_census/Census_1970.csv")
+
+#need to create a new dataframe with only relevant, mergable info. Love a probram that assigns different column names 
+#to the same data entity, ugh. Use data dictonaries to figure out which columns are the stuff we want
+
+data1970<-census1970[c(2,9,10)]#name,population, area
+
+#so we'll want to rename for consistency, then get a bit of derrived data (humans/area, % urban), 
+#add a year column for merging later
+#1970 has no metrics for urbanization so let's set those metrics to NA
+
+Year<-rep(1970, length(data1970$Geo_NAME))#A NEW CASE CONVENTION! COOOOOOOOL
+Urban_pop<-rep(NA, length(data1970$Geo_NAME))
+
+names(data1970)<-c("County","Population", "Area")
+
+cleaned1970<-cbind(Year, data1970, Urban_pop)
+
+cleaned1970$Density<-cleaned1970$Population/cleaned1970$Area
+cleaned1970$Prop_urban<-cleaned1970$Urban_pop/cleaned1970$Population
+
+
+
+
+#1980census
+
+census1980<-read.csv("Ohio_census/Census_1980.csv")
+
+#need to create a new dataframe with only relevant, mergable info. Love a probram that assigns different column names 
+#to the same data entity, ugh. Use data dictonaries to figure out which columns are the stuff we want
+
+data1980<-census1980[c(1,9,10)]#name,population, area
+
+#so we'll want to rename for consistency, then get a bit of derrived data (humans/area, % urban), 
+#add a year column for merging later
+#1980 has no metrics for urbanization so let's set those metrics to NA
+
+Year<-rep(1980, length(data1980$Geo_Name))#and back to Name
+Urban_pop<-rep(NA, length(data1980$Geo_Name))
+
+names(data1980)<-c("County","Population", "Area")
+
+cleaned1980<-cbind(Year, data1980, Urban_pop)
+
+cleaned1980$Density<-cleaned1980$Population/cleaned1980$Area
+cleaned1980$Prop_urban<-cleaned1980$Urban_pop/cleaned1980$Population
+
+
+#1990census
+
+census1990<-read.csv("Ohio_census/Census_1990.csv")
+
+#need to create a new dataframe with only relevant, mergable info. Love a probram that assigns different column names 
+#to the same data entity, ugh. Use data dictonaries to figure out which columns are the stuff we want
+
+data1990<-census1990[c(1,10,11,15)]#name,population, area, "urban persons"
+
+#so we'll want to rename for consistency, then get a bit of derrived data (humans/area, % urban), 
+#add a year column for merging later
+#1990 has no metrics for urbanization so let's set those metrics to NA
+
+Year<-rep(1990, length(data1990$Geo_NAME))#and back to NAME
+
+names(data1990)<-c("County","Population", "Area", "Urban_pop")
+
+cleaned1990<-cbind(Year, data1990)
+
+cleaned1990$Density<-cleaned1990$Population/cleaned1990$Area
+cleaned1990$Prop_urban<-cleaned1990$Urban_pop/cleaned1990$Population
+
+
 
