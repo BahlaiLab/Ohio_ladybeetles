@@ -1,5 +1,3 @@
-# Hi Kayla!
-
 #data are downloaded from Government sources or via Social Explorer.
 
 #compute county centroids
