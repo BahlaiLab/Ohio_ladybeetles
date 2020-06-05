@@ -1,3 +1,5 @@
+# Hi Kayla!
+
 #data are downloaded from Government sources or via Social Explorer.
 
 #compute county centroids
@@ -356,3 +358,6 @@ length(levels(as.factor(allcensus$County)))
 
 #ok, looks good, let's export the data
 write.csv(allcensus, file="intermediate_data/oh_co_census.csv")
+
+
+
