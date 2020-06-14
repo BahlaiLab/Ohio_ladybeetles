@@ -1,14 +1,18 @@
 #data are downloaded from Government sources or via Social Explorer.
 
 #compute county centroids
-#using Ohio Department of Transportation data
+#using Ohio Department of Transportation data from http://ogrip-geohio.opendata.arcgis.com/datasets/odot-county-boundaries
 
 library(sf)
+library(rgdal)
+library(maptools)
+library(raster)
 library(ggplot2)
 
-oh<- st_read("ODOT_shapes/ODOT_County_Boundaries.shp") 
+oh<- st_read("OH_county_shapes/ODOT_County_Boundaries.shp") 
 
 plot(oh)
+
 sf_cent <- st_centroid(oh)
 
 plot(sf_cent)
@@ -357,5 +361,11 @@ length(levels(as.factor(allcensus$County)))
 #ok, looks good, let's export the data
 write.csv(allcensus, file="intermediate_data/oh_co_census.csv")
 
+#ok, not to figure out how to merge these bad boys together
+
+#gotta start with naming conventions- one data frame has abbreviated name, one has whole name
+
+abb_name<-levels(as.factor(counties_df$COUNTY_CD))
+full_name<-levels(as.factor(allcensus$County))
 
 
