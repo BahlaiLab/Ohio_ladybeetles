@@ -361,11 +361,26 @@ length(levels(as.factor(allcensus$County)))
 #ok, looks good, let's export the data
 write.csv(allcensus, file="intermediate_data/oh_co_census.csv")
 
-#ok, not to figure out how to merge these bad boys together
+#ok, now to figure out how to merge these bad boys together
 
 #gotta start with naming conventions- one data frame has abbreviated name, one has whole name
 
 abb_name<-levels(as.factor(counties_df$COUNTY_CD))
 full_name<-levels(as.factor(allcensus$County))
 
+#and LB data
+ladybeetle<-read.csv(file="specimen_data/LB_museumData_2020.csv", header=T, stringsAsFactors = T)
+museum_name<-levels(as.factor(ladybeetle$County))
+
+namematch<-cbind(abb_name,full_name,museum_name)
+#okay, looks like things are lining up, we can use this as a key for merging data
+
+
+#Want to allign census with County, Decade in ladybeetle data
+
+#first ned to change names of Decade coloumn
+
+names(allcensus)[names(allcensus) == "Year"] <- "Decade"
+
+lb_census<-merge(ladybeetle, allcensus, by=c("County", "Decade"), all.x=T)
 
