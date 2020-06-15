@@ -479,7 +479,7 @@ nmds.land$stress
 dist.land <- vegdist(lb7.matrix[3:33], method = "bray")
 
 # test for differences in species composition between museum and BLBB data
-adonis(dist.land ~ as.factor(lb7.matrix$Landscape), permutations = 999)
+adonis2(dist.land ~ as.factor(lb7.matrix$Landscape), permutations = 999)
 
 # quick plot to visualize results
 levels(lb7.matrix$Landscape)
@@ -491,8 +491,4 @@ legend("topleft", legend = c("Rural","Urban"),
        pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
 #dev.off()
 
-# test for interaction between data source and year
-adonis2(dist.blbb ~ lb4.matrix$Source*lb4.matrix$Year, permutations = 999)
 
-# test for interaction between data source and geographic region
-adonis2(dist.blbb ~ lb4.matrix$Source*lb4.matrix$Regions, permutations = 999)
