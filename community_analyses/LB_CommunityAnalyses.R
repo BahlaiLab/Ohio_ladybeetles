@@ -9,7 +9,7 @@
 #
 ###################################################################################
 
-setwd("~/The Ohio State University/PostDoc/BLBB Project/Museum Files/R")
+setwd("~/The Ohio State University/PostDoc/BLBB Project/Museum Files/Ohio_ladybeetles/community_analyses")
 
 lb <- read.csv("LB_MuseumData_2020.csv")
 
@@ -20,7 +20,7 @@ library(reshape2)
 
 # Look at species by decade and by LB invasion timeline
 
-lb2 <- lb[,c(2,13,15,16,14)]
+lb2 <- lb[,c(2,14,16,17,15)]
 
 colnames(lb2)
 
@@ -146,7 +146,7 @@ rm(Yr09,Yr10,Yr13,Yr14)
 
 colnames(lb4)
 
-blbb <- lb4[,c(2,7,18,13)]
+blbb <- lb4[,c(2,7,19,14)]
 
 colnames(blbb)
 
@@ -207,7 +207,7 @@ citation("betapart")
 str(lb)
 colnames(lb)
 
-lb5 <- lb[,c(2,15,7)]
+lb5 <- lb[,c(2,16,7)]
 
 colnames(lb5)
 
@@ -355,7 +355,7 @@ ggplot(WB, aes(fill = variable, x = interval, y = value)) +
 
 # assess changes in beta diversity over 30 year intervals for the entire state of Ohio
 
-lb6 <- lb[,c(2,15)]
+lb6 <- lb[,c(2,16)]
 
 colnames(lb6)
 
@@ -445,5 +445,50 @@ ggplot(OH, aes(fill = variable, x = interval, y = value)) +
   ggtitle("Ohio") + coord_flip() + theme(text = element_text(size = 20))
 dev.off()
 
+
+######################################################################################
+
+# look at differences in LB communities among urban and rural areas
+
+colnames(lb)
+
+lb7 <- lb[,c(2,8,6)]
+
+colnames(lb7)
+
+lb7.matrix <- dcast(lb7, County + Landscape ~ Name, length)
+str(lb7.matrix)
+
+# look at overall differences between rural and urban areas
+# urban areas include the counties with the top 6 Ohio cities
+# Columbus, Cleveland, Cincinnati, Toledo, Akron, Dayton
+# Franklin Co, Cuyahoga Co, Hamilton Co, Lucas Co, Summit Co, and Montgomery Co
+
+# run NMDS model
+
+rankindex(lb7.matrix$Landscape, lb7.matrix[3:33])
+nmds.land <- metaMDS(lb7.matrix[3:33], distance = "bray", trymax = 500, autotransform = TRUE)
+nmds.land
+plot(nmds.land)
+stressplot(nmds.land)
+nmds.land$points
+nmds.land$stress
+
+# calculate distance matrix for LB species
+
+dist.land <- vegdist(lb7.matrix[3:33], method = "bray")
+
+# test for differences in species composition between museum and BLBB data
+adonis2(dist.land ~ as.factor(lb7.matrix$Landscape), permutations = 999)
+
+# quick plot to visualize results
+levels(lb7.matrix$Landscape)
+#png("LB_Landscape.png", width = 1000, height = 800, pointsize = 20)
+ordiplot(nmds.land, type="n", xlim = c(-2, 2), ylim = c(-1.5, 1.5))
+points(nmds.land, dis="sites", pch = 19, cex=1.5, col=c("gray45", "black")[as.numeric(lb7.matrix$Landscape)])
+ordiellipse(nmds.land, groups=lb7.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+legend("topleft", legend = c("Rural","Urban"), 
+       pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
+#dev.off()
 
 
