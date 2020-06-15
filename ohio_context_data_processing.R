@@ -398,5 +398,5 @@ counties_df_name<-merge(counties_df, namematch)
 #ok, now we can merge the cooridinates
 lb_allcontext<-merge(lb_census, counties_df_name, by="County", all.x=T)
 
-
+write.csv(lb_allcontext, file="intermediate_data/lb_alldata.csv")
 
