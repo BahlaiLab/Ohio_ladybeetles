@@ -20,7 +20,7 @@ plot(sf_cent)
 
 
 counties_df<-fortify(sf_cent)
-write.csv(counties_df, file="intermediate_data/oh_co_centroids.csv")
+write.csv(counties_df, file="intermediate_data/oh_co_centroids.csv", row.names = F)
 
 #now we need to bring in the census data and lightly pre-process it to pull out the useful information
 
@@ -360,7 +360,7 @@ levels(as.factor(allcensus$County))
 length(levels(as.factor(allcensus$County)))
 
 #ok, looks good, let's export the data
-write.csv(allcensus, file="intermediate_data/oh_co_census.csv")
+write.csv(allcensus, file="intermediate_data/oh_co_census.csv", row.names = F)
 
 #ok, now to figure out how to merge these bad boys together
 
@@ -398,5 +398,5 @@ counties_df_name<-merge(counties_df, namematch)
 #ok, now we can merge the cooridinates
 lb_allcontext<-merge(lb_census, counties_df_name, by="County", all.x=T)
 
-write.csv(lb_allcontext, file="intermediate_data/lb_alldata.csv")
+write.csv(lb_allcontext, file="intermediate_data/lb_alldata.csv", row.names = F)
 
