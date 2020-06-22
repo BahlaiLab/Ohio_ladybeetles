@@ -498,27 +498,319 @@ census.by.county <- ddply(census, c("County"), summarise,
 census.by.county <- merge(county, census.by.county, by=c("County"), all.x = TRUE)
 census.by.county$Landscape <- NULL
 
-fit.census <- envfit(nmds.land ~ census.by.county, perm = 999)
+fit.census <- envfit(nmds.land ~ census.by.county, perm = 999) #this wont work for some reason
 
 # calculate total abundance of each species
 # then create logical vector for most abundant species
 lb_abund <- colSums(lb7.matrix[3:33])
 lb_abund
-com_sp <- lb_abund > 300
+com_sp <- lb_abund > 100
 com_sp
 
 pchvec <- c(19, 15)
 
 levels(lb7.matrix$Landscape)
-#png("LB_Landscape_species.png", width = 1000, height = 800, pointsize = 20)
+png("LB_Landscape_species_100_smalltext.png", width = 1000, height = 800, pointsize = 20)
 ordiplot(nmds.land, type="n", xlim = c(-2, 2), ylim = c(-1.8, 1.5))
 points(nmds.land, dis="sites", pch = pchvec[lb7.matrix$Landscape], cex=1.5, col=c("gray45", "black")[as.numeric(lb7.matrix$Landscape)])
 ordiellipse(nmds.land, groups=lb7.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
-orditorp(nmds.land, display = "species", cex = 1.25, col = "black", air = 0.5, select = com_sp)
+orditorp(nmds.land, display = "species", cex = 0.6, col = "black", air = 0.1, select = com_sp)
 legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
-#dev.off()
+dev.off()
 
 
+################################################
+pchvec <- c(19, 15)
+summary(lb)
+str(lb)
+
+lb$Decade <- as.factor(lb$Decade)
+levels(lb$Decade)
+
+# 1900
+lb.1900 <- lb[which(lb$Decade == "1900"),]
+lb.1900 <- lb.1900[,c(2,8,6)]
+lb.1900.matrix <- dcast(lb.1900, County + Landscape ~ Name, length)
+nmds.1900 <- metaMDS(lb.1900.matrix[3:18], distance = "bray", trymax = 1000, autotransform = TRUE)
+nmds.1900
+plot(nmds.1900)
+dist.1900 <- vegdist(lb.1900.matrix[3:18], method = "bray")
+adonis2(dist.1900 ~ as.factor(lb.1900.matrix$Landscape), permutations = 999)
+
+lb.abund.1900 <- colSums(lb.1900.matrix[3:18])
+lb.abund.1900
+com.sp.1900 <- lb.abund.1900 > 5
+com.sp.1900
+
+ordiplot(nmds.1900, type="n", xlim = c(-3, 3), ylim = c(-2, 3))
+points(nmds.1900, dis="sites", pch = pchvec[lb.1900.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.1900.matrix$Landscape)])
+ordiellipse(nmds.1900, groups=lb.1900.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.1900, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1900)
+legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
+text(3.4, 2.75, "1900", pos = 4, font = 2, cex = 1.5)
 
 
+# 1930
+lb.1930 <- lb[which(lb$Decade == "1930"),]
+lb.1930 <- lb.1930[,c(2,8,6)]
+lb.1930.matrix <- dcast(lb.1930, County + Landscape ~ Name, length)
+nmds.1930 <- metaMDS(lb.1930.matrix[3:25], distance = "bray", trymax = 1000, autotransform = TRUE)
+nmds.1930
+plot(nmds.1930)
+dist.1930 <- vegdist(lb.1930.matrix[3:25], method = "bray")
+adonis2(dist.1930 ~ as.factor(lb.1930.matrix$Landscape), permutations = 999)
 
+lb.abund.1930 <- colSums(lb.1930.matrix[3:25])
+lb.abund.1930
+com.sp.1930 <- lb.abund.1930 > 45
+com.sp.1930
+
+ordiplot(nmds.1930, type="n", xlim = c(-2, 2), ylim = c(-2, 1.5))
+points(nmds.1930, dis="sites", pch = pchvec[lb.1930.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.1930.matrix$Landscape)])
+ordiellipse(nmds.1930, groups=lb.1930.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.1930, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1930)
+legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
+text(2.4, 1.3, "1930", pos = 4, font = 2, cex = 1.5)
+
+
+# 1950
+lb.1950 <- lb[which(lb$Decade == "1950"),]
+lb.1950 <- lb.1950[,c(2,8,6)]
+lb.1950.matrix <- dcast(lb.1950, County + Landscape ~ Name, length)
+nmds.1950 <- metaMDS(lb.1950.matrix[3:23], distance = "bray", trymax = 1000, autotransform = TRUE)
+nmds.1950
+plot(nmds.1950)
+dist.1950 <- vegdist(lb.1950.matrix[3:23], method = "bray")
+adonis2(dist.1950 ~ as.factor(lb.1950.matrix$Landscape), permutations = 999)
+
+lb.abund.1950 <- colSums(lb.1950.matrix[3:23])
+lb.abund.1950
+com.sp.1950 <- lb.abund.1950 > 10
+com.sp.1950
+
+ordiplot(nmds.1950, type="n", xlim = c(-3, 3), ylim = c(-2.5, 2.5))
+points(nmds.1950, dis="sites", pch = pchvec[lb.1950.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.1950.matrix$Landscape)])
+ordiellipse(nmds.1950, groups=lb.1950.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.1950, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1950)
+legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
+text(3.4, 2.2, "1950", pos = 4, font = 2, cex = 1.5)
+
+
+# 1960
+lb.1960 <- lb[which(lb$Decade == "1960"),]
+lb.1960 <- lb.1960[,c(2,8,6)]
+lb.1960.matrix <- dcast(lb.1960, County + Landscape ~ Name, length)
+nmds.1960 <- metaMDS(lb.1960.matrix[3:21], distance = "bray", trymax = 1000, autotransform = TRUE)
+nmds.1960
+plot(nmds.1960)
+dist.1960 <- vegdist(lb.1960.matrix[3:21], method = "bray")
+adonis2(dist.1960 ~ as.factor(lb.1960.matrix$Landscape), permutations = 999)
+
+lb.abund.1960 <- colSums(lb.1960.matrix[3:21])
+lb.abund.1960
+com.sp.1960 <- lb.abund.1960 > 30
+com.sp.1960
+
+ordiplot(nmds.1960, type="n", xlim = c(-5, 2), ylim = c(-2.5, 2.5))
+points(nmds.1960, dis="sites", pch = pchvec[lb.1960.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.1960.matrix$Landscape)])
+ordiellipse(nmds.1960, groups=lb.1960.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.1960, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1960)
+legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
+text(1.9, 2.2, "1960", pos = 4, font = 2, cex = 1.5)
+
+
+# 1980
+lb.1980 <- lb[which(lb$Decade == "1980"),]
+lb.1980 <- lb.1980[,c(2,8,6)]
+lb.1980.matrix <- dcast(lb.1980, County + Landscape ~ Name, length)
+nmds.1980 <- metaMDS(lb.1980.matrix[3:22], distance = "bray", trymax = 1000, autotransform = TRUE)
+nmds.1980
+plot(nmds.1980)
+dist.1980 <- vegdist(lb.1980.matrix[3:22], method = "bray")
+adonis2(dist.1980 ~ as.factor(lb.1980.matrix$Landscape), permutations = 999)
+
+lb.abund.1980 <- colSums(lb.1980.matrix[3:22])
+lb.abund.1960
+com.sp.1980 <- lb.abund.1980 > 50
+com.sp.1980
+
+ordiplot(nmds.1980, type="n", xlim = c(-2, 4), ylim = c(-2, 2))
+points(nmds.1980, dis="sites", pch = pchvec[lb.1980.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.1980.matrix$Landscape)])
+ordiellipse(nmds.1980, groups=lb.1980.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.1980, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1980)
+legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
+text(3.7, 1.75, "1980", pos = 4, font = 2, cex = 1.5)
+
+
+# 2000
+lb.2000 <- lb[which(lb$Decade == "2000"),]
+lb.2000 <- lb.2000[,c(2,8,6)]
+lb.2000.matrix <- dcast(lb.2000, County + Landscape ~ Name, length)
+nmds.2000 <- metaMDS(lb.2000.matrix[3:22], distance = "euclidean", trymax = 1000, autotransform = TRUE)
+nmds.2000
+plot(nmds.2000)
+dist.2000 <- vegdist(lb.2000.matrix[3:22], method = "euclidean")
+adonis2(dist.2000 ~ as.factor(lb.2000.matrix$Landscape), permutations = 999)
+
+lb.abund.2000 <- colSums(lb.2000.matrix[3:22])
+lb.abund.2000
+com.sp.2000 <- lb.abund.2000 > 50
+com.sp.2000
+
+ordiplot(nmds.2000, type="n", xlim = c(-1, 1), ylim = c(-0.8, 0.8))
+points(nmds.2000, dis="sites", pch = pchvec[lb.2000.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.2000.matrix$Landscape)])
+ordiellipse(nmds.2000, groups=lb.2000.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.2000, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.2000)
+legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
+text(1.1, 0.7, "2000", pos = 4, font = 2, cex = 1.5)
+
+
+#################################################################################
+
+# Combined nmds figure for LB communities overtime in rural vs urban counties
+
+png("NMDS_LB_Landscape_Time.png", width = 1600, height = 2000, pointsize = 30)
+
+par(mfrow=c(3,2))
+par(mar=c(5,4,3,2))
+
+ordiplot(nmds.1900, type="n", xlim = c(-3, 3), ylim = c(-2, 3))
+points(nmds.1900, dis="sites", pch = pchvec[lb.1900.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.1900.matrix$Landscape)])
+ordiellipse(nmds.1900, groups=lb.1900.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.1900, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1900)
+legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
+text(2.5, 2.75, "1900", pos = 4, font = 2, cex = 1.5)
+
+ordiplot(nmds.1930, type="n", xlim = c(-2, 2), ylim = c(-2, 1.5))
+points(nmds.1930, dis="sites", pch = pchvec[lb.1930.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.1930.matrix$Landscape)])
+ordiellipse(nmds.1930, groups=lb.1930.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.1930, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1930)
+text(1.8, 1.3, "1930", pos = 4, font = 2, cex = 1.5)
+
+ordiplot(nmds.1950, type="n", xlim = c(-3, 3), ylim = c(-2.5, 2.5))
+points(nmds.1950, dis="sites", pch = pchvec[lb.1950.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.1950.matrix$Landscape)])
+ordiellipse(nmds.1950, groups=lb.1950.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.1950, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1950)
+text(2.5, 2.2, "1950", pos = 4, font = 2, cex = 1.5)
+
+ordiplot(nmds.1960, type="n", xlim = c(-5, 2), ylim = c(-2.5, 2.5))
+points(nmds.1960, dis="sites", pch = pchvec[lb.1960.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.1960.matrix$Landscape)])
+ordiellipse(nmds.1960, groups=lb.1960.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.1960, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1960)
+text(1.1, 2.2, "1960", pos = 4, font = 2, cex = 1.5)
+
+ordiplot(nmds.1980, type="n", xlim = c(-2, 4), ylim = c(-2, 2))
+points(nmds.1980, dis="sites", pch = pchvec[lb.1980.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.1980.matrix$Landscape)])
+ordiellipse(nmds.1980, groups=lb.1980.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.1980, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1980)
+text(3.2, 1.85, "1980", pos = 4, font = 2, cex = 1.5)
+
+ordiplot(nmds.2000, type="n", xlim = c(-1, 1), ylim = c(-0.8, 0.8))
+points(nmds.2000, dis="sites", pch = pchvec[lb.2000.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.2000.matrix$Landscape)])
+ordiellipse(nmds.2000, groups=lb.2000.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.2000, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.2000)
+text(0.8, 0.7, "2000", pos = 4, font = 2, cex = 1.5)
+
+dev.off()
+
+
+###############################################################################
+
+# pre- and post-invasion
+
+pchvec <- c(19, 15)
+summary(lb)
+str(lb)
+levels(lb$Invasion)
+
+# Pre-invasion
+lb.pre <- lb[which(lb$Invasion == "1Pre-invasion"),]
+lb.pre <- lb.pre[,c(2,8,6)]
+lb.pre.matrix <- dcast(lb.pre, County + Landscape ~ Name, length)
+nmds.pre <- metaMDS(lb.pre.matrix[3:27], distance = "bray", trymax = 1000, autotransform = TRUE)
+nmds.pre
+plot(nmds.pre)
+dist.pre <- vegdist(lb.pre.matrix[3:27], method = "bray")
+adonis2(dist.pre ~ as.factor(lb.pre.matrix$Landscape), permutations = 999)
+
+lb.abund.pre <- colSums(lb.pre.matrix[3:27])
+lb.abund.pre
+com.sp.pre <- lb.abund.pre > 100
+com.sp.pre
+
+ordiplot(nmds.pre, type="n", xlim = c(-2, 2), ylim = c(-1.5, 1.5))
+points(nmds.pre, dis="sites", pch = pchvec[lb.pre.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.pre.matrix$Landscape)])
+ordiellipse(nmds.pre, groups=lb.pre.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.pre, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.pre)
+legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
+text(1.2, 1.3, "Pre-invasion", pos = 4, font = 2, cex = 1.5)
+
+
+# Post-invasion of LBs
+levels(lb$Invasion)
+lb.post1 <- lb[which(lb$Invasion == "2Csept"),]
+lb.post2 <- lb[which(lb$Invasion == "3Haxyridis"),]
+lb.post3 <- lb[which(lb$Invasion == "4Pquat"),]
+
+lb.post <- rbind(lb.post1, lb.post2, lb.post3)
+levels(lb.post$Invasion)
+levels(lb.post1$Invasion)
+
+lb.post <- lb.post[,c(2,8,6)]
+lb.post.matrix <- dcast(lb.post, County + Landscape ~ Name, length)
+nmds.post <- metaMDS(lb.post.matrix[3:29], distance = "bray", trymax = 1000, autotransform = TRUE)
+nmds.post
+plot(nmds.post)
+dist.post <- vegdist(lb.post.matrix[3:29], method = "bray")
+adonis2(dist.post ~ as.factor(lb.post.matrix$Landscape), permutations = 999)
+
+lb.abund.post <- colSums(lb.post.matrix[3:29])
+lb.abund.post
+com.sp.post <- lb.abund.post > 50
+com.sp.post
+
+ordiplot(nmds.post, type="n", xlim = c(-2, 2), ylim = c(-1.5, 1.5))
+points(nmds.post, dis="sites", pch = pchvec[lb.post.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.post.matrix$Landscape)])
+ordiellipse(nmds.post, groups=lb.post.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.post, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.post)
+legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
+text(1, 1.3, "Post-invasion", pos = 4, font = 2, cex = 1.5)
+
+#############
+
+# make a combined figure for pre- and post-invasion
+
+png("NMDS_LB_Invasion.png", width = 2000, height = 800, pointsize = 20)
+layout(matrix(c(1,2), nrow = 1, ncol = 2, byrow = TRUE))
+layout.show(2)
+
+ordiplot(nmds.pre, type="n", xlim = c(-2, 2), ylim = c(-1.5, 1.5))
+points(nmds.pre, dis="sites", pch = pchvec[lb.pre.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.pre.matrix$Landscape)])
+ordiellipse(nmds.pre, groups=lb.pre.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.pre, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.pre)
+legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
+text(1.2, 1.3, "Pre-invasion", pos = 4, font = 2, cex = 1.5)
+
+ordiplot(nmds.post, type="n", xlim = c(-2, 2), ylim = c(-1.5, 1.5))
+points(nmds.post, dis="sites", pch = pchvec[lb.post.matrix$Landscape], cex=1.5, 
+       col=c("gray45", "black")[as.numeric(lb.post.matrix$Landscape)])
+ordiellipse(nmds.post, groups=lb.post.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
+orditorp(nmds.post, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.post)
+text(1, 1.3, "Post-invasion", pos = 4, font = 2, cex = 1.5)
+
+dev.off()
