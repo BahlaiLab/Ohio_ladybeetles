@@ -17,16 +17,6 @@ colnames(lb)
 
 library(reshape2)
 
-
-# Look at species by decade and by LB invasion timeline
-
-lb2 <- lb[,c(2,14,16,17,15)]
-
-colnames(lb2)
-
-lb2.matrix <- dcast(lb2, Year + Invasion + Decade + Decade30 ~ Name, length)
-#write.csv(lb.matrix, file = "LB2.csv")
-
 library(vegan)
 
 #install.packages("devtools")
@@ -34,18 +24,28 @@ library(vegan)
 #install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
 library(pairwiseAdonis)
 
+library(plyr)
+
+# Look at species by decade and by LB invasion timeline
+
+lb2 <- lb[,c(2,14,16,17,15)]
+
+colnames(lb2)
+summary(lb2)
+
+lb2.matrix <- dcast(lb2, Year + Invasion + Decade + Decade30 ~ Name, length)
+#write.csv(lb.matrix, file = "LB2.csv")
+
 str(lb2.matrix)
 
 # change decade to a factor
-lb2.matrix <- within(lb2.matrix, {
-  Decade <- factor(Decade)
-})
+lb2.matrix$Decade <- as.factor(lb2.matrix$Decade)
 str(lb2.matrix)
 
 # run NMDS model for decade
 
 rankindex(lb2.matrix$Decade, lb2.matrix[5:35])
-nmds.yr <- metaMDS(lb2.matrix[5:35], distance = "bray", trymax = 500, autotransform = TRUE)
+nmds.yr <- metaMDS(lb2.matrix[5:35], distance = "bray", trymax = 1000, autotransform = TRUE)
 nmds.yr
 plot(nmds.yr)
 stressplot(nmds.yr)
@@ -450,6 +450,7 @@ dev.off()
 
 # look at differences in LB communities among urban and rural areas
 
+# create the LB community matrix
 colnames(lb)
 
 lb7 <- lb[,c(2,8,6)]
@@ -467,7 +468,7 @@ str(lb7.matrix)
 # run NMDS model
 
 rankindex(lb7.matrix$Landscape, lb7.matrix[3:33])
-nmds.land <- metaMDS(lb7.matrix[3:33], distance = "bray", trymax = 500, autotransform = TRUE)
+nmds.land <- metaMDS(lb7.matrix[3:33], distance = "bray", trymax = 1000, autotransform = TRUE)
 nmds.land
 plot(nmds.land)
 stressplot(nmds.land)
@@ -481,14 +482,43 @@ dist.land <- vegdist(lb7.matrix[3:33], method = "bray")
 # test for differences in species composition between museum and BLBB data
 adonis2(dist.land ~ as.factor(lb7.matrix$Landscape), permutations = 999)
 
-# quick plot to visualize results
+# pull in census data and average across years by county
+census <- read.csv("~/The Ohio State University/PostDoc/BLBB Project/Museum Files/Ohio_ladybeetles/intermediate_data/oh_co_census.csv")
+
+levels(census$County)
+summary(census)
+census <- na.omit(census)
+
+county <- lb7.matrix[1:2]
+
+census.by.county <- ddply(census, c("County"), summarise,
+                       avg.pop = mean(Population), avg.area = mean(Area), avg.urban.pop = mean(Urban_pop),
+                       avg.density = mean(Density), avg.prop.urban = mean(Prop_urban))
+
+census.by.county <- merge(county, census.by.county, by=c("County"), all.x = TRUE)
+census.by.county$Landscape <- NULL
+
+fit.census <- envfit(nmds.land ~ census.by.county, perm = 999)
+
+# calculate total abundance of each species
+# then create logical vector for most abundant species
+lb_abund <- colSums(lb7.matrix[3:33])
+lb_abund
+com_sp <- lb_abund > 300
+com_sp
+
+pchvec <- c(19, 15)
+
 levels(lb7.matrix$Landscape)
-#png("LB_Landscape.png", width = 1000, height = 800, pointsize = 20)
-ordiplot(nmds.land, type="n", xlim = c(-2, 2), ylim = c(-1.5, 1.5))
-points(nmds.land, dis="sites", pch = 19, cex=1.5, col=c("gray45", "black")[as.numeric(lb7.matrix$Landscape)])
+#png("LB_Landscape_species.png", width = 1000, height = 800, pointsize = 20)
+ordiplot(nmds.land, type="n", xlim = c(-2, 2), ylim = c(-1.8, 1.5))
+points(nmds.land, dis="sites", pch = pchvec[lb7.matrix$Landscape], cex=1.5, col=c("gray45", "black")[as.numeric(lb7.matrix$Landscape)])
 ordiellipse(nmds.land, groups=lb7.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
-legend("topleft", legend = c("Rural","Urban"), 
-       pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
+orditorp(nmds.land, display = "species", cex = 1.25, col = "black", air = 0.5, select = com_sp)
+legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
 #dev.off()
+
+
+
 
 
