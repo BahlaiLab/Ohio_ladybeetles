@@ -686,42 +686,42 @@ points(nmds.1900, dis="sites", pch = pchvec[lb.1900.matrix$Landscape], cex=1.5,
 ordiellipse(nmds.1900, groups=lb.1900.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
 orditorp(nmds.1900, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1900)
 legend("topleft", legend = c("Rural","Urban"), pch = 19, cex=1.1, bty="n", col=c("gray45", "black"))
-text(2.5, 2.75, "1900", pos = 4, font = 2, cex = 1.5)
+text(2.5, 2.75, "1900s", pos = 4, font = 2, cex = 1.5)
 
 ordiplot(nmds.1930, type="n", xlim = c(-2, 2), ylim = c(-2, 1.5))
 points(nmds.1930, dis="sites", pch = pchvec[lb.1930.matrix$Landscape], cex=1.5, 
        col=c("gray45", "black")[as.numeric(lb.1930.matrix$Landscape)])
 ordiellipse(nmds.1930, groups=lb.1930.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
 orditorp(nmds.1930, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1930)
-text(1.8, 1.3, "1930", pos = 4, font = 2, cex = 1.5)
+text(1.8, 1.3, "1930s", pos = 4, font = 2, cex = 1.5)
 
 ordiplot(nmds.1950, type="n", xlim = c(-3, 3), ylim = c(-2.5, 2.5))
 points(nmds.1950, dis="sites", pch = pchvec[lb.1950.matrix$Landscape], cex=1.5, 
        col=c("gray45", "black")[as.numeric(lb.1950.matrix$Landscape)])
 ordiellipse(nmds.1950, groups=lb.1950.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
 orditorp(nmds.1950, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1950)
-text(2.5, 2.2, "1950", pos = 4, font = 2, cex = 1.5)
+text(2.5, 2.2, "1950s", pos = 4, font = 2, cex = 1.5)
 
 ordiplot(nmds.1960, type="n", xlim = c(-5, 2), ylim = c(-2.5, 2.5))
 points(nmds.1960, dis="sites", pch = pchvec[lb.1960.matrix$Landscape], cex=1.5, 
        col=c("gray45", "black")[as.numeric(lb.1960.matrix$Landscape)])
 ordiellipse(nmds.1960, groups=lb.1960.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
 orditorp(nmds.1960, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1960)
-text(1.1, 2.2, "1960", pos = 4, font = 2, cex = 1.5)
+text(1.1, 2.2, "1960s", pos = 4, font = 2, cex = 1.5)
 
 ordiplot(nmds.1980, type="n", xlim = c(-2, 4), ylim = c(-2, 2))
 points(nmds.1980, dis="sites", pch = pchvec[lb.1980.matrix$Landscape], cex=1.5, 
        col=c("gray45", "black")[as.numeric(lb.1980.matrix$Landscape)])
 ordiellipse(nmds.1980, groups=lb.1980.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
 orditorp(nmds.1980, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1980)
-text(3.2, 1.85, "1980", pos = 4, font = 2, cex = 1.5)
+text(3.2, 1.85, "1980s", pos = 4, font = 2, cex = 1.5)
 
 ordiplot(nmds.2000, type="n", xlim = c(-1, 1), ylim = c(-0.8, 0.8))
 points(nmds.2000, dis="sites", pch = pchvec[lb.2000.matrix$Landscape], cex=1.5, 
        col=c("gray45", "black")[as.numeric(lb.2000.matrix$Landscape)])
 ordiellipse(nmds.2000, groups=lb.2000.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
 orditorp(nmds.2000, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.2000)
-text(0.8, 0.7, "2000", pos = 4, font = 2, cex = 1.5)
+text(0.8, 0.7, "2000s", pos = 4, font = 2, cex = 1.5)
 
 dev.off()
 
