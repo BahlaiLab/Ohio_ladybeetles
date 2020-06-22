@@ -362,41 +362,6 @@ length(levels(as.factor(allcensus$County)))
 #ok, looks good, let's export the data
 write.csv(allcensus, file="intermediate_data/oh_co_census.csv")
 
-#ok, now to figure out how to merge these bad boys together
-
-#gotta start with naming conventions- one data frame has abbreviated name, one has whole name
-
-COUNTY_CD<-levels(as.factor(counties_df$COUNTY_CD))
-County<-levels(as.factor(allcensus$County))
-
-#and LB data
-ladybeetle<-read.csv(file="specimen_data/LB_museumData_2020.csv", header=T, stringsAsFactors = T)
-museum_name<-levels(as.factor(ladybeetle$County))
-
-namematch<-cbind(COUNTY_CD,County)
-#okay, looks like things are lining up, we can use this as a key for merging data
-
-
-#Want to allign census with County, Decade in ladybeetle data
-
-#first ned to change names of Decade coloumn
-
-names(allcensus)[names(allcensus) == "Year"] <- "Decade"
-
-lb_census<-merge(ladybeetle, allcensus, by=c("County", "Decade"), all.x=T)
-
-#ok, looks like that did the trick, now let's merge in the centroid coordinates.
-
-#first need to index them my the actual county name, not the county abbreviation
-
-counties_df_name<-merge(counties_df, namematch)
-
-#note these data are given in NAD83/ South Ohio projection, if we need to convert to lat and long we can do this:
-#counties_ll <- st_transform(counties_df_name, "+proj=longlat +ellps=WGS84 +datum=WGS84")
-
-
-#ok, now we can merge the cooridinates
-lb_allcontext<-merge(lb_census, counties_df_name, by="County", all.x=T)
 
 
 
