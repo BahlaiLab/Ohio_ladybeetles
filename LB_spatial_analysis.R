@@ -34,3 +34,5 @@ counties_ll <- st_transform(counties_df_name, "+proj=longlat +ellps=WGS84 +datum
 
 #ok, now we can merge the cooridinates
 lb_allcontext<-merge(lb_census, counties_ll, by="County", all.x=T)
+
+
