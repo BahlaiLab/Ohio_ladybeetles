@@ -1,6 +1,6 @@
 #bring in the data with the specimen info and environmental data integrated 
 
-
+library(tibble)
 #gotta start with naming conventions- one data frame has abbreviated name, one has whole name
 
 COUNTY_CD<-levels(as.factor(counties_df$COUNTY_CD))
@@ -31,8 +31,18 @@ counties_df_name<-merge(counties_df, namematch)
 #note these data are given in NAD83/ South Ohio projection, to convert to lat and long we can do this:
 counties_ll <- st_transform(counties_df_name, "+proj=longlat +ellps=WGS84 +datum=WGS84")
 
+#get the geometry into good ol'd fashioned lat and long
+
+coords <- do.call(rbind, st_geometry(counties_ll$geometry)) %>% 
+  as_tibble() %>% setNames(c("lon","lat"))
+
+counties_all_in<-cbind(counties_ll,coords)
 
 #ok, now we can merge the cooridinates
 lb_allcontext<-merge(lb_census, counties_ll, by="County", all.x=T)
 
 
+
+
+seal_coords <- do.call(rbind, st_geometry(counties_ll$geometry)) %>% 
+  as_tibble() %>% setNames(c("lon","lat"))
