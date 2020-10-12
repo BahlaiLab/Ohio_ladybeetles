@@ -36,13 +36,23 @@ counties_ll <- st_transform(counties_df_name, "+proj=longlat +ellps=WGS84 +datum
 coords <- do.call(rbind, st_geometry(counties_ll$geometry)) %>% 
   as_tibble() %>% setNames(c("lon","lat"))
 
-counties_all_in<-cbind(counties_ll,coords)
+counties_ll$lon<-coords$lon
+counties_ll$lat<-coords$lat
 
 #ok, now we can merge the cooridinates
 lb_allcontext<-merge(lb_census, counties_ll, by="County", all.x=T)
 
+#all right! Let's make a plot!
+
+library(maptools)
+library(ggplot2)
 
 
+oh<- st_read("OH_county_shapes/ODOT_County_Boundaries.shp")
+oh2<- st_transform(oh, "+proj=longlat +ellps=WGS84 +datum=WGS84")
 
-seal_coords <- do.call(rbind, st_geometry(counties_ll$geometry)) %>% 
-  as_tibble() %>% setNames(c("lon","lat"))
+ohiomap<- ggplot()+ geom_sf(data=oh2, fill="white")+theme_classic()
+
+ohiomap
+
+
