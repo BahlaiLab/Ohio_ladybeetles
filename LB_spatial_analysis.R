@@ -50,9 +50,29 @@ library(ggplot2)
 
 oh<- st_read("OH_county_shapes/ODOT_County_Boundaries.shp")
 oh2<- st_transform(oh, "+proj=longlat +ellps=WGS84 +datum=WGS84")
+#merge in the context data
+lb_allcontext_but_centroids<-lb_allcontext
+lb_allcontext_but_centroids$geometry<-NULL
+oh3<-merge(oh2, lb_allcontext_but_centroids, by="COUNTY_CD")
 
-ohiomap<- ggplot()+ geom_sf(data=oh2, fill="white")+theme_classic()
+ohiomap<- ggplot()+ geom_sf(data=oh3, fill="white")+theme_classic()+
+  geom_point(data=lb_allcontext, aes(x=lon, y=lat))+xlab("Longitude")+ylab("Latitude")
 
 ohiomap
 
+
+#ok, let's make a demo with one of the moderately rare species that is probably not in all counties
+
+anatismali<-lb_allcontext[which(lb_allcontext$Species=="mali"),]
+
+amalimap<- ggplot()+ geom_sf(data=oh3, aes(fill=Regions))+
+  theme_classic()+
+  geom_point(data=anatismali, aes(x=lon, y=lat))#+xlab("Longitude")+ylab("Latitude")
+
+amalimap
+
+#all right, let's do some distribution modelling!
+
+
+library(dismo)
 
