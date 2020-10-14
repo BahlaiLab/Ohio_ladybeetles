@@ -12,11 +12,11 @@ library(ggplot2)
 
 oh<- st_read("OH_county_shapes/ODOT_County_Boundaries.shp") 
 
-plot(oh)
+#plot(oh)
 
 sf_cent <- st_centroid(oh)
 
-plot(sf_cent)
+#plot(sf_cent)
 
 
 counties_df<-fortify(sf_cent)
