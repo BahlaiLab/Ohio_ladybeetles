@@ -1,24 +1,56 @@
 #bring in the data with the specimen info and environmental data integrated 
+source("ohio_context_data_processing.R")
 
 library(tibble)
+library(reshape2)
 #gotta start with naming conventions- one data frame has abbreviated name, one has whole name
 
 COUNTY_CD<-levels(as.factor(counties_df$COUNTY_CD))
 County<-levels(as.factor(allcensus$County))
+namematch<-cbind(COUNTY_CD,County)
+#okay, looks like things are lining up, we can use this as a key for merging data
+#need to change names of year columnm in census
+names(allcensus)[names(allcensus) == "Year"] <- "Decade"
+#and pull out the dacades we have data for
+Decades<-levels(as.factor(allcensus$Decade))
+
 
 #and LB data
 ladybeetle<-read.csv(file="specimen_data/LB_museumData_2020.csv", header=T, stringsAsFactors = T)
-museum_name<-levels(as.factor(ladybeetle$County))
 
-namematch<-cbind(COUNTY_CD,County)
-#okay, looks like things are lining up, we can use this as a key for merging data
+#we need to use our occurence data to create counts and pseudo-absences. We can do that by creating 
+#a grid of county-decades by species:
+ladybeetle.wide<-dcast(ladybeetle, Decade+County~Name, length)
+
+#but wait! not all counties has any ladybeetles reported in all years. We need to create an 
+#interaction of county and year  and then merge that in, add the pseudo-absences for those as well!
+
+#first create an empty dataframe to dump this in:
+county.decade<-data.frame(matrix(vector(), 0, 2,
+                                 dimnames=list(c(), c("County", "Decade"))),
+                                     stringsAsFactors=F)
+for (i in 1:length(County)){
+  countyi<-County[i]
+  for (j in 1:length(Decades)){
+    decadej<-Decades[j]
+    comboij<-cbind(countyi, decadej)
+    county.decade<-rbind(county.decade, comboij)
+  }
+  
+}
+#rename columns
+colnames(county.decade)<- c("County", "Decade")
+
+#now need to merge the ladybeetle wide data into this interaction frame so we can create our pseudoabsences
+
+ladybeetle.allcombos<-merge(county.decade, ladybeetle.wide, all.x=T, by=c("County", "Decade"))
+#now replace all those new NAs with zero
+ladybeetle.allcombos[is.na(ladybeetle.allcombos)]<-0
 
 
 #Want to allign census with County, Decade in ladybeetle data
 
-#first ned to change names of Decade coloumn
 
-names(allcensus)[names(allcensus) == "Year"] <- "Decade"
 
 lb_census<-merge(ladybeetle, allcensus, by=c("County", "Decade"), all.x=T)
 
@@ -46,16 +78,15 @@ lb_allcontext<-merge(lb_census, counties_ll, by="County", all.x=T)
 
 library(maptools)
 library(ggplot2)
+library(plyr)
 
 
 oh<- st_read("OH_county_shapes/ODOT_County_Boundaries.shp")
 oh2<- st_transform(oh, "+proj=longlat +ellps=WGS84 +datum=WGS84")
 #merge in the context data
-lb_allcontext_but_centroids<-lb_allcontext
-lb_allcontext_but_centroids$geometry<-NULL
-oh3<-merge(oh2, lb_allcontext_but_centroids, by="COUNTY_CD")
 
-ohiomap<- ggplot()+ geom_sf(data=oh3, fill="white")+theme_classic()+
+
+ohiomap<- ggplot()+ geom_sf(data=oh2, fill="white")+theme_classic()+
   geom_point(data=lb_allcontext, aes(x=lon, y=lat))+xlab("Longitude")+ylab("Latitude")
 
 ohiomap
@@ -65,7 +96,12 @@ ohiomap
 
 anatismali<-lb_allcontext[which(lb_allcontext$Species=="mali"),]
 
-amalimap<- ggplot()+ geom_sf(data=oh3, aes(fill=Regions))+
+#Count the number of captures per county
+
+amali.density<-ddply(anatismali, c("County", "lon", "lat"), summarize,
+                     N=length(Name))
+
+amalimap<- ggplot()+ geom_sf(data=oh2, aes(fill=Regions))+
   theme_classic()+
   geom_point(data=anatismali, aes(x=lon, y=lat))#+xlab("Longitude")+ylab("Latitude")
 
