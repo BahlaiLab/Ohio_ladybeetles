@@ -3,6 +3,17 @@ source("ohio_context_data_processing.R")
 
 library(tibble)
 library(reshape2)
+library(dplyr) 
+library(ggplot2)
+library(scales)
+library(magrittr)
+library(spatial)
+library(sp)
+library(gstat)
+library(ggmap)
+library(maptools)
+library(viridis)
+library(raster)
 #gotta start with naming conventions- one data frame has abbreviated name, one has whole name
 
 COUNTY_CD<-levels(as.factor(counties_df$COUNTY_CD))
@@ -17,6 +28,7 @@ Decades<-levels(as.factor(allcensus$Decade))
 
 #and LB data
 ladybeetle<-read.csv(file="specimen_data/LB_museumData_2020.csv", header=T, stringsAsFactors = T)
+
 
 #we need to use our occurence data to create counts and pseudo-absences. We can do that by creating 
 #a grid of county-decades by species:
@@ -41,18 +53,34 @@ for (i in 1:length(County)){
 #rename columns
 colnames(county.decade)<- c("County", "Decade")
 
+#we'll need the region data and the invasion data from the ladybeetle dataframe, let's just pull
+#those data out and then remove duplicates
+ohregions<-ladybeetle[,c(6,7)]
+ohregions<-ohregions[!duplicated(ohregions), ]
+
+#now invasions
+invdecade<-ladybeetle[,c(14,16)]
+invdecade<-invdecade[!duplicated(invdecade), ]
+
 #now need to merge the ladybeetle wide data into this interaction frame so we can create our pseudoabsences
 
 ladybeetle.allcombos<-merge(county.decade, ladybeetle.wide, all.x=T, by=c("County", "Decade"))
 #now replace all those new NAs with zero
 ladybeetle.allcombos[is.na(ladybeetle.allcombos)]<-0
 
+#total ladybeetles per countyXdecade, can use in model later
+ladybeetle.allcombos$Totalcount<-rowSums(ladybeetle.allcombos[3:33])
+
+#now remelt that data
+
+ladybeetle.long<-melt(ladybeetle.allcombos, id=c("County", "Decade","Totalcount"))
+colnames(ladybeetle.long)<- c("County", "Decade", "Totalcount", "Name", "Count")
+
+
 
 #Want to allign census with County, Decade in ladybeetle data
 
-
-
-lb_census<-merge(ladybeetle, allcensus, by=c("County", "Decade"), all.x=T)
+lb_census<-merge(ladybeetle.long, allcensus, by=c("County", "Decade"), all.x=T)
 
 #ok, looks like that did the trick, now let's merge in the centroid coordinates.
 
@@ -74,19 +102,24 @@ counties_ll$lat<-coords$lat
 #ok, now we can merge the cooridinates
 lb_allcontext<-merge(lb_census, counties_ll, by="County", all.x=T)
 
+#also need data for the raw captures with spatial coordinates
+lb_raw<-merge(ladybeetle, counties_ll, by="County", all.x=T)
+
 #all right! Let's make a plot!
 
-library(maptools)
-library(ggplot2)
-library(plyr)
 
+#now get ohio map data- this gives us a space to plot things
 
 oh<- st_read("OH_county_shapes/ODOT_County_Boundaries.shp")
 oh2<- st_transform(oh, "+proj=longlat +ellps=WGS84 +datum=WGS84")
-#merge in the context data
+#merge in the context data for regions
+oh3<-merge(oh2, namematch)
+
+oh4<-merge(oh3, ohregions, by=c("County"), all.x=T)
 
 
-ohiomap<- ggplot()+ geom_sf(data=oh2, fill="white")+theme_classic()+
+
+ohiomap<- ggplot()+ geom_sf(data=oh4, aes(fill=Regions))+theme_classic()+
   geom_point(data=lb_allcontext, aes(x=lon, y=lat))+xlab("Longitude")+ylab("Latitude")
 
 ohiomap
@@ -94,21 +127,89 @@ ohiomap
 
 #ok, let's make a demo with one of the moderately rare species that is probably not in all counties
 
-anatismali<-lb_allcontext[which(lb_allcontext$Species=="mali"),]
+anatismali<-lb_allcontext[which(lb_allcontext$Name=="Anatis mali"),]
 
 #Count the number of captures per county
+#and f this I'm using plyr
+library(plyr)
 
-amali.density<-ddply(anatismali, c("County", "lon", "lat"), summarize,
-                     N=length(Name))
+amali.density<-ddply(anatismali, c("County","Decade", "lon", "lat"), summarize,
+                     Count=sum(Count))
 
-amalimap<- ggplot()+ geom_sf(data=oh2, aes(fill=Regions))+
+#and a nonzero dataset for the mapping
+amali.density.1<-amali.density[which(amali.density$Count>0),]
+
+
+#first let's just do a little plot that scales points by number captured
+amalimap<- ggplot()+ geom_sf(data=oh4, aes(fill=Regions))+
   theme_classic()+
-  geom_point(data=anatismali, aes(x=lon, y=lat))#+xlab("Longitude")+ylab("Latitude")
+  geom_point(data=amali.density.1, aes(x=lon, y=lat, size=Count), pch=21, color="black")+
+  xlab("Longitude")+ylab("Latitude")
 
 amalimap
 
-#all right, let's do some distribution modelling!
+#now a map with binned density
 
 
-library(dismo)
+amalimap2<- ggplot()+ geom_sf(data=oh4)+
+  theme_classic()+
+  stat_bin2d(data=amali.density.1, aes(x = lon, y = lat),
+             size = 1, bins = 3, alpha = 0.8)+
+  xlab("Longitude")+ylab("Latitude")
 
+amalimap2
+
+#now a map with smoothed density- let's use lb raw counts 
+
+density_plot<- ggplot()+ geom_sf(data=oh4)+
+  theme_classic()+
+  stat_density2d(data=lb_raw, aes(x = lon, y = lat, fill=after_stat(level)),
+                 geom="polygon", alpha=0.7)+
+  scale_fill_viridis()+
+  geom_point(data=lb_raw, aes(x=lon, y=lat), pch=21, color="black", position="jitter")+
+  xlab("Longitude")+ylab("Latitude")+
+  facet_wrap(~Decade30)
+
+density_plot
+
+
+#ok, maybe I can make it interpolate
+
+#turn LB_all context to a spatial data frame
+lb_spat <-  SpatialPointsDataFrame(coords = lb_allcontext[,c("lon", "lat")], 
+                                   data = lb_allcontext,
+                                   proj4string = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+
+# get the min/max range for lat/long to make an empty grid 
+x.range <- as.numeric(c(min(oh$LONG_WEST_), max(oh$LONG_EAST_)))  
+  # min/max longitude of the interpolation area
+y.range <- as.numeric(c(min(oh$LAT_SOUTH_), max(oh$LAT_NORTH_))  
+  # min/max latitude of the interpolation area  
+# from the range, exapnd the coordinates to make a regular grid
+grd <- expand.grid(x = seq(from = x.range[1], to = x.range[2], by = 0.075), 
+                   y = seq(from = y.range[1], to = y.range[2], by = 0.075))  # expand 
+
+coordinates(grd) <- ~x + y
+sp::gridded(grd) <- TRUE
+proj4string(grd) <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")
+
+plot(grd, cex = 1.5, col = "grey")
+points(lb_spat, pch = 1, col = "red", cex = 1)
+
+#and now we have a plot of the county centroids on a grid. cute.
+
+#inverse density weight
+
+idw <- gstat::idw(formula = Count ~ 1, locations = lb_spat, newdata = grd)
+
+
+# grab output of IDW for plotting
+idw.output = as.data.frame(idw)  # output is defined as a data table
+# set the names of the idw.output columns
+# basic ggplot using geom_tile to display our interpolated grid within no map
+ggplot() + 
+  geom_sf(data=oh4)+
+  geom_tile(data = idw.output, aes(x = x, y = y, fill = var1.pred), alpha=0.75) + 
+  geom_point(data = lb_allcontext, aes(x = lon, y = lat), shape = 21, color = "red") +
+  scale_fill_viridis()+ 
+  theme_bw() 
