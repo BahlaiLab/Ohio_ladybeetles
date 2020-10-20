@@ -183,7 +183,7 @@ lb_spat <-  SpatialPointsDataFrame(coords = lb_allcontext[,c("lon", "lat")],
 # get the min/max range for lat/long to make an empty grid 
 x.range <- as.numeric(c(min(oh$LONG_WEST_), max(oh$LONG_EAST_)))  
   # min/max longitude of the interpolation area
-y.range <- as.numeric(c(min(oh$LAT_SOUTH_), max(oh$LAT_NORTH_))  
+y.range <- as.numeric(c(min(oh$LAT_SOUTH_), max(oh$LAT_NORTH_)))  
   # min/max latitude of the interpolation area  
 # from the range, exapnd the coordinates to make a regular grid
 grd <- expand.grid(x = seq(from = x.range[1], to = x.range[2], by = 0.075), 
@@ -213,3 +213,56 @@ ggplot() +
   geom_point(data = lb_allcontext, aes(x = lon, y = lat), shape = 21, color = "red") +
   scale_fill_viridis()+ 
   theme_bw() 
+
+
+######################################
+
+#gam time!
+
+library(mgcv)
+library(GGally)
+
+#ok, let's look at what really drives ladybeetle captures. our complete dataset
+#based on density of captures and pseudoabsences
+
+# lb_allcontext is our main data frame for this analysis
+#let's clean it up a bit so we can do things a bit more efficiently downstream
+lb_allcontext1<-lb_allcontext
+lb_allcontext1[11:19]<-NULL
+lb_allcontext1[13:25]<-NULL
+#and marge in the land classification data
+lb_allcontext2<-merge(lb_allcontext1, ohregions, by="County")
+
+
+#going to make a model analysis using just Coleomegilla maculata because it's common and
+#present the whole sampling period
+
+cmac<-lb_allcontext2[which(lb_allcontext2$Name=="Coleomegilla maculata"),]
+cmac$Name<-NULL
+
+#also let's get rid of a few other metrics that are probably not important/incomplete
+cmac$Population<-NULL
+cmac$Area<-NULL
+cmac$Urban_pop<-NULL
+cmac$Prop_urban<-NULL
+cmac$Decade<-as.numeric(cmac$Decade)
+
+ggpairs(cmac, columns=c(2:9), ggplot2::aes(colour=County))
+
+#Let's take a closer look at some key relationships- namely sampling effort vs captures:
+plot(cmac$Totalcount, cmac$Count)
+#doesn't look super strong, but I feel like I should include this as a linear predictor regardless
+
+
+#try model that is linear with Totalcount and has a gaussian process-based spatial relationship
+cmac.gam<-gam(Count~s(lon, lat, bs="gp")+Totalcount, data=cmac)
+summary(cmac.gam)
+
+plot(cmac.gam)
+
+#now let's try the same model but accounting for human population density and decade
+cmac.gam1<-gam(Count~s(lon, lat, bs="gp")+Totalcount+s(Density)+s(Decade), data=cmac)
+summary(cmac.gam1)
+
+
+
