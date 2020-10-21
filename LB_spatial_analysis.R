@@ -245,6 +245,7 @@ cmac$Population<-NULL
 cmac$Area<-NULL
 cmac$Urban_pop<-NULL
 cmac$Prop_urban<-NULL
+#and Decade is behaving like a factor's fix that
 cmac$Decade<-as.numeric(cmac$Decade)
 
 ggpairs(cmac, columns=c(2:9), ggplot2::aes(colour=County))
@@ -264,5 +265,10 @@ plot(cmac.gam)
 cmac.gam1<-gam(Count~s(lon, lat, bs="gp")+Totalcount+s(Density)+s(Decade), data=cmac)
 summary(cmac.gam1)
 
+#let's see what we gain by including a couple other terms
+cmac.gam2<-gam(Count~s(lon, lat, bs="gp")+Totalcount+
+                 s(Density)+s(Decade)+s(ELEVATION1)+Regions, data=cmac)
+summary(cmac.gam2)
+#looks like Region, elevation are not so important for Cmac, but I wonder if number of if number of invasives 
 
 
