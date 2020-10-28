@@ -264,6 +264,8 @@ plot(cmac.gam)
 #now let's try the same model but accounting for human population density and decade
 cmac.gam1<-gam(Count~s(lon, lat, bs="gp")+Totalcount+s(Density)+s(Decade), data=cmac)
 summary(cmac.gam1)
+plot(cmac.gam1)
+
 
 #let's see what we gain by including a couple other terms
 cmac.gam2<-gam(Count~s(lon, lat, bs="gp")+Totalcount+
