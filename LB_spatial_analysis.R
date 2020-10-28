@@ -69,7 +69,7 @@ ladybeetle.allcombos<-merge(county.decade, ladybeetle.wide, all.x=T, by=c("Count
 ladybeetle.allcombos[is.na(ladybeetle.allcombos)]<-0
 
 #total ladybeetles per countyXdecade, can use in model later
-ladybeetle.allcombos$Totalcount<-rowSums(ladybeetle.allcombos[3:33])
+ladybeetle.allcombos$Totalcount<-rowSums(ladybeetle.allcombos[3:30])
 
 #now remelt that data
 
@@ -221,56 +221,72 @@ ggplot() +
 
 library(mgcv)
 library(GGally)
+library(visreg)
 
 #ok, let's look at what really drives ladybeetle captures. our complete dataset
 #based on density of captures and pseudoabsences
 
-# lb_allcontext is our main data frame for this analysis
-#let's clean it up a bit so we can do things a bit more efficiently downstream
-lb_allcontext1<-lb_allcontext
-lb_allcontext1[11:19]<-NULL
-lb_allcontext1[13:25]<-NULL
+# lb_allcombos is our main data frame for this analysi- need to merge in the context data
+#because we need it wide format by species
+
+#Want to allign census with County, Decade in ladybeetle data
+
+lb_census_wide<-merge(ladybeetle.allcombos, allcensus, by=c("County", "Decade"), all.x=T)
+
+#ok, looks like that did the trick, now let's merge in the centroid coordinates.
+
+#ok, now we can merge the cooridinates
+lb_all_wide<-merge(lb_census_wide, counties_ll, by="County", all.x=T)
+
+#let's create a cleaned up object we've removed columns we won't need for the GAMs
+lb_all<-lb_all_wide
+lb_all[37:45]<-NULL
+lb_all[39:51]<-NULL
 #and marge in the land classification data
-lb_allcontext2<-merge(lb_allcontext1, ohregions, by="County")
+lb_all2<-merge(lb_all, ohregions, by="County")
 
 
+#so let's think about each species as a potential response AND predictor variable
+#let's turn the species names into names that can be used as variables in the models:
+
+names(lb_all2) <- gsub(x = names(lb_all2), pattern = " ", replacement = ".")  
+
+#need a few more calculations like total invasive, total aphidophagous
+
+#total invasive
+lb_all2$Totalinvasive<-lb_all2$Coccinella.septempunctata+lb_all2$Coccinella.undecimpunctata+
+  lb_all2$Harmonia.axyridis+lb_all2$Hippodamia.variegata+lb_all2$Propylea.quatuordecimpunctata
+
+#total aphidophagous- first calculate non-aphidophagous and then subtract
+lb_all2$Nonaphidophagous<-lb_all2$`Hyperaspis undulata`+lb_all2$Neoharmonia.venusta+
+  lb_all2$Psyllobora.vigintimaculata
+lb_all2$Aphidophagous<-lb_all2$Totalcount-lb_all2$Nonaphidophagous
+
+#and Decade is behaving like a factor- fix that
+lb_all2$Decade<-as.numeric(lb_all2$Decade)
+
+summary(lb_all2)
 #going to make a model analysis using just Coleomegilla maculata because it's common and
 #present the whole sampling period
 
-cmac<-lb_allcontext2[which(lb_allcontext2$Name=="Coleomegilla maculata"),]
-cmac$Name<-NULL
-
-#also let's get rid of a few other metrics that are probably not important/incomplete
-cmac$Population<-NULL
-cmac$Area<-NULL
-cmac$Urban_pop<-NULL
-cmac$Prop_urban<-NULL
-#and Decade is behaving like a factor's fix that
-cmac$Decade<-as.numeric(cmac$Decade)
-
-ggpairs(cmac, columns=c(2:9), ggplot2::aes(colour=County))
-
-#Let's take a closer look at some key relationships- namely sampling effort vs captures:
-plot(cmac$Totalcount, cmac$Count)
-#doesn't look super strong, but I feel like I should include this as a linear predictor regardless
-
 
 #try model that is linear with Totalcount and has a gaussian process-based spatial relationship
-cmac.gam<-gam(Count~s(lon, lat, bs="gp")+Totalcount, data=cmac)
+cmac.gam<-gam(Coleomegilla.maculata~s(lon, lat, bs="gp")+Totalcount, data=lb_all2)
 summary(cmac.gam)
 
 plot(cmac.gam)
 
 #now let's try the same model but accounting for human population density and decade
-cmac.gam1<-gam(Count~s(lon, lat, bs="gp")+Totalcount+s(Density)+s(Decade), data=cmac)
+cmac.gam1<-gam(Coleomegilla.maculata~Totalcount+s(Harmonia.axyridis, bs="cr", k=4, by=Regions)+
+                 s(Coccinella.septempunctata, k=4)+s(Density), data=lb_all2)
 summary(cmac.gam1)
-plot(cmac.gam1)
 
 
-#let's see what we gain by including a couple other terms
-cmac.gam2<-gam(Count~s(lon, lat, bs="gp")+Totalcount+
-                 s(Density)+s(Decade)+s(ELEVATION1)+Regions, data=cmac)
-summary(cmac.gam2)
-#looks like Region, elevation are not so important for Cmac, but I wonder if number of if number of invasives 
+#looks like we don't see a super strong signal from much other than Harmonia and C7 on Cmac
 
+visreg(cmac.gam1, "Harmonia.axyridis", "Regions", ylab="Captures")
+
+visreg(cmac.gam1, "Coccinella.septempunctata", ylab="Captures")
+
+visreg(cmac.gam1, "Density", ylab="Captures")
 
