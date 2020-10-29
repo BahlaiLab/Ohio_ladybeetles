@@ -266,9 +266,13 @@ lb_all2$Aphidophagous<-lb_all2$Totalcount-lb_all2$Nonaphidophagous
 lb_all2$Decade<-as.numeric(lb_all2$Decade)
 
 summary(lb_all2)
-#going to make a model analysis using just Coleomegilla maculata because it's common and
-#present the whole sampling period
 
+#native species
+
+#Coleomegilla maculata
+
+#first, how many captures are we working with?
+sum(lb_all2$Coleomegilla.maculata)
 
 #try model that is linear with Totalcount and has a gaussian process-based spatial relationship
 cmac.gam<-gam(Coleomegilla.maculata~s(lon, lat, bs="gp")+Totalcount, data=lb_all2)
@@ -277,10 +281,10 @@ summary(cmac.gam)
 plot(cmac.gam)
 
 #now let's try the same model but accounting for human population density and decade
+#iterative process-use GCV as nodel selection criterion
 cmac.gam1<-gam(Coleomegilla.maculata~Totalcount+s(Harmonia.axyridis, bs="cr", k=4, by=Regions)+
                  s(Coccinella.septempunctata, k=4)+s(Density), data=lb_all2)
 summary(cmac.gam1)
-
 
 #looks like we don't see a super strong signal from much other than Harmonia and C7 on Cmac
 
@@ -289,4 +293,47 @@ visreg(cmac.gam1, "Harmonia.axyridis", "Regions", ylab="Captures")
 visreg(cmac.gam1, "Coccinella.septempunctata", ylab="Captures")
 
 visreg(cmac.gam1, "Density", ylab="Captures")
+
+
+
+
+#Coccinella novemnota
+
+#first, how many captures are we working with?
+sum(lb_all2$Coccinella.novemnotata)
+
+#try model that is linear with Totalcount and has a gaussian process-based spatial relationship
+c9.gam<-gam(Coccinella.novemnotata~s(lon, lat, bs="gp")+Totalcount, data=lb_all2)
+summary(c9.gam)
+
+plot(c9.gam)
+
+#oy, so the spatial term is definitely too much for these data
+
+#now let's try the same model but accounting for human population density and decade
+#iterative process-use GCV as nodel selection criterion
+c9.gam1<-gam(Coccinella.novemnotata~Totalcount+
+                 s(Coccinella.septempunctata, k=4)+s(Decade)+s(Density, k=4), data=lb_all2)
+summary(c9.gam1)
+
+#looks like we don't see a super strong signal from much other than Harmonia and C7 on Cmac
+
+visreg(c9.gam1, "Harmonia.axyridis", "Regions", ylab="Captures")
+
+visreg(c9.gam1, "Coccinella.septempunctata", "Regions", ylab="Captures")
+
+visreg(c9.gam1, "Density", ylab="Captures")
+
+visreg(c9.gam1, "Decade", ylab="Captures")
+
+
+#Adalia bipunctata 
+#Hippodamia covergens
+
+#scale feeding- Chilocorus stigma
+
+#non-native species 
+#Coccinella septempunctata
+#Harmonia axyridis
+
 
