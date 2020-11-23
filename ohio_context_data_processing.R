@@ -462,5 +462,5 @@ library(reshape2)
 LULC.wide<-dcast(output, Decade+County~Class)
 
 #ok, we're good! Export an intermediate product
-#write.csv(LULC, file="intermediate_data/oh_LULC.csv")
+#write.csv(LULC.wide, file="intermediate_data/oh_LULC.csv")
 
