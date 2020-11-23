@@ -59,7 +59,7 @@ ohregions<-ladybeetle[,c(6,7)]
 ohregions<-ohregions[!duplicated(ohregions), ]
 
 #now invasions
-invdecade<-ladybeetle[,c(14,16)]
+invdecade<-ladybeetle[,c(15,17,18)]
 invdecade<-invdecade[!duplicated(invdecade), ]
 
 #now need to merge the ladybeetle wide data into this interaction frame so we can create our pseudoabsences
@@ -82,6 +82,9 @@ colnames(ladybeetle.long)<- c("County", "Decade", "Totalcount", "Name", "Count")
 
 lb_census<-merge(ladybeetle.long, allcensus, by=c("County", "Decade"), all.x=T)
 
+#and now merge in all landscape data
+lb_geo<-merge(lb_census, LULC.wide, by=c("County", "Decade"), all.x=T)
+
 #ok, looks like that did the trick, now let's merge in the centroid coordinates.
 
 #first need to index them my the actual county name, not the county abbreviation
@@ -99,8 +102,9 @@ coords <- do.call(rbind, st_geometry(counties_ll$geometry)) %>%
 counties_ll$lon<-coords$lon
 counties_ll$lat<-coords$lat
 
+
 #ok, now we can merge the cooridinates
-lb_allcontext<-merge(lb_census, counties_ll, by="County", all.x=T)
+lb_allcontext<-merge(lb_geo, counties_ll, by="County", all.x=T)
 
 #also need data for the raw captures with spatial coordinates
 lb_raw<-merge(ladybeetle, counties_ll, by="County", all.x=T)
@@ -226,25 +230,25 @@ library(visreg)
 #ok, let's look at what really drives ladybeetle captures. our complete dataset
 #based on density of captures and pseudoabsences
 
-# lb_allcombos is our main data frame for this analysi- need to merge in the context data
+# lb_allcombos is our main data frame for this analysis- need to merge in the context data
 #because we need it wide format by species
 
 #Want to allign census with County, Decade in ladybeetle data
 
 lb_census_wide<-merge(ladybeetle.allcombos, allcensus, by=c("County", "Decade"), all.x=T)
+#and bring in the LULC data
+
+lb_geo_wide<-merge(lb_census_wide, LULC.wide, by=c("County", "Decade"), all.x=T)
 
 #ok, looks like that did the trick, now let's merge in the centroid coordinates.
 
 #ok, now we can merge the cooridinates
-lb_all_wide<-merge(lb_census_wide, counties_ll, by="County", all.x=T)
+lb_all_wide<-merge(lb_geo_wide, counties_ll, by="County", all.x=T)
 
-#let's create a cleaned up object we've removed columns we won't need for the GAMs
-lb_all<-lb_all_wide
-lb_all[37:45]<-NULL
-lb_all[39:51]<-NULL
-#and marge in the land classification data
-lb_all2<-merge(lb_all, ohregions, by="County")
 
+#and merge in the land classification data
+lb_all<-merge(lb_all_wide, ohregions, by="County")
+lb_all2<-merge(lb_all, invdecade, by="Decade")
 
 #so let's think about each species as a potential response AND predictor variable
 #let's turn the species names into names that can be used as variables in the models:
@@ -264,6 +268,14 @@ lb_all2$Aphidophagous<-lb_all2$Totalcount-lb_all2$Nonaphidophagous
 
 #and Decade is behaving like a factor- fix that
 lb_all2$Decade<-as.numeric(lb_all2$Decade)
+#landscape parameters, too
+lb_all2$Agriculture<-as.numeric(lb_all2$Agriculture)
+lb_all2$Forest<-as.numeric(lb_all2$Forest)
+
+#also because gams aren't terribly happy with missing data and all lanscape data is mission prior to 1930
+#let's just cull those data out
+
+lb_all2<-lb_all2[which(lb_all2$Decade>1929),]
 
 summary(lb_all2)
 
@@ -274,27 +286,36 @@ summary(lb_all2)
 #first, how many captures are we working with?
 sum(lb_all2$Coleomegilla.maculata)
 
-#try model that is linear with Totalcount and has a gaussian process-based spatial relationship
-cmac.gam<-gam(Coleomegilla.maculata~s(lon, lat, bs="gp")+Totalcount, data=lb_all2)
+
+#try model that is linear with Totalcount (minus the captures of C.mac to make it independent) 
+#and has a gaussian process-based spatial relationship
+cmac.gam<-gam(Coleomegilla.maculata~s(lon, lat, bs="gp")+I(Totalcount-Coleomegilla.maculata), data=lb_all2)
 summary(cmac.gam)
 
 plot(cmac.gam)
 
+
 #now let's try the same model but accounting for human population density and decade
 #iterative process-use GCV as nodel selection criterion
-cmac.gam1<-gam(Coleomegilla.maculata~Totalcount+s(Harmonia.axyridis, bs="cr", k=4, by=Regions)+
-                 s(Coccinella.septempunctata, k=4)+s(Density), data=lb_all2)
+cmac.gam1<-gam(Coleomegilla.maculata~+I(Totalcount-Coleomegilla.maculata)+
+                 s(I(Aphidophagous-Coleomegilla.maculata))+
+                 s(Agriculture, by=Invasion)+
+                 s(Forest)+
+                 s(lon, lat, bs="gp")+
+                 s(Density), data=lb_all2)
 summary(cmac.gam1)
 
 #looks like we don't see a super strong signal from much other than Harmonia and C7 on Cmac
 
-visreg(cmac.gam1, "Harmonia.axyridis", "Regions", ylab="Captures", overlay=T)
+visreg(cmac.gam1, "Aphidophagous", "Invasion", ylab="Captures", overlay=T, xlim=c(0,120), ylim=c(0,100))
 
-visreg(cmac.gam1, "Coccinella.septempunctata", ylab="Captures")
+visreg(cmac.gam1, "Agriculture", "Invasion", ylab="Captures")
+
+visreg(cmac.gam1, "Forest", ylab="Captures")
 
 visreg(cmac.gam1, "Density", ylab="Captures")
 
-
+visreg(cmac.gam1, "Totalcount", ylab="Captures")
 
 
 #Coccinella novemnota
