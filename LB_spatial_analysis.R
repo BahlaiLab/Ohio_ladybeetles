@@ -288,7 +288,7 @@ summary(cmac.gam1)
 
 #looks like we don't see a super strong signal from much other than Harmonia and C7 on Cmac
 
-visreg(cmac.gam1, "Harmonia.axyridis", "Regions", ylab="Captures")
+visreg(cmac.gam1, "Harmonia.axyridis", "Regions", ylab="Captures", overlay=T)
 
 visreg(cmac.gam1, "Coccinella.septempunctata", ylab="Captures")
 
@@ -302,8 +302,11 @@ visreg(cmac.gam1, "Density", ylab="Captures")
 #first, how many captures are we working with?
 sum(lb_all2$Coccinella.novemnotata)
 
+#also because this species was never collected after 1990 let's create a dataset for the extirpated 
+pre1995<-lb_all2[which(lb_all2$Decade<=1990),]
+
 #try model that is linear with Totalcount and has a gaussian process-based spatial relationship
-c9.gam<-gam(Coccinella.novemnotata~s(lon, lat, bs="gp")+Totalcount, data=lb_all2)
+c9.gam<-gam(Coccinella.novemnotata~s(lon, lat, bs="gp")+Totalcount, data=pre1995)
 summary(c9.gam)
 
 plot(c9.gam)
@@ -312,17 +315,15 @@ plot(c9.gam)
 
 #now let's try the same model but accounting for human population density and decade
 #iterative process-use GCV as nodel selection criterion
+
 c9.gam1<-gam(Coccinella.novemnotata~Totalcount+
-                 s(Coccinella.septempunctata, k=4)+s(Decade)+s(Density, k=4), data=lb_all2)
+                 s(Aphidophagous, k=4)+s(Decade, k=4), data=pre1995)
 summary(c9.gam1)
 
-#looks like we don't see a super strong signal from much other than Harmonia and C7 on Cmac
+#there's not a lot of signal coming out of the c9 data- wondering if landscape will make all the difference 
+#because it doesn't seem to be invasions
 
-visreg(c9.gam1, "Harmonia.axyridis", "Regions", ylab="Captures")
-
-visreg(c9.gam1, "Coccinella.septempunctata", "Regions", ylab="Captures")
-
-visreg(c9.gam1, "Density", ylab="Captures")
+visreg(c9.gam1, "Aphidophagous",  ylab="Captures")
 
 visreg(c9.gam1, "Decade", ylab="Captures")
 
