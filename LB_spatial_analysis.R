@@ -230,6 +230,7 @@ library(mgcViz)
 library(grid)
 library(gridExtra)
 library(ggplotify)
+library(cowplot)
 
 #ok, let's look at what really drives ladybeetle captures. our complete dataset
 #based on density of captures and pseudoabsences
@@ -309,7 +310,7 @@ text_low<-textGrob("Lowest")
 text_key<-textGrob("Predicted captures")
 text_labelA<-textGrob("A", gp=gpar(fontface="bold"))
 
-cmacmap<- plot(b)+theme_classic()+
+cmacmap<- as_grob(plot(sm(b, select=1)))+theme_classic()+
   xlab("Longitude")+ylab("Latitude")+ggtitle(NULL)+
   theme(aspect.ratio=1,legend.background=element_blank(), 
         legend.title = element_blank(), legend.text = element_blank())+
@@ -320,6 +321,8 @@ cmacmap<- plot(b)+theme_classic()+
   coord_cartesian(clip = "off")
 
 cmacmap
+cmac.gb<-grid.grabExpr(print(cmacmap))
+
 
 #make the maps for each of the invasion periods
 
@@ -335,6 +338,7 @@ cmacmap.inv.1<- plot(b.inv, select=1)+theme_classic()+
   coord_cartesian(clip = "off")
 
 cmacmap.inv.1
+cmac1.gb<-grid.grabExpr(print(cmacmap.inv.1))
 
 cmacmap.inv.2<- plot(b.inv, select=2)+theme_classic()+
   xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
@@ -343,6 +347,7 @@ cmacmap.inv.2<- plot(b.inv, select=2)+theme_classic()+
   coord_cartesian(clip = "off")
 
 cmacmap.inv.2
+cmac2.gb<-grid.grabExpr(print(cmacmap.inv.2))
 
 cmacmap.inv.3<- plot(b.inv, select=3)+theme_classic()+
   xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
@@ -351,16 +356,21 @@ cmacmap.inv.3<- plot(b.inv, select=3)+theme_classic()+
   coord_cartesian(clip = "off")
 
 cmacmap.inv.3
+cmac3.gb<-grid.grabExpr(print(cmacmap.inv.3))
 
-cmacmap.inv.4<- plot(b.inv, select=4)+theme_classic()+
+cmacmap.inv.4<-plot(b.inv, select=4)+theme_classic()+
   xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
   theme(legend.position="none", aspect.ratio=1)+
   annotation_custom(text_labelE, xmin=-84.6,xmax=-84.6,ymin=41.85,ymax=41.85)+
   coord_cartesian(clip = "off")
 
 cmacmap.inv.4
+cmac4.gb<-grid.grabExpr(print(cmacmap.inv.4))
 
+#All right, let's put these together nicely
 
+cmac.4<-plot_grid(cmac.gb, plot_grid(cmac1.gb,cmac2.gb,cmac3.gb,cmac4.gb, ncol=4), ncol=2)
+cmac.4
 
 
 
