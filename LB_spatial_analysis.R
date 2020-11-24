@@ -226,6 +226,7 @@ ggplot() +
 library(mgcv)
 library(GGally)
 library(visreg)
+library(mgcViz)
 
 #ok, let's look at what really drives ladybeetle captures. our complete dataset
 #based on density of captures and pseudoabsences
@@ -271,6 +272,7 @@ lb_all2$Decade<-as.numeric(lb_all2$Decade)
 #landscape parameters, too
 lb_all2$Agriculture<-as.numeric(lb_all2$Agriculture)
 lb_all2$Forest<-as.numeric(lb_all2$Forest)
+lb_all2$Developed<-as.numeric(lb_all2$Developed)
 
 #also because gams aren't terribly happy with missing data and all lanscape data is mission prior to 1930
 #let's just cull those data out
@@ -289,27 +291,40 @@ sum(lb_all2$Coleomegilla.maculata)
 
 #try model that is linear with Totalcount (minus the captures of C.mac to make it independent) 
 #and has a gaussian process-based spatial relationship
-cmac.gam<-gam(Coleomegilla.maculata~s(lon, lat, bs="gp")+I(Totalcount-Coleomegilla.maculata), data=lb_all2)
+cmac.gam<-gam(Coleomegilla.maculata~s(lon, lat, by=Invasion, bs="gp")+I(Totalcount-Coleomegilla.maculata), data=lb_all2)
 summary(cmac.gam)
+AIC(cmac.gam)
 
-plot(cmac.gam)
+b<-getViz(cmac.gam)
+
+geom_sf(data=oh4, aes(fill=Regions))
+
+cmacmap<- plot(b)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+print(cmacmap, pages=1)
 
 
-#now let's try the same model but accounting for human population density and decade
-#iterative process-use GCV as nodel selection criterion
+
+#So let's use the sampling+spatial autocorrelation model as our 'base model'
+#iterative process-use AIC as selection criterion
 cmac.gam1<-gam(Coleomegilla.maculata~+I(Totalcount-Coleomegilla.maculata)+
                  s(I(Aphidophagous-Coleomegilla.maculata))+
-                 s(Agriculture, by=Invasion)+
+                 s(Agriculture)+
                  s(Forest)+
+                 s(Developed)+
                  s(lon, lat, bs="gp")+
                  s(Density), data=lb_all2)
 summary(cmac.gam1)
+AIC(cmac.gam1)
+
 
 #looks like we don't see a super strong signal from much other than Harmonia and C7 on Cmac
 
 visreg(cmac.gam1, "Aphidophagous", "Invasion", ylab="Captures", overlay=T, xlim=c(0,120), ylim=c(0,100))
 
-visreg(cmac.gam1, "Agriculture", "Invasion", ylab="Captures")
+visreg(cmac.gam1, "Developed",  ylab="Captures")
 
 visreg(cmac.gam1, "Forest", ylab="Captures")
 
