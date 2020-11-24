@@ -227,6 +227,9 @@ library(mgcv)
 library(GGally)
 library(visreg)
 library(mgcViz)
+library(grid)
+library(gridExtra)
+library(ggplotify)
 
 #ok, let's look at what really drives ladybeetle captures. our complete dataset
 #based on density of captures and pseudoabsences
@@ -291,19 +294,73 @@ sum(lb_all2$Coleomegilla.maculata)
 
 #try model that is linear with Totalcount (minus the captures of C.mac to make it independent) 
 #and has a gaussian process-based spatial relationship
-cmac.gam<-gam(Coleomegilla.maculata~s(lon, lat, by=Invasion, bs="gp")+I(Totalcount-Coleomegilla.maculata), data=lb_all2)
+cmac.gam<-gam(Coleomegilla.maculata~s(lon, lat, bs="gp")+I(Totalcount-Coleomegilla.maculata), data=lb_all2)
 summary(cmac.gam)
 AIC(cmac.gam)
-
 b<-getViz(cmac.gam)
 
-geom_sf(data=oh4, aes(fill=Regions))
+cmac.gam.inv<-gam(Coleomegilla.maculata~s(lon, lat, by=Invasion, bs="gp")+I(Totalcount-Coleomegilla.maculata), data=lb_all2)
+summary(cmac.gam.inv)
+AIC(cmac.gam.inv)
+b.inv<-getViz(cmac.gam.inv)
+
+text_high<-textGrob("Highest")
+text_low<-textGrob("Lowest")
+text_key<-textGrob("Predicted captures")
+text_labelA<-textGrob("A", gp=gpar(fontface="bold"))
 
 cmacmap<- plot(b)+theme_classic()+
-  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
-  theme(legend.position="none", aspect.ratio=1)
+  xlab("Longitude")+ylab("Latitude")+ggtitle(NULL)+
+  theme(aspect.ratio=1,legend.background=element_blank(), 
+        legend.title = element_blank(), legend.text = element_blank())+
+  annotation_custom(text_high, xmin=-79.7,xmax=-79.7,ymin=40.55,ymax=40.55)+
+  annotation_custom(text_low, xmin=-79.7,xmax=-79.7,ymin=39.70,ymax=39.70)+
+  annotation_custom(text_key, xmin=-79.9,xmax=-79.9,ymin=40.75,ymax=40.75)+
+  annotation_custom(text_labelA, xmin=-84.6,xmax=-84.6,ymin=41.85,ymax=41.85)+
+  coord_cartesian(clip = "off")
 
-print(cmacmap, pages=1)
+cmacmap
+
+#make the maps for each of the invasion periods
+
+text_labelB<-textGrob("B", gp=gpar(fontface="bold"))
+text_labelC<-textGrob("C", gp=gpar(fontface="bold"))
+text_labelD<-textGrob("D", gp=gpar(fontface="bold"))
+text_labelE<-textGrob("E", gp=gpar(fontface="bold"))
+
+cmacmap.inv.1<- plot(b.inv, select=1)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)+
+  annotation_custom(text_labelB, xmin=-84.6,xmax=-84.6,ymin=41.85,ymax=41.85)+
+  coord_cartesian(clip = "off")
+
+cmacmap.inv.1
+
+cmacmap.inv.2<- plot(b.inv, select=2)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)+
+  annotation_custom(text_labelC, xmin=-84.6,xmax=-84.6,ymin=41.85,ymax=41.85)+
+  coord_cartesian(clip = "off")
+
+cmacmap.inv.2
+
+cmacmap.inv.3<- plot(b.inv, select=3)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)+
+  annotation_custom(text_labelD, xmin=-84.6,xmax=-84.6,ymin=41.85,ymax=41.85)+
+  coord_cartesian(clip = "off")
+
+cmacmap.inv.3
+
+cmacmap.inv.4<- plot(b.inv, select=4)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)+
+  annotation_custom(text_labelE, xmin=-84.6,xmax=-84.6,ymin=41.85,ymax=41.85)+
+  coord_cartesian(clip = "off")
+
+cmacmap.inv.4
+
+
 
 
 
