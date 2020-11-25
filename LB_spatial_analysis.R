@@ -285,6 +285,10 @@ lb_all2<-lb_all2[which(lb_all2$Decade>1929),]
 
 summary(lb_all2)
 
+#also trim up some polygonsfor giving the map edges
+allstates<-map_data ("state")
+ohiopoly<-allstates[which(allstates$region=="ohio"),]
+
 #native species
 
 #Coleomegilla maculata
@@ -300,7 +304,7 @@ summary(cmac.gam)
 AIC(cmac.gam)
 b<-getViz(cmac.gam)
 
-cmac.gam.inv<-gam(Coleomegilla.maculata~s(lon, lat, by=Invasion, bs="gp")+I(Totalcount-Coleomegilla.maculata), data=lb_all2)
+cmac.gam.inv<-gam(Coleomegilla.maculata~s(lon, lat, by=Decade30, bs="gp")+I(Totalcount-Coleomegilla.maculata), data=lb_all2)
 summary(cmac.gam.inv)
 AIC(cmac.gam.inv)
 b.inv<-getViz(cmac.gam.inv)
@@ -313,7 +317,7 @@ cmacmap<- plot(b, select=1)+theme_classic()+
   xlab("Longitude")+ylab("Latitude")+ggtitle(NULL)+
   theme(aspect.ratio=1,legend.background=element_blank(), 
         legend.title = element_blank(), legend.text = element_blank(),
-        plot.margin=unit(c(1, 5, 0.5, 1), "lines"))+
+        plot.margin=unit(c(1, 3, 0.5, 1), "lines"))+
   annotation_custom(text_high, xmin=-79.7,xmax=-79.7,ymin=40.55,ymax=40.55)+
   annotation_custom(text_low, xmin=-79.7,xmax=-79.7,ymin=39.70,ymax=39.70)+
   annotation_custom(text_key, xmin=-79.9,xmax=-79.9,ymin=40.77,ymax=40.77)+
@@ -360,6 +364,10 @@ cmac.4
 
 cmac.all<-plot_grid(cmac.gb, cmac.4, ncol=2, rel_widths=c(6,4), labels=c('A', NULL))
 cmac.all
+
+pdf("plots/cmac_distribution.pdf", height=5, width=11)
+grid.draw(cmac.all)
+dev.off()
 
 #So let's use the sampling+spatial autocorrelation model as our 'base model'
 #iterative process-use AIC as selection criterion
