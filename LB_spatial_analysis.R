@@ -372,23 +372,25 @@ dev.off()
 #So let's use the sampling+spatial autocorrelation model as our 'base model'
 #iterative process-use AIC as selection criterion
 cmac.gam1<-gam(Coleomegilla.maculata~+I(Totalcount-Coleomegilla.maculata)+
-                 s(I(Aphidophagous-Coleomegilla.maculata))+
-                 s(Agriculture)+
-                 s(Forest)+
-                 s(Developed)+
                  s(lon, lat, bs="gp")+
-                 s(Density), data=lb_all2)
+                 s(Totalinvasive)+
+                 #s(Agriculture)+
+                 #s(Forest)+
+                 s(Developed),
+                 #s(Density), 
+               data=lb_all2, sp=c(1,0.01,0.5,1))
 summary(cmac.gam1)
 AIC(cmac.gam1)
 
 
 #looks like we don't see a super strong signal from much other than Harmonia and C7 on Cmac
 
-visreg(cmac.gam1, "Aphidophagous", "Invasion", ylab="Captures", overlay=T, xlim=c(0,120), ylim=c(0,100))
+#visreg(cmac.gam1, "Aphidophagous", ylab="Captures", overlay=T, xlim=c(0,120), ylim=c(0,100))
+visreg(cmac.gam1, "Totalinvasive", ylab="Captures", overlay=T)
 
-visreg(cmac.gam1, "Developed",  ylab="Captures")
+visreg(cmac.gam1, "Developed",  ylab="Captures", ylim=c(-10,20))
 
-visreg(cmac.gam1, "Forest", ylab="Captures")
+#visreg(cmac.gam1, "Forest", ylab="Captures")
 
 visreg(cmac.gam1, "Density", ylab="Captures")
 
