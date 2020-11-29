@@ -299,12 +299,14 @@ sum(lb_all2$Coleomegilla.maculata)
 
 #try model that is linear with Totalcount (minus the captures of C.mac to make it independent) 
 #and has a gaussian process-based spatial relationship
-cmac.gam<-gam(Coleomegilla.maculata~s(lon, lat, bs="gp")+I(Totalcount-Coleomegilla.maculata), data=lb_all2)
+cmac.gam<-gam(Coleomegilla.maculata~s(lon, lat, bs="gp")+I(Totalcount-Coleomegilla.maculata), 
+              data=lb_all2, family="poisson")
 summary(cmac.gam)
 AIC(cmac.gam)
 b<-getViz(cmac.gam)
 
-cmac.gam.inv<-gam(Coleomegilla.maculata~s(lon, lat, by=Decade30, bs="gp")+I(Totalcount-Coleomegilla.maculata), data=lb_all2)
+cmac.gam.inv<-gam(Coleomegilla.maculata~s(lon, lat, by=Decade30, bs="gp")+I(Totalcount-Coleomegilla.maculata), 
+                  data=lb_all2, family="poisson")
 summary(cmac.gam.inv)
 AIC(cmac.gam.inv)
 b.inv<-getViz(cmac.gam.inv)
