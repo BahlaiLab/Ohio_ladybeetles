@@ -299,14 +299,16 @@ sum(lb_all2$Coleomegilla.maculata)
 
 #try model that is linear with Totalcount (minus the captures of C.mac to make it independent) 
 #and has a gaussian process-based spatial relationship
-cmac.gam<-gam(Coleomegilla.maculata~s(lon, lat, bs="gp")+I(Totalcount-Coleomegilla.maculata), 
-              data=lb_all2, family="poisson")
+cmac.gam<-gam(Coleomegilla.maculata~s(lon, lat, bs="gp")+
+                offset(log(1+Totalcount-Coleomegilla.maculata)), 
+              data=lb_all2, family="nb")
 summary(cmac.gam)
 AIC(cmac.gam)
 b<-getViz(cmac.gam)
 
-cmac.gam.inv<-gam(Coleomegilla.maculata~s(lon, lat, by=Decade30, bs="gp")+I(Totalcount-Coleomegilla.maculata), 
-                  data=lb_all2, family="poisson")
+cmac.gam.inv<-gam(Coleomegilla.maculata~s(lon, lat, by=Decade30, bs="gp")+
+                    offset(log(1+Totalcount-Coleomegilla.maculata)), 
+                  data=lb_all2, family="nb")
 summary(cmac.gam.inv)
 AIC(cmac.gam.inv)
 b.inv<-getViz(cmac.gam.inv)
@@ -371,32 +373,93 @@ pdf("plots/cmac_distribution.pdf", height=5, width=11)
 grid.draw(cmac.all)
 dev.off()
 
-#So let's use the sampling as our 'base model' and take out the spatial stuf because 
+#So let's use the sampling as our 'base model' and take out the spatial stuff because 
 #it will be autocorrelated with other values
 #iterative process-use AIC as selection criterion
-cmac.gam1<-gam(Coleomegilla.maculata~I(Totalcount-Coleomegilla.maculata)+
-                 s(Totalinvasive)+
-                 #s(Agriculture)+
-                 #s(Forest)+
-                 s(Developed),
-                 #s(Density), 
-               data=lb_all2, sp=c(1,0.01,0.5,1), family="poisson")
+cmac.gam1<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.maculata))+
+                 s(log(1+Totalinvasive), sp=0.5)+
+                 s(Agriculture, sp=0.5)+
+                 s(Forest, sp=0.5)+
+                 s(Developed, sp=0.5)+
+                 s(Density, sp=0.5), 
+               data=lb_all2, family="nb")
 summary(cmac.gam1)
 AIC(cmac.gam1)
 
-
-#looks like we don't see a super strong signal from much other than Harmonia and C7 on Cmac
-
-#visreg(cmac.gam1, "Aphidophagous", ylab="Captures", overlay=T, xlim=c(0,120), ylim=c(0,100))
-visreg(cmac.gam1, "Totalinvasive", ylab="Captures", overlay=T)
-
-visreg(cmac.gam1, "Developed",  ylab="Captures", ylim=c(-10,20))
-
-#visreg(cmac.gam1, "Forest", ylab="Captures")
-
+visreg(cmac.gam1, "Totalinvasive",  ylab="Captures")
+visreg(cmac.gam1, "Agriculture",  ylab="Captures")
+visreg(cmac.gam1, "Forest", ylab="Captures")
+visreg(cmac.gam1, "Developed",  ylab="Captures")
 visreg(cmac.gam1, "Density", ylab="Captures")
 
-visreg(cmac.gam1, "Totalcount", ylab="Captures")
+#not a lot of super strong signals from anything in the "global model"
+
+#replace totalinvasive with two major invasives
+
+cmac.gam2<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.maculata))+
+                 s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+                 s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+                 s(Agriculture, sp=0.5)+
+                 s(Forest, sp=0.5)+
+                 s(Developed, sp=0.5)+
+                 s(Density, sp=0.5), 
+               data=lb_all2, family="nb")
+summary(cmac.gam2)
+AIC(cmac.gam2)
+
+visreg(cmac.gam2, "Coccinella.septempunctata",  ylab="Captures")
+visreg(cmac.gam2, "Harmonia.axyridis",  ylab="Captures")
+visreg(cmac.gam2, "Agriculture",  ylab="Captures")
+visreg(cmac.gam2, "Forest", ylab="Captures")
+visreg(cmac.gam2, "Developed",  ylab="Captures")
+visreg(cmac.gam2, "Density", ylab="Captures")
+
+#Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
+
+cmac.gam3<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.maculata))+
+                 s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+                 s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+                 s(Forest, sp=0.5), 
+               data=lb_all2, family="nb")
+summary(cmac.gam3)
+AIC(cmac.gam3)
+
+cmac.c7<-visreg(cmac.gam3, "Coccinella.septempunctata",  ylab="Residual captures",
+       xlab=expression(paste(italic("Coccinella septempunctata "), "captures")), 
+       gg=T, 
+       line=list(col="darkred"),
+       fill=list(col="mistyrose1", fill="mistyrose1"),
+       points=list(size=1, pch=24, fill="darkred", col="black"))+
+    theme_classic()
+cmac.c7
+cmac.c7.gb<-grid.grabExpr(print(cmac.c7))
+
+cmac.ha<-visreg(cmac.gam3, "Harmonia.axyridis",  ylab="Residual captures", 
+       xlab=expression(paste(italic("Harmonia axyridis "), "captures")), 
+       gg=T, 
+       line=list(col="darkorange"),
+       fill=list(col="burlywood1", fill="burlywood1"),
+       points=list(size=1, pch=25, fill="darkorange", col="black"))+
+  theme_classic()
+cmac.ha
+cmac.ha.gb<-grid.grabExpr(print(cmac.ha))
+
+cmac.forest<-visreg(cmac.gam3, "Forest", ylab="Residual Captures", xlab="% Forest cover", 
+       gg=T, 
+       line=list(col="darkgreen"),
+       fill=list(col="palegreen", fill="palegreen"),
+       points=list(size=1, pch=21, fill="darkgreen", col="black"))+
+  theme_classic()
+cmac.forest
+cmac.forest.gb<-grid.grabExpr(print(cmac.forest))
+
+
+cmac.smooths<-plot_grid(cmac.c7, cmac.ha, cmac.forest, ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C'))
+cmac.smooths
+
+pdf("plots/cmac_smooths.pdf", height=3, width=9)
+grid.draw(cmac.smooths)
+dev.off()
 
 
 #Coccinella novemnota
