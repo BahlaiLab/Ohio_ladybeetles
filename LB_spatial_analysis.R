@@ -371,16 +371,16 @@ pdf("plots/cmac_distribution.pdf", height=5, width=11)
 grid.draw(cmac.all)
 dev.off()
 
-#So let's use the sampling+spatial autocorrelation model as our 'base model'
+#So let's use the sampling as our 'base model' and take out the spatial stuf because 
+#it will be autocorrelated with other values
 #iterative process-use AIC as selection criterion
-cmac.gam1<-gam(Coleomegilla.maculata~+I(Totalcount-Coleomegilla.maculata)+
-                 s(lon, lat, bs="gp")+
+cmac.gam1<-gam(Coleomegilla.maculata~I(Totalcount-Coleomegilla.maculata)+
                  s(Totalinvasive)+
                  #s(Agriculture)+
                  #s(Forest)+
                  s(Developed),
                  #s(Density), 
-               data=lb_all2, sp=c(1,0.01,0.5,1))
+               data=lb_all2, sp=c(1,0.01,0.5,1), family="poisson")
 summary(cmac.gam1)
 AIC(cmac.gam1)
 
