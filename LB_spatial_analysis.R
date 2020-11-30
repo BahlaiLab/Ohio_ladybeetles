@@ -447,7 +447,7 @@ cmac.ha.gb<-grid.grabExpr(print(cmac.ha))
 cmac.forest<-visreg(cmac.gam3, "Forest", ylab="Residual Captures", xlab="% Forest cover", 
        gg=T, 
        line=list(col="darkgreen"),
-       fill=list(col="palegreen", fill="palegreen"),
+       fill=list(col="lightgreen", fill="lightgreen"),
        points=list(size=1, pch=21, fill="darkgreen", col="black"))+
   theme_classic()
 cmac.forest
