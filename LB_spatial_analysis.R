@@ -290,7 +290,7 @@ allstates<-map_data ("state")
 ohiopoly<-allstates[which(allstates$region=="ohio"),]
 
 #native species
-
+##################################################################################################
 #Coleomegilla maculata
 
 #first, how many captures are we working with?
@@ -461,7 +461,7 @@ pdf("plots/cmac_smooths.pdf", height=3, width=9)
 grid.draw(cmac.smooths)
 dev.off()
 
-
+##################################################################################################
 #Coccinella novemnota
 
 #first, how many captures are we working with?
@@ -470,30 +470,338 @@ sum(lb_all2$Coccinella.novemnotata)
 #also because this species was never collected after 1990 let's create a dataset for the extirpated 
 pre1995<-lb_all2[which(lb_all2$Decade<=1990),]
 
-#try model that is linear with Totalcount and has a gaussian process-based spatial relationship
-c9.gam<-gam(Coccinella.novemnotata~s(lon, lat, bs="gp")+Totalcount, data=pre1995)
+#try model that is linear with Totalcount (minus the captures of C.9 to make it independent) 
+#and has a gaussian process-based spatial relationship
+c9.gam<-gam(Coccinella.novemnotata~s(lon, lat, bs="gp")+
+              offset(log(1+Totalcount-Coccinella.novemnotata)), 
+            data=pre1995, family="nb")
 summary(c9.gam)
+AIC(c9.gam)
+b<-getViz(c9.gam)
 
-plot(c9.gam)
+c9.gam.inv<-gam(Coccinella.novemnotata~s(lon, lat, by=Decade30, bs="gp")+
+                  offset(log(1+Totalcount-Coccinella.novemnotata)), 
+                data=pre1995, family="nb")
+summary(c9.gam.inv)
+AIC(c9.gam.inv)
+b.inv<-getViz(c9.gam.inv)
 
-#oy, so the spatial term is definitely too much for these data
+text_high<-textGrob("Highest")
+text_low<-textGrob("Lowest")
+text_key<-textGrob("Predicted captures")
 
-#now let's try the same model but accounting for human population density and decade
-#iterative process-use GCV as nodel selection criterion
+c9map<- plot(b, select=1)+theme_classic()+
+  xlab("Longitude")+ylab("Latitude")+ggtitle(NULL)+
+  theme(aspect.ratio=1,legend.background=element_blank(), 
+        legend.title = element_blank(), legend.text = element_blank(),
+        plot.margin=unit(c(1, 3, 0.5, 1), "lines"))+
+  annotation_custom(text_high, xmin=-79.7,xmax=-79.7,ymin=40.55,ymax=40.55)+
+  annotation_custom(text_low, xmin=-79.7,xmax=-79.7,ymin=39.70,ymax=39.70)+
+  annotation_custom(text_key, xmin=-79.9,xmax=-79.9,ymin=40.77,ymax=40.77)+
+  coord_cartesian(clip = "off")
 
-c9.gam1<-gam(Coccinella.novemnotata~Totalcount+
-                 s(Aphidophagous, k=4)+s(Decade, k=4), data=pre1995)
+c9map
+c9.gb<-grid.grabExpr(print(c9map))
+
+
+#make the maps for each of the invasion periods
+
+
+c9map.inv.1<- plot(b.inv, select=1)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+c9map.inv.1
+c91.gb<-grid.grabExpr(print(c9map.inv.1))
+
+c9map.inv.2<- plot(b.inv, select=2)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+c9map.inv.2
+c92.gb<-grid.grabExpr(print(c9map.inv.2))
+
+c9map.inv.3<- plot(b.inv, select=3)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+c9map.inv.3
+c93.gb<-grid.grabExpr(print(c9map.inv.3))
+
+
+
+#All right, let's put these together nicely
+
+c9.4<-plot_grid(c91.gb,c92.gb,c93.gb,NULL, ncol=2, labels=c('B', 'C', 'D', 'E'))
+c9.4
+
+c9.all<-plot_grid(c9.gb, c9.4, ncol=2, rel_widths=c(6,4), labels=c('A', NULL))
+c9.all
+
+pdf("plots/c9_distribution.pdf", height=5, width=11)
+grid.draw(c9.all)
+dev.off()
+
+#So let's use the sampling as our 'base model' and take out the spatial stuff because 
+#it will be autocorrelated with other values
+#iterative process-use AIC as selection criterion
+c9.gam1<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnotata))+
+               s(log(1+Totalinvasive), sp=0.5, k=4)+
+               s(Agriculture, sp=0.5)+
+               s(Forest, sp=0.5)+
+               s(Developed, sp=0.5)+
+               s(Density, sp=0.5), 
+             data=pre1995, family="nb")
 summary(c9.gam1)
+AIC(c9.gam1)
 
-#there's not a lot of signal coming out of the c9 data- wondering if landscape will make all the difference 
-#because it doesn't seem to be invasions
+visreg(c9.gam1, "Totalinvasive",  ylab="Captures")
+visreg(c9.gam1, "Agriculture",  ylab="Captures")
+visreg(c9.gam1, "Forest", ylab="Captures")
+visreg(c9.gam1, "Developed",  ylab="Captures")
+visreg(c9.gam1, "Density", ylab="Captures")
 
-visreg(c9.gam1, "Aphidophagous",  ylab="Captures")
+#not a lot of super strong signals from anything in the "global model"
 
-visreg(c9.gam1, "Decade", ylab="Captures")
+#for C9, only invasive present coincident with it  for any time is C7, but for consistency let's do that
+
+c9.gam2<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnotata))+
+               s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+               s(Agriculture, sp=0.5)+
+               s(Forest, sp=0.5)+
+               s(Developed, sp=0.5)+
+               s(Density, sp=0.5), 
+             data=pre1995, family="nb")
+summary(c9.gam2)
+AIC(c9.gam2)
+
+visreg(c9.gam2, "Coccinella.septempunctata",  ylab="Captures")
+visreg(c9.gam2, "Agriculture",  ylab="Captures")
+visreg(c9.gam2, "Forest", ylab="Captures")
+visreg(c9.gam2, "Developed",  ylab="Captures")
+visreg(c9.gam2, "Density", ylab="Captures")
+
+#Looks like totalinvasives is beeter for C9
+#Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
+
+c9.gam3<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnotata))+
+               s(log(1+Totalinvasive), sp=0.5, k=4)+
+               s(Agriculture, sp=0.5)+
+               s(Density, sp=0.5), 
+             data=pre1995, family="nb")
+summary(c9.gam3)
+AIC(c9.gam3)
+
+c9.inv<-visreg(c9.gam3, "Totalinvasive",  ylab="Residual captures",
+              xlab=expression(paste("Total invasive captures")), 
+              gg=T, 
+              line=list(col="darkred"),
+              fill=list(col="mistyrose1", fill="mistyrose1"),
+              points=list(size=1, pch=24, fill="darkred", col="black"))+
+  theme_classic()
+c9.inv
+c9.inv.gb<-grid.grabExpr(print(c9.inv))
 
 
+c9.agriculture<-visreg(c9.gam3, "Agriculture", ylab="Residual captures", xlab="% Agriculture cover", 
+                  gg=T, 
+                  line=list(col="darkolivegreen4"),
+                  fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
+                  points=list(size=1, pch=22, fill="darkolivegreen4", col="black"))+
+  theme_classic()
+c9.agriculture
+c9.agriculture.gb<-grid.grabExpr(print(c9.agriculture))
+
+c9.density<-visreg(c9.gam3, "Density", ylab="Residual captures", xlab="Human population density", 
+                       gg=T, 
+                       line=list(col="navyblue"),
+                       fill=list(col="lightsteelblue1", fill="lightsteelblue1"),
+                       points=list(size=1, pch=23, fill="navyblue", col="black"))+
+  theme_classic()
+c9.density
+c9.density.gb<-grid.grabExpr(print(c9.density))
+
+c9.smooths<-plot_grid(c9.inv, c9.agriculture, c9.density, ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C'))
+c9.smooths
+
+pdf("plots/c9_smooths.pdf", height=3, width=9)
+grid.draw(c9.smooths)
+dev.off()
+
+
+##################################################################################################
 #Adalia bipunctata 
+
+#first, how many captures are we working with?
+sum(lb_all2$Adalia.bipunctata)
+
+#also because this species was never collected after 1990 like C9 we need to use that same pre 1995 dataset
+
+
+#try model that is linear with Totalcount (minus the captures of C.9 to make it independent) 
+#and has a gaussian process-based spatial relationship
+abi.gam<-gam(Adalia.bipunctata~s(lon, lat, bs="gp")+
+               offset(log(1+Totalcount-Adalia.bipunctata)), 
+             data=pre1995, family="nb")
+summary(abi.gam)
+AIC(abi.gam)
+b<-getViz(abi.gam)
+
+abi.gam.inv<-gam(Adalia.bipunctata~s(lon, lat, by=Decade30, bs="gp")+
+                   offset(log(1+Totalcount-Adalia.bipunctata)), 
+                 data=pre1995, family="nb")
+summary(abi.gam.inv)
+AIC(abi.gam.inv)
+b.inv<-getViz(abi.gam.inv)
+
+text_high<-textGrob("Highest")
+text_low<-textGrob("Lowest")
+text_key<-textGrob("Predicted captures")
+
+abimap<- plot(b, select=1)+theme_classic()+
+  xlab("Longitude")+ylab("Latitude")+ggtitle(NULL)+
+  theme(aspect.ratio=1,legend.background=element_blank(), 
+        legend.title = element_blank(), legend.text = element_blank(),
+        plot.margin=unit(c(1, 3, 0.5, 1), "lines"))+
+  annotation_custom(text_high, xmin=-79.7,xmax=-79.7,ymin=40.55,ymax=40.55)+
+  annotation_custom(text_low, xmin=-79.7,xmax=-79.7,ymin=39.70,ymax=39.70)+
+  annotation_custom(text_key, xmin=-79.9,xmax=-79.9,ymin=40.77,ymax=40.77)+
+  coord_cartesian(clip = "off")
+
+abimap
+abi.gb<-grid.grabExpr(print(abimap))
+
+
+#make the maps for each of the invasion periods
+
+
+abimap.inv.1<- plot(b.inv, select=1)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+abimap.inv.1
+abi1.gb<-grid.grabExpr(print(abimap.inv.1))
+
+abimap.inv.2<- plot(b.inv, select=2)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+abimap.inv.2
+abi2.gb<-grid.grabExpr(print(abimap.inv.2))
+
+abimap.inv.3<- plot(b.inv, select=3)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+abimap.inv.3
+abi3.gb<-grid.grabExpr(print(abimap.inv.3))
+
+
+
+#All right, let's put these together nicely
+
+abi.4<-plot_grid(abi1.gb,abi2.gb,abi3.gb,NULL, ncol=2, labels=c('B', 'C', 'D', 'E'))
+abi.4
+
+abi.all<-plot_grid(abi.gb, abi.4, ncol=2, rel_widths=c(6,4), labels=c('A', NULL))
+abi.all
+
+pdf("plots/abi_distribution.pdf", height=5, width=11)
+grid.draw(abi.all)
+dev.off()
+
+#So let's use the sampling as our 'base model' and take out the spatial stuff because 
+#it will be autocorrelated with other values
+#iterative process-use AIC as selection criterion
+abi.gam1<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
+                s(log(1+Totalinvasive), sp=0.5, k=4)+
+                s(Agriculture, sp=0.5)+
+                s(Forest, sp=0.5)+
+                s(Developed, sp=0.5)+
+                s(Density, sp=0.5), 
+              data=pre1995, family="nb")
+summary(abi.gam1)
+AIC(abi.gam1)
+
+visreg(abi.gam1, "Totalinvasive",  ylab="Captures")
+visreg(abi.gam1, "Agriculture",  ylab="Captures")
+visreg(abi.gam1, "Forest", ylab="Captures")
+visreg(abi.gam1, "Developed",  ylab="Captures")
+visreg(abi.gam1, "Density", ylab="Captures")
+
+#not a lot of super strong signals from anything in the "global model"
+
+#for ABI, only invasive present coincident with it  for any time is C7, but for consistency let's do that
+
+abi.gam2<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
+                s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+                s(Agriculture, sp=0.5)+
+                s(Forest, sp=0.5)+
+                s(Developed, sp=0.5)+
+                s(Density, sp=0.5), 
+              data=pre1995, family="nb")
+summary(abi.gam2)
+AIC(abi.gam2)
+
+visreg(abi.gam2, "Coccinella.septempunctata",  ylab="Captures")
+visreg(abi.gam2, "Agriculture",  ylab="Captures")
+visreg(abi.gam2, "Forest", ylab="Captures")
+visreg(abi.gam2, "Developed",  ylab="Captures")
+visreg(abi.gam2, "Density", ylab="Captures")
+
+#Looks like totalinvasives is better for ABI
+#Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
+
+abi.gam3<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
+                s(log(1+Totalinvasive), sp=0.5, k=4)+
+                s(Agriculture, sp=0.5)+
+                s(Developed, sp=0.5), 
+              data=pre1995, family="nb")
+summary(abi.gam3)
+AIC(abi.gam3)
+
+abi.inv<-visreg(abi.gam3, "Totalinvasive",  ylab="Residual captures",
+                xlab=expression(paste("Total invasive captures")), 
+                gg=T, 
+                line=list(col="darkred"),
+                fill=list(col="mistyrose1", fill="mistyrose1"),
+                points=list(size=1, pch=24, fill="darkred", col="black"))+
+  theme_classic()
+abi.inv
+abi.inv.gb<-grid.grabExpr(print(abi.inv))
+
+
+abi.agriculture<-visreg(abi.gam3, "Agriculture", ylab="Residual captures", xlab="% Agriculture cover", 
+                        gg=T, 
+                        line=list(col="darkolivegreen4"),
+                        fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
+                        points=list(size=1, pch=22, fill="darkolivegreen4", col="black"))+
+  theme_classic()
+abi.agriculture
+abi.agriculture.gb<-grid.grabExpr(print(abi.agriculture))
+
+abi.developed<-visreg(abi.gam3, "Developed", ylab="Residual captures", xlab="% Developed cover", 
+                    gg=T, 
+                    line=list(col="slategray4"),
+                    fill=list(col="slategray2", fill="slategray2"),
+                    points=list(size=1, pch=23, fill="slategray4", col="black"))+
+  theme_classic()
+abi.developed
+abi.developed.gb<-grid.grabExpr(print(abi.developed))
+
+abi.smooths<-plot_grid(abi.inv, abi.agriculture, abi.developed, ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C'))
+abi.smooths
+
+pdf("plots/abi_smooths.pdf", height=3, width=9)
+grid.draw(abi.smooths)
+dev.off()
+
+
+
+
+
+
+
 #Hippodamia covergens
 
 #scale feeding- Chilocorus stigma
