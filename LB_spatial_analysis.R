@@ -796,16 +796,18 @@ pdf("plots/abi_smooths.pdf", height=3, width=9)
 grid.draw(abi.smooths)
 dev.off()
 
-
-
-
-
-
+###########################################################################################
 
 #Hippodamia covergens
 
+
+
+###########################################################################################
+
 #scale feeding- Chilocorus stigma
 
+
+###########################################################################################
 #non-native species 
 #Coccinella septempunctata
 #Harmonia axyridis
