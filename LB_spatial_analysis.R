@@ -1145,7 +1145,8 @@ cstig.developed
 cstig.developed.gb<-grid.grabExpr(print(cstig.developed))
 
 
-cstig.smooths<-plot_grid(cstig.inv, cstig.agriculture, cstig.forest, cstig.developed, ncol=2, rel_widths=c(1,1), labels=c('A', 'B', 'C', 'D'))
+cstig.smooths<-plot_grid(cstig.inv, cstig.agriculture, cstig.forest, cstig.developed, ncol=2, 
+                         rel_widths=c(1,1), labels=c('A', 'B', 'C', 'D'))
 cstig.smooths
 
 pdf("plots/cstig_smooths.pdf", height=6, width=6)
@@ -1242,7 +1243,7 @@ c7.gam1<-gam(Coccinella.septempunctata~offset(log(1+Totalcount-Coccinella.septem
 summary(c7.gam1)
 AIC(c7.gam1)
 
-visreg(c7.gam1, "Totalinvasive",  ylab="Captures")
+visreg(c7.gam1, "Aphidophagous",  ylab="Captures")
 visreg(c7.gam1, "Agriculture",  ylab="Captures")
 visreg(c7.gam1, "Forest", ylab="Captures")
 visreg(c7.gam1, "Developed",  ylab="Captures")
@@ -1297,13 +1298,14 @@ dev.off()
 ###########################################################################################
 #Harmonia axyridis
 
+
 #first, how many captures are we working with?
 sum(lb_all2$Harmonia.axyridis)
 
-#this species arrived in the, so let’s use data starting at 1990 
-after1990<-lb_all2[which(lb_all2$Decade>=1980),]
+#this species arrived in the 1990s 
+after1990<-lb_all2[which(lb_all2$Decade>=1990),]
 
-#try model that is linear with Totalcount (minus the captures of Harmonia to make it independent) 
+#try model that is linear with Totalcount (minus the captures of C.7 to make it independent) 
 #and has a gaussian process-based spatial relationship
 ha.gam<-gam(Harmonia.axyridis~s(lon, lat, bs="gp")+
               offset(log(1+Totalcount-Harmonia.axyridis)), 
@@ -1337,35 +1339,27 @@ hamap
 ha.gb<-grid.grabExpr(print(hamap))
 
 
-#make the maps for each of the invasion periods
+#make the maps for each of the invasion periods (only around in 3 and 4)
 
-
-hamap.inv.1<- plot(b.inv, select=1)+theme_classic()+
-  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
-  theme(legend.position="none", aspect.ratio=1)
-
-hamap.inv.1
-ha1.gb<-grid.grabExpr(print(hamap.inv.1))
-
-hamap.inv.2<- plot(b.inv, select=2)+theme_classic()+
-  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
-  theme(legend.position="none", aspect.ratio=1)
-
-hamap.inv.2
-ha2.gb<-grid.grabExpr(print(hamap.inv.2))
-
-hamap.inv.3<- plot(b.inv, select=3)+theme_classic()+
+hamap.inv.3<- plot(b.inv, select=1)+theme_classic()+
   xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
   theme(legend.position="none", aspect.ratio=1)
 
 hamap.inv.3
 ha3.gb<-grid.grabExpr(print(hamap.inv.3))
 
+hamap.inv.4<- plot(b.inv, select=2)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+hamap.inv.4
+ha4.gb<-grid.grabExpr(print(hamap.inv.4))
+
 
 
 #All right, let's put these together nicely
 
-ha.4<-plot_grid(ha1.gb,ha2.gb,ha3.gb,NULL, ncol=2, labels=c('B', 'C', 'D', 'E'))
+ha.4<-plot_grid(NULL,NULL,ha3.gb,ha4.gb, ncol=2, labels=c('B', 'C', 'D', 'E'))
 ha.4
 
 ha.all<-plot_grid(ha.gb, ha.4, ncol=2, rel_widths=c(6,4), labels=c('A', NULL))
@@ -1379,7 +1373,7 @@ dev.off()
 #it will be autocorrelated with other values
 #iterative process-use AIC as selection criterion
 ha.gam1<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
-               s(log(1+Totalinvasive), sp=0.5, k=4)+
+               s(log(1+Aphidophagous-Harmonia.axyridis), sp=0.5, k=4)+
                s(Agriculture, sp=0.5)+
                s(Forest, sp=0.5)+
                s(Developed, sp=0.5)+
@@ -1388,7 +1382,7 @@ ha.gam1<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
 summary(ha.gam1)
 AIC(ha.gam1)
 
-visreg(ha.gam1, "Totalinvasive",  ylab="Captures")
+visreg(ha.gam1, "Aphidophagous",  ylab="Captures")
 visreg(ha.gam1, "Agriculture",  ylab="Captures")
 visreg(ha.gam1, "Forest", ylab="Captures")
 visreg(ha.gam1, "Developed",  ylab="Captures")
@@ -1396,10 +1390,10 @@ visreg(ha.gam1, "Density", ylab="Captures")
 
 #not a lot of super strong signals from anything in the "global model"
 
-#for HA, only invasive present coincident with it  for any time is HA, but for consistency let's do that
+#for HA, C7 is the other big invasive
 
 ha.gam2<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
-               s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+               s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
                s(Agriculture, sp=0.5)+
                s(Forest, sp=0.5)+
                s(Developed, sp=0.5)+
@@ -1408,25 +1402,26 @@ ha.gam2<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
 summary(ha.gam2)
 AIC(ha.gam2)
 
-visreg(ha.gam2, "Harmonia.axyridis",  ylab="Captures")
+visreg(ha.gam2, "Coccinella.septempunctata",  ylab="Captures")
 visreg(ha.gam2, "Agriculture",  ylab="Captures")
 visreg(ha.gam2, "Forest", ylab="Captures")
 visreg(ha.gam2, "Developed",  ylab="Captures")
 visreg(ha.gam2, "Density", ylab="Captures")
 
-#Looks like totalinvasives is beeter for HA
+#Looks like Aphidophagouss is better for HA
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
 
 ha.gam3<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
-               s(log(1+Totalinvasive), sp=0.5, k=4)+
+               s(log(1+Aphidophagous-Harmonia.axyridis), sp=0.5, k=4)+
                s(Agriculture, sp=0.5)+
-               s(Density, sp=0.5), 
+               s(Forest, sp=0.5)+
+               s(Developed, sp=0.5), 
              data=after1990, family="nb")
 summary(ha.gam3)
 AIC(ha.gam3)
 
-ha.inv<-visreg(ha.gam3, "Totalinvasive",  ylab="Residual captures",
-               xlab=expression(paste("Total invasive captures")), 
+ha.inv<-visreg(ha.gam3, "Aphidophagous",  ylab="Residual captures",
+               xlab=expression(paste("Total aphidophagous captures")), 
                gg=T, 
                line=list(col="darkred"),
                fill=list(col="mistyrose1", fill="mistyrose1"),
@@ -1445,19 +1440,30 @@ ha.agriculture<-visreg(ha.gam3, "Agriculture", ylab="Residual captures", xlab="%
 ha.agriculture
 ha.agriculture.gb<-grid.grabExpr(print(ha.agriculture))
 
-ha.density<-visreg(ha.gam3, "Density", ylab="Residual captures", xlab="Human population density", 
-                   gg=T, 
-                   line=list(col="navyblue"),
-                   fill=list(col="lightsteelblue1", fill="lightsteelblue1"),
-                   points=list(size=1, pch=23, fill="navyblue", col="black"))+
+ha.forest<-visreg(ha.gam3, "Forest", ylab="Residual Captures", xlab="% Forest cover", 
+                    gg=T, 
+                    line=list(col="darkgreen"),
+                    fill=list(col="lightgreen", fill="lightgreen"),
+                    points=list(size=1, pch=21, fill="darkgreen", col="black"))+
   theme_classic()
-ha.density
-ha.density.gb<-grid.grabExpr(print(ha.density))
+ha.forest
+ha.forest.gb<-grid.grabExpr(print(ha.forest))
 
-ha.smooths<-plot_grid(ha.inv, ha.agriculture, ha.density, ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C'))
+ha.developed<-visreg(ha.gam3, "Developed", ylab="Residual captures", xlab="% Developed cover", 
+                      gg=T, 
+                      line=list(col="slategray4"),
+                      fill=list(col="slategray2", fill="slategray2"),
+                      points=list(size=1, pch=23, fill="slategray4", col="black"))+
+  theme_classic()
+ha.developed
+ha.developed.gb<-grid.grabExpr(print(ha.developed))
+
+ha.smooths<-plot_grid(ha.inv, ha.agriculture, ha.forest, ha.developed, ncol=2, rel_widths=c(1,1),
+                      labels=c('A', 'B', 'C', 'D'))
 ha.smooths
 
-pdf("plots/ha_smooths.pdf", height=3, width=9)
+pdf("plots/ha_smooths.pdf", height=6, width=6)
 grid.draw(ha.smooths)
 dev.off()
+
 
