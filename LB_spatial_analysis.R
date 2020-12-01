@@ -277,6 +277,7 @@ lb_all2$Decade<-as.numeric(lb_all2$Decade)
 lb_all2$Agriculture<-as.numeric(lb_all2$Agriculture)
 lb_all2$Forest<-as.numeric(lb_all2$Forest)
 lb_all2$Developed<-as.numeric(lb_all2$Developed)
+lb_all2$Nontarget<-as.numeric(lb_all2$Nontarget)
 
 #also because gams aren't terribly happy with missing data and all lanscape data is mission prior to 1930
 #let's just cull those data out
@@ -954,7 +955,7 @@ hcon.developed.gb<-grid.grabExpr(print(hcon.developed))
 hcon.density<-visreg(hcon.gam3, "Density", ylab="Residual Captures", xlab="Human population density", 
                        gg=T, 
                        line=list(col="navyblue"),
-                       fill=list(col="lightsteelblue", fill="lightsteelblue"),
+                       fill=list(col="lightsteelblue1", fill="lightsteelblue1"),
                        points=list(size=1, pch=23, fill="navyblue", col="black"))+
   theme_classic()
 hcon.density
@@ -1154,7 +1155,309 @@ dev.off()
 
 ###########################################################################################
 #non-native species 
+###########################################################################################
+
 #Coccinella septempunctata
+
+#first, how many captures are we working with?
+sum(lb_all2$Coccinella.septempunctata)
+
+#this species arrived in the 1970s but only 4 were caught before 1980, so let’s use data starting at 1980 
+after1980<-lb_all2[which(lb_all2$Decade>=1980),]
+
+#try model that is linear with Totalcount (minus the captures of C.7 to make it independent) 
+#and has a gaussian process-based spatial relationship
+c7.gam<-gam(Coccinella.septempunctata~s(lon, lat, bs="gp")+
+              offset(log(1+Totalcount-Coccinella.septempunctata)), 
+            data=after1980, family="nb")
+summary(c7.gam)
+AIC(c7.gam)
+b<-getViz(c7.gam)
+
+c7.gam.inv<-gam(Coccinella.septempunctata~s(lon, lat, by=Decade30, bs="gp")+
+                  offset(log(1+Totalcount-Coccinella.septempunctata)), 
+                data=after1980, family="nb")
+summary(c7.gam.inv)
+AIC(c7.gam.inv)
+b.inv<-getViz(c7.gam.inv)
+
+text_high<-textGrob("Highest")
+text_low<-textGrob("Lowest")
+text_key<-textGrob("Predicted captures")
+
+c7map<- plot(b, select=1)+theme_classic()+
+  xlab("Longitude")+ylab("Latitude")+ggtitle(NULL)+
+  theme(aspect.ratio=1,legend.background=element_blank(), 
+        legend.title = element_blank(), legend.text = element_blank(),
+        plot.margin=unit(c(1, 3, 0.5, 1), "lines"))+
+  annotation_custom(text_high, xmin=-79.7,xmax=-79.7,ymin=40.55,ymax=40.55)+
+  annotation_custom(text_low, xmin=-79.7,xmax=-79.7,ymin=39.70,ymax=39.70)+
+  annotation_custom(text_key, xmin=-79.9,xmax=-79.9,ymin=40.77,ymax=40.77)+
+  coord_cartesian(clip = "off")
+
+c7map
+c7.gb<-grid.grabExpr(print(c7map))
+
+
+#make the maps for each of the invasion periods (only around in 3 and 4)
+
+c7map.inv.3<- plot(b.inv, select=1)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+c7map.inv.3
+c73.gb<-grid.grabExpr(print(c7map.inv.3))
+
+c7map.inv.4<- plot(b.inv, select=2)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+c7map.inv.4
+c74.gb<-grid.grabExpr(print(c7map.inv.4))
+
+
+
+#All right, let's put these together nicely
+
+c7.4<-plot_grid(NULL,NULL,c73.gb,c74.gb, ncol=2, labels=c('B', 'C', 'D', 'E'))
+c7.4
+
+c7.all<-plot_grid(c7.gb, c7.4, ncol=2, rel_widths=c(6,4), labels=c('A', NULL))
+c7.all
+
+pdf("plots/c7_distribution.pdf", height=5, width=11)
+grid.draw(c7.all)
+dev.off()
+
+#So let's use the sampling as our 'base model' and take out the spatial stuff because 
+#it will be autocorrelated with other values
+#iterative process-use AIC as selection criterion
+c7.gam1<-gam(Coccinella.septempunctata~offset(log(1+Totalcount-Coccinella.septempunctata))+
+               s(log(1+Aphidophagous-Coccinella.septempunctata), sp=0.5, k=4)+
+               s(Agriculture, sp=0.5)+
+               s(Forest, sp=0.5)+
+               s(Developed, sp=0.5)+
+               s(Density, sp=0.5), 
+             data=after1980, family="nb")
+summary(c7.gam1)
+AIC(c7.gam1)
+
+visreg(c7.gam1, "Totalinvasive",  ylab="Captures")
+visreg(c7.gam1, "Agriculture",  ylab="Captures")
+visreg(c7.gam1, "Forest", ylab="Captures")
+visreg(c7.gam1, "Developed",  ylab="Captures")
+visreg(c7.gam1, "Density", ylab="Captures")
+
+#not a lot of super strong signals from anything in the "global model"
+
+#for C7, only invasive present coincident with it  for any time is C7, but for consistency let's do that
+
+c7.gam2<-gam(Coccinella.septempunctata~offset(log(1+Totalcount-Coccinella.septempunctata))+
+               s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+               s(Agriculture, sp=0.5)+
+               s(Forest, sp=0.5)+
+               s(Developed, sp=0.5)+
+               s(Density, sp=0.5), 
+             data=after1980, family="nb")
+summary(c7.gam2)
+AIC(c7.gam2)
+
+visreg(c7.gam2, "Coccinella.septempunctata",  ylab="Captures")
+visreg(c7.gam2, "Agriculture",  ylab="Captures")
+visreg(c7.gam2, "Forest", ylab="Captures")
+visreg(c7.gam2, "Developed",  ylab="Captures")
+visreg(c7.gam2, "Density", ylab="Captures")
+
+#Looks like totalinvasives is beeter for C7
+#Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
+
+c7.gam3<-gam(Coccinella.septempunctata~offset(log(1+Totalcount-Coccinella.septempunctata))+
+               s(Agriculture, sp=0.5), 
+             data=after1980, family="nb")
+summary(c7.gam3)
+AIC(c7.gam3)
+
+c7.agriculture<-visreg(c7.gam3, "Agriculture", ylab="Residual captures", xlab="% Agriculture cover", 
+                       gg=T, 
+                       line=list(col="darkolivegreen4"),
+                       fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
+                       points=list(size=1, pch=22, fill="darkolivegreen4", col="black"))+
+  theme_classic()
+c7.agriculture
+c7.agriculture.gb<-grid.grabExpr(print(c7.agriculture))
+
+
+c7.smooths<-plot_grid( c7.agriculture, ncol=1, rel_widths=c(1))
+c7.smooths
+
+pdf("plots/c7_smooths.pdf", height=3, width=3)
+grid.draw(c7.smooths)
+dev.off()
+
+###########################################################################################
 #Harmonia axyridis
 
+#first, how many captures are we working with?
+sum(lb_all2$Harmonia.axyridis)
+
+#this species arrived in the, so let’s use data starting at 1990 
+after1990<-lb_all2[which(lb_all2$Decade>=1980),]
+
+#try model that is linear with Totalcount (minus the captures of Harmonia to make it independent) 
+#and has a gaussian process-based spatial relationship
+ha.gam<-gam(Harmonia.axyridis~s(lon, lat, bs="gp")+
+              offset(log(1+Totalcount-Harmonia.axyridis)), 
+            data=after1990, family="nb")
+summary(ha.gam)
+AIC(ha.gam)
+b<-getViz(ha.gam)
+
+ha.gam.inv<-gam(Harmonia.axyridis~s(lon, lat, by=Decade30, bs="gp")+
+                  offset(log(1+Totalcount-Harmonia.axyridis)), 
+                data=after1990, family="nb")
+summary(ha.gam.inv)
+AIC(ha.gam.inv)
+b.inv<-getViz(ha.gam.inv)
+
+text_high<-textGrob("Highest")
+text_low<-textGrob("Lowest")
+text_key<-textGrob("Predicted captures")
+
+hamap<- plot(b, select=1)+theme_classic()+
+  xlab("Longitude")+ylab("Latitude")+ggtitle(NULL)+
+  theme(aspect.ratio=1,legend.background=element_blank(), 
+        legend.title = element_blank(), legend.text = element_blank(),
+        plot.margin=unit(c(1, 3, 0.5, 1), "lines"))+
+  annotation_custom(text_high, xmin=-79.7,xmax=-79.7,ymin=40.55,ymax=40.55)+
+  annotation_custom(text_low, xmin=-79.7,xmax=-79.7,ymin=39.70,ymax=39.70)+
+  annotation_custom(text_key, xmin=-79.9,xmax=-79.9,ymin=40.77,ymax=40.77)+
+  coord_cartesian(clip = "off")
+
+hamap
+ha.gb<-grid.grabExpr(print(hamap))
+
+
+#make the maps for each of the invasion periods
+
+
+hamap.inv.1<- plot(b.inv, select=1)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+hamap.inv.1
+ha1.gb<-grid.grabExpr(print(hamap.inv.1))
+
+hamap.inv.2<- plot(b.inv, select=2)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+hamap.inv.2
+ha2.gb<-grid.grabExpr(print(hamap.inv.2))
+
+hamap.inv.3<- plot(b.inv, select=3)+theme_classic()+
+  xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
+  theme(legend.position="none", aspect.ratio=1)
+
+hamap.inv.3
+ha3.gb<-grid.grabExpr(print(hamap.inv.3))
+
+
+
+#All right, let's put these together nicely
+
+ha.4<-plot_grid(ha1.gb,ha2.gb,ha3.gb,NULL, ncol=2, labels=c('B', 'C', 'D', 'E'))
+ha.4
+
+ha.all<-plot_grid(ha.gb, ha.4, ncol=2, rel_widths=c(6,4), labels=c('A', NULL))
+ha.all
+
+pdf("plots/ha_distribution.pdf", height=5, width=11)
+grid.draw(ha.all)
+dev.off()
+
+#So let's use the sampling as our 'base model' and take out the spatial stuff because 
+#it will be autocorrelated with other values
+#iterative process-use AIC as selection criterion
+ha.gam1<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
+               s(log(1+Totalinvasive), sp=0.5, k=4)+
+               s(Agriculture, sp=0.5)+
+               s(Forest, sp=0.5)+
+               s(Developed, sp=0.5)+
+               s(Density, sp=0.5), 
+             data=after1990, family="nb")
+summary(ha.gam1)
+AIC(ha.gam1)
+
+visreg(ha.gam1, "Totalinvasive",  ylab="Captures")
+visreg(ha.gam1, "Agriculture",  ylab="Captures")
+visreg(ha.gam1, "Forest", ylab="Captures")
+visreg(ha.gam1, "Developed",  ylab="Captures")
+visreg(ha.gam1, "Density", ylab="Captures")
+
+#not a lot of super strong signals from anything in the "global model"
+
+#for HA, only invasive present coincident with it  for any time is HA, but for consistency let's do that
+
+ha.gam2<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
+               s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+               s(Agriculture, sp=0.5)+
+               s(Forest, sp=0.5)+
+               s(Developed, sp=0.5)+
+               s(Density, sp=0.5), 
+             data=after1990, family="nb")
+summary(ha.gam2)
+AIC(ha.gam2)
+
+visreg(ha.gam2, "Harmonia.axyridis",  ylab="Captures")
+visreg(ha.gam2, "Agriculture",  ylab="Captures")
+visreg(ha.gam2, "Forest", ylab="Captures")
+visreg(ha.gam2, "Developed",  ylab="Captures")
+visreg(ha.gam2, "Density", ylab="Captures")
+
+#Looks like totalinvasives is beeter for HA
+#Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
+
+ha.gam3<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
+               s(log(1+Totalinvasive), sp=0.5, k=4)+
+               s(Agriculture, sp=0.5)+
+               s(Density, sp=0.5), 
+             data=after1990, family="nb")
+summary(ha.gam3)
+AIC(ha.gam3)
+
+ha.inv<-visreg(ha.gam3, "Totalinvasive",  ylab="Residual captures",
+               xlab=expression(paste("Total invasive captures")), 
+               gg=T, 
+               line=list(col="darkred"),
+               fill=list(col="mistyrose1", fill="mistyrose1"),
+               points=list(size=1, pch=24, fill="darkred", col="black"))+
+  theme_classic()
+ha.inv
+ha.inv.gb<-grid.grabExpr(print(ha.inv))
+
+
+ha.agriculture<-visreg(ha.gam3, "Agriculture", ylab="Residual captures", xlab="% Agriculture cover", 
+                       gg=T, 
+                       line=list(col="darkolivegreen4"),
+                       fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
+                       points=list(size=1, pch=22, fill="darkolivegreen4", col="black"))+
+  theme_classic()
+ha.agriculture
+ha.agriculture.gb<-grid.grabExpr(print(ha.agriculture))
+
+ha.density<-visreg(ha.gam3, "Density", ylab="Residual captures", xlab="Human population density", 
+                   gg=T, 
+                   line=list(col="navyblue"),
+                   fill=list(col="lightsteelblue1", fill="lightsteelblue1"),
+                   points=list(size=1, pch=23, fill="navyblue", col="black"))+
+  theme_classic()
+ha.density
+ha.density.gb<-grid.grabExpr(print(ha.density))
+
+ha.smooths<-plot_grid(ha.inv, ha.agriculture, ha.density, ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C'))
+ha.smooths
+
+pdf("plots/ha_smooths.pdf", height=3, width=9)
+grid.draw(ha.smooths)
+dev.off()
 
