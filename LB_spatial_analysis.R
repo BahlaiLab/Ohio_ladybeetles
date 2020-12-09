@@ -267,7 +267,7 @@ lb_all2$Totalinvasive<-lb_all2$Coccinella.septempunctata+lb_all2$Coccinella.unde
   lb_all2$Harmonia.axyridis+lb_all2$Hippodamia.variegata+lb_all2$Propylea.quatuordecimpunctata
 
 #proportion invasive
-lb_all2$Propinvasive<-lb_all2$Totalivasive/lb_all2$Totalcount
+lb_all2$Propinvasive<-ifelse(lb_all2$Totalcount>0, lb_all2$Totalinvasive/lb_all2$Totalcount, 0)
 
 #total aphidophagous- first calculate non-aphidophagous and then subtract
 lb_all2$Nonaphidophagous<-lb_all2$`Hyperaspis undulata`+lb_all2$Neoharmonia.venusta+
@@ -411,29 +411,43 @@ visreg(cmac.gam1, "Dev_change", ylab="Captures")
 #replace totalinvasive with two major invasives
 
 cmac.gam2<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.maculata))+
-                 s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
-                 s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+                 s(Decade, sp=0.5, k=4)+
+                 #s(lon, sp=0.5)+
+                 s(lat, sp=0.5)+
+                 s(Propinvasive, sp=0.5)+
+                 #s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+                 #s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
                  s(Agriculture, sp=0.5)+
                  s(Forest, sp=0.5)+
                  s(Developed, sp=0.5)+
-                 s(Density, sp=0.5), 
+                 s(Ag_change, sp=0.5)+
+                 s(For_change, sp=0.5)+
+                 s(Dev_change, sp=0.5),  
                data=lb_all2, family="nb")
 summary(cmac.gam2)
 AIC(cmac.gam2)
 
-visreg(cmac.gam2, "Coccinella.septempunctata",  ylab="Captures")
-visreg(cmac.gam2, "Harmonia.axyridis",  ylab="Captures")
+visreg(cmac.gam1, "Decade",  ylab="Captures")
+#visreg(cmac.gam1, "lon",  ylab="Captures")
+visreg(cmac.gam1, "lat",  ylab="Captures")
+visreg(cmac.gam2, "Propinvasive",  ylab="Captures")
+#visreg(cmac.gam2, "Coccinella.septempunctata",  ylab="Captures")
+#visreg(cmac.gam2, "Harmonia.axyridis",  ylab="Captures")
 visreg(cmac.gam2, "Agriculture",  ylab="Captures")
 visreg(cmac.gam2, "Forest", ylab="Captures")
 visreg(cmac.gam2, "Developed",  ylab="Captures")
-visreg(cmac.gam2, "Density", ylab="Captures")
+visreg(cmac.gam1, "Ag_change", ylab="Captures")
+visreg(cmac.gam1, "For_change",  ylab="Captures")
+visreg(cmac.gam1, "Dev_change", ylab="Captures")
+
 
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
 
 cmac.gam3<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.maculata))+
-                 s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
-                 s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
-                 s(Forest, sp=0.5), 
+                 s(Decade, sp=0.5, k=4)+
+                 s(lat, sp=0.5)+
+                 s(Propinvasive, sp=0.5)+
+                 s(Agriculture, sp=0.5),  
                data=lb_all2, family="nb")
 summary(cmac.gam3)
 AIC(cmac.gam3)
