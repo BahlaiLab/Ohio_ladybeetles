@@ -231,6 +231,7 @@ library(grid)
 library(gridExtra)
 library(ggplotify)
 library(cowplot)
+library(ggpubr)
 
 #ok, let's look at what really drives ladybeetle captures. our complete dataset
 #based on density of captures and pseudoabsences
@@ -427,18 +428,18 @@ cmac.gam2<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.macula
 summary(cmac.gam2)
 AIC(cmac.gam2)
 
-visreg(cmac.gam1, "Decade",  ylab="Captures")
-#visreg(cmac.gam1, "lon",  ylab="Captures")
-visreg(cmac.gam1, "lat",  ylab="Captures")
+visreg(cmac.gam2, "Decade",  ylab="Captures")
+#visreg(cmac.gam2, "lon",  ylab="Captures")
+visreg(cmac.gam2, "lat",  ylab="Captures")
 visreg(cmac.gam2, "Propinvasive",  ylab="Captures")
 #visreg(cmac.gam2, "Coccinella.septempunctata",  ylab="Captures")
 #visreg(cmac.gam2, "Harmonia.axyridis",  ylab="Captures")
 visreg(cmac.gam2, "Agriculture",  ylab="Captures")
 visreg(cmac.gam2, "Forest", ylab="Captures")
 visreg(cmac.gam2, "Developed",  ylab="Captures")
-visreg(cmac.gam1, "Ag_change", ylab="Captures")
-visreg(cmac.gam1, "For_change",  ylab="Captures")
-visreg(cmac.gam1, "Dev_change", ylab="Captures")
+visreg(cmac.gam2, "Ag_change", ylab="Captures")
+visreg(cmac.gam2, "For_change",  ylab="Captures")
+visreg(cmac.gam2, "Dev_change", ylab="Captures")
 
 
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
@@ -452,40 +453,55 @@ cmac.gam3<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.macula
 summary(cmac.gam3)
 AIC(cmac.gam3)
 
-cmac.c7<-visreg(cmac.gam3, "Coccinella.septempunctata",  ylab="Residual captures",
-       xlab=expression(paste(italic("Coccinella septempunctata "), "captures")), 
+cmac.decade<-visreg(cmac.gam3, "Decade",  ylab="Residual captures",
+       xlab=expression(paste("Year")), 
        gg=T, 
-       line=list(col="darkred"),
-       fill=list(col="mistyrose1", fill="mistyrose1"),
-       points=list(size=1, pch=24, fill="darkred", col="black"))+
+       line=list(col="gray19"),
+       fill=list(col="gray57", fill="gray57"),
+       points=list(size=1, pch=21, fill="gray19", col="black"))+
     theme_classic()
-cmac.c7
-cmac.c7.gb<-grid.grabExpr(print(cmac.c7))
+cmac.decade
 
-cmac.ha<-visreg(cmac.gam3, "Harmonia.axyridis",  ylab="Residual captures", 
-       xlab=expression(paste(italic("Harmonia axyridis "), "captures")), 
-       gg=T, 
-       line=list(col="darkorange"),
-       fill=list(col="burlywood1", fill="burlywood1"),
-       points=list(size=1, pch=25, fill="darkorange", col="black"))+
+cmac.lat<-visreg(cmac.gam3, "lat",  ylab="Residual captures",
+                    xlab=expression(paste("Latitude")), 
+                    gg=T, 
+                    line=list(col="gray28"),
+                    fill=list(col="gray", fill="gray"),
+                    points=list(size=1, pch=21, fill="gray28", col="black"))+
   theme_classic()
-cmac.ha
-cmac.ha.gb<-grid.grabExpr(print(cmac.ha))
+cmac.lat
 
-cmac.forest<-visreg(cmac.gam3, "Forest", ylab="Residual Captures", xlab="% Forest cover", 
+cmac.pi<-visreg(cmac.gam3, "Propinvasive",  ylab="Residual captures", 
+       xlab=expression(paste("Proportion invasive")), 
        gg=T, 
-       line=list(col="darkgreen"),
-       fill=list(col="lightgreen", fill="lightgreen"),
-       points=list(size=1, pch=21, fill="darkgreen", col="black"))+
+       line=list(col="darkmagenta"),
+       fill=list(col="plum1", fill="plum1"),
+       points=list(size=1, pch=22, fill="darkmagenta", col="black"))+
   theme_classic()
-cmac.forest
-cmac.forest.gb<-grid.grabExpr(print(cmac.forest))
+cmac.pi
 
 
-cmac.smooths<-plot_grid(cmac.c7, cmac.ha, cmac.forest, ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C'))
+cmac.agriculture<-visreg(cmac.gam3, "Agriculture", ylab="Residual Captures", xlab="% Agriculture cover", 
+       gg=T, 
+       line=list(col="darkolivegreen4"),
+       fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
+       points=list(size=1, pch=23, fill="darkolivegreen4", col="black"))+
+  theme_classic()
+cmac.agriculture
+
+noeffect<-text_grob(paste("No effect"), color="black")
+
+cmac.smooths<-plot_grid(cmac.decade, noeffect, cmac.lat, 
+                        cmac.pi, noeffect, noeffect,
+                        cmac.agriculture, noeffect, noeffect,
+                        noeffect, noeffect, noeffect,
+                        ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
+                                                              'D', 'E', 'F',
+                                                              'G', 'H', 'I',
+                                                              'J', 'K', 'L'))
 cmac.smooths
 
-pdf("plots/cmac_smooths.pdf", height=3, width=9)
+pdf("plots/cmac_smooths.pdf", height=12, width=9)
 grid.draw(cmac.smooths)
 dev.off()
 
