@@ -404,7 +404,7 @@ LULC$COUNTY<-NULL
 #of theser time points, but we want an estimate for each land cover type at each decade 1930 on- so let's make a loop to compute
 
 landclass<-unique(LULC$Class)
-output<-data.frame(matrix(vector(), 0, 4,),
+output<-data.frame(matrix(vector(), 0, 5,),
                           stringsAsFactors=F)
 
 for (i in 1:length(landclass)){
@@ -421,7 +421,7 @@ for (i in 1:length(landclass)){
     decclass<-c(1930, 1940,1950, 1960)
     for (k in 1:length(decclass)){
       perccover<-slopei*decclass[k]+bi
-      outvec<-c(landclass[i], County[j], decclass[k], perccover)
+      outvec<-c(landclass[i], County[j], decclass[k], perccover, slopei)
       output<-rbind(output, outvec)
     }
     #now find the slope and extrapolate for 1970-1992
@@ -434,7 +434,7 @@ for (i in 1:length(landclass)){
     decclass<-c(1970, 1980,1990)
     for (k in 1:length(decclass)){
       perccover<-slopei*decclass[k]+bi
-      outvec<-c(landclass[i], County[j], decclass[k], perccover)
+      outvec<-c(landclass[i], County[j], decclass[k], perccover, slopei)
       output<-rbind(output, outvec)
     }
     #And now for 1992-2016
@@ -447,19 +447,31 @@ for (i in 1:length(landclass)){
     decclass<-c(2000, 2010)
     for (k in 1:length(decclass)){
       perccover<-slopei*decclass[k]+bi
-      outvec<-c(landclass[i], County[j], decclass[k], perccover)
+      outvec<-c(landclass[i], County[j], decclass[k], perccover, slopei)
       output<-rbind(output, outvec)
     }
     
   }
 }
 
-names(output)<-c("Class", "County", "Decade", "Percentage")
+names(output)<-c("Class", "County", "Decade", "Percentage", "Changerate")
+
+output.change<-output
+output.change$Percentage<-NULL
+output$Changerate<-NULL
+#also weirdness about changerate being of class character?
+output.change$Changerate<-as.numeric(output.change$Changerate)
 
 #convert to wide format by county, decade
 library(reshape2)
 
-LULC.wide<-dcast(output, Decade+County~Class)
+LULC.wide.perc<-dcast(output, Decade+County~Class)
+LULC.wide.change<-dcast(output.change, Decade+County~Class)
+
+names(LULC.wide.change)<-c("Decade", "County", "Ag_change", "Dev_change", "For_change", "Nont_Change")
+
+LULC.wide<-merge(LULC.wide.perc, LULC.wide.change, by=c("Decade", "County"))
+
 
 #ok, we're good! Export an intermediate product
 #write.csv(LULC.wide, file="intermediate_data/oh_LULC.csv")
