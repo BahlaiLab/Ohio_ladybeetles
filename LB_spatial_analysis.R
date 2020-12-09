@@ -260,11 +260,14 @@ lb_all2<-merge(lb_all, invdecade, by="Decade")
 
 names(lb_all2) <- gsub(x = names(lb_all2), pattern = " ", replacement = ".")  
 
-#need a few more calculations like total invasive, total aphidophagous
+#need a few more calculations like total invasive, total aphidophagous, proporation invasive
 
 #total invasive
 lb_all2$Totalinvasive<-lb_all2$Coccinella.septempunctata+lb_all2$Coccinella.undecimpunctata+
   lb_all2$Harmonia.axyridis+lb_all2$Hippodamia.variegata+lb_all2$Propylea.quatuordecimpunctata
+
+#proportion invasive
+lb_all2$Propinvasive<-lb_all2$Totalivasive/lb_all2$Totalcount
 
 #total aphidophagous- first calculate non-aphidophagous and then subtract
 lb_all2$Nonaphidophagous<-lb_all2$`Hyperaspis undulata`+lb_all2$Neoharmonia.venusta+
@@ -378,20 +381,30 @@ dev.off()
 #it will be autocorrelated with other values
 #iterative process-use AIC as selection criterion
 cmac.gam1<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.maculata))+
+                 s(Decade, sp=0.5, k=4)+
+                 s(lon, sp=0.5)+
+                 s(lat, sp=0.5)+
                  s(log(1+Totalinvasive), sp=0.5)+
                  s(Agriculture, sp=0.5)+
                  s(Forest, sp=0.5)+
                  s(Developed, sp=0.5)+
-                 s(Density, sp=0.5), 
+                 s(Ag_change, sp=0.5)+
+                 s(For_change, sp=0.5)+
+                 s(Dev_change, sp=0.5), 
                data=lb_all2, family="nb")
 summary(cmac.gam1)
 AIC(cmac.gam1)
 
+visreg(cmac.gam1, "Decade",  ylab="Captures")
+visreg(cmac.gam1, "lon",  ylab="Captures")
+visreg(cmac.gam1, "lat",  ylab="Captures")
 visreg(cmac.gam1, "Totalinvasive",  ylab="Captures")
 visreg(cmac.gam1, "Agriculture",  ylab="Captures")
 visreg(cmac.gam1, "Forest", ylab="Captures")
 visreg(cmac.gam1, "Developed",  ylab="Captures")
-visreg(cmac.gam1, "Density", ylab="Captures")
+visreg(cmac.gam1, "Ag_change", ylab="Captures")
+visreg(cmac.gam1, "For_change",  ylab="Captures")
+visreg(cmac.gam1, "Dev_change", ylab="Captures")
 
 #not a lot of super strong signals from anything in the "global model"
 
