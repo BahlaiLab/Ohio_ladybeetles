@@ -489,7 +489,9 @@ cmac.agriculture<-visreg(cmac.gam3, "Agriculture", ylab="Residual Captures", xla
   theme_classic()
 cmac.agriculture
 
+#create graphical objects for placeholders in plots
 noeffect<-text_grob(paste("No effect"), color="black")
+notpresent<-text_grob(paste("Not present"), color="black")
 
 cmac.smooths<-plot_grid(cmac.decade, noeffect, cmac.lat, 
                         cmac.pi, noeffect, noeffect,
