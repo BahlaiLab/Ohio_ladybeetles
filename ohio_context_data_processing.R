@@ -12,15 +12,15 @@ library(ggplot2)
 
 oh<- st_read("OH_county_shapes/ODOT_County_Boundaries.shp") 
 
-plot(oh)
+#plot(oh)
 
 sf_cent <- st_centroid(oh)
 
-plot(sf_cent)
+#plot(sf_cent)
 
 
 counties_df<-fortify(sf_cent)
-write.csv(counties_df, file="intermediate_data/oh_co_centroids.csv")
+#write.csv(counties_df, file="intermediate_data/oh_co_centroids.csv")
 
 #now we need to bring in the census data and lightly pre-process it to pull out the useful information
 
@@ -360,8 +360,119 @@ levels(as.factor(allcensus$County))
 length(levels(as.factor(allcensus$County)))
 
 #ok, looks good, let's export the data
-write.csv(allcensus, file="intermediate_data/oh_co_census.csv")
+#write.csv(allcensus, file="intermediate_data/oh_co_census.csv")
+
+#and now the land use land cover data- need to extrapolate form the given time points
+
+COUNTY_CD<-levels(as.factor(counties_df$COUNTY_CD))
+County<-levels(as.factor(allcensus$County))
+namematch<-cbind(COUNTY_CD,County)
+#okay, looks like things are lining up, we can use this as a key for merging data
+#need to change names of year columnm in census
+names(allcensus)[names(allcensus) == "Year"] <- "Decade"
+#and pull out the dacades we have data for
+Decades<-levels(as.factor(allcensus$Decade))
+
+#Need a list of all county-decade combinations
+
+county.decade<-data.frame(matrix(vector(), 0, 2,
+                                 dimnames=list(c(), c("County", "Decade"))),
+                          stringsAsFactors=F)
+for (i in 1:length(County)){
+  countyi<-County[i]
+  for (j in 1:length(Decades)){
+    decadej<-Decades[j]
+    comboij<-cbind(countyi, decadej)
+    county.decade<-rbind(county.decade, comboij)
+  }
+  
+}
+#rename columns
+colnames(county.decade)<- c("County", "Decade")
+
+#bring in landcover data
+
+LULC<-read.csv(file="specimen_data/LULC_percent_long.csv", header=T, stringsAsFactors = F)
+
+library(stringr)
+
+#convert atributes to be consistent with other conventions
+LULC$County<-str_to_sentence(LULC$COUNTY)
+LULC$COUNTY<-NULL
+
+# we have stop points at 1938, 1970, 1992 and 2016. We'll assume linear changes in landcover between each
+#of theser time points, but we want an estimate for each land cover type at each decade 1930 on- so let's make a loop to compute
+
+landclass<-unique(LULC$Class)
+output<-data.frame(matrix(vector(), 0, 5,),
+                          stringsAsFactors=F)
+
+for (i in 1:length(landclass)){
+  classdata<-LULC[which(LULC$Class==landclass[i]),]
+  for(j in 1:length(County)){
+    countydata<-classdata[which(classdata$County==County[j]),]
+    #find slope and intercept of first segment, 1938-1970
+    x1<-1938
+    x2<-1970
+    y1<-countydata[1,4]
+    y2<-countydata[2,4]
+    slopei<-(y2-y1)/(x2-x1)
+    bi<-y1-(slopei*x1)
+    decclass<-c(1930, 1940,1950, 1960)
+    for (k in 1:length(decclass)){
+      perccover<-slopei*decclass[k]+bi
+      outvec<-c(landclass[i], County[j], decclass[k], perccover, slopei)
+      output<-rbind(output, outvec)
+    }
+    #now find the slope and extrapolate for 1970-1992
+    x1<-1970
+    x2<-1992
+    y1<-countydata[2,4]
+    y2<-countydata[3,4]
+    slopei<-(y2-y1)/(x2-x1)
+    bi<-y1-(slopei*x1)
+    decclass<-c(1970, 1980,1990)
+    for (k in 1:length(decclass)){
+      perccover<-slopei*decclass[k]+bi
+      outvec<-c(landclass[i], County[j], decclass[k], perccover, slopei)
+      output<-rbind(output, outvec)
+    }
+    #And now for 1992-2016
+    x1<-1992
+    x2<-2016
+    y1<-countydata[3,4]
+    y2<-countydata[4,4]
+    slopei<-(y2-y1)/(x2-x1)
+    bi<-y1-(slopei*x1)
+    decclass<-c(2000, 2010)
+    for (k in 1:length(decclass)){
+      perccover<-slopei*decclass[k]+bi
+      outvec<-c(landclass[i], County[j], decclass[k], perccover, slopei)
+      output<-rbind(output, outvec)
+    }
+    
+  }
+}
+
+names(output)<-c("Class", "County", "Decade", "Percentage", "Changerate")
+
+output.change<-output
+output.change$Percentage<-NULL
+output$Changerate<-NULL
+#also weirdness about changerate being of class character?
+output.change$Changerate<-as.numeric(output.change$Changerate)
+
+#convert to wide format by county, decade
+library(reshape2)
+
+LULC.wide.perc<-dcast(output, Decade+County~Class)
+LULC.wide.change<-dcast(output.change, Decade+County~Class)
+
+names(LULC.wide.change)<-c("Decade", "County", "Ag_change", "Dev_change", "For_change", "Nont_Change")
+
+LULC.wide<-merge(LULC.wide.perc, LULC.wide.change, by=c("Decade", "County"))
 
 
-
+#ok, we're good! Export an intermediate product
+#write.csv(LULC.wide, file="intermediate_data/oh_LULC.csv")
 
