@@ -532,9 +532,6 @@ summary(c9.gam.inv)
 AIC(c9.gam.inv)
 b.inv<-getViz(c9.gam.inv)
 
-text_high<-textGrob("Highest")
-text_low<-textGrob("Lowest")
-text_key<-textGrob("Predicted captures")
 
 c9map<- plot(b, select=1)+theme_classic()+
   xlab("Longitude")+ylab("Latitude")+ggtitle(NULL)+
@@ -578,7 +575,7 @@ c93.gb<-grid.grabExpr(print(c9map.inv.3))
 
 #All right, let's put these together nicely
 
-c9.4<-plot_grid(c91.gb,c92.gb,c93.gb,NULL, ncol=2, labels=c('B', 'C', 'D', 'E'))
+c9.4<-plot_grid(c91.gb, c92.gb, c93.gb, notpresent, ncol=2, labels=c('B', 'C', 'D', 'E'))
 c9.4
 
 c9.all<-plot_grid(c9.gb, c9.4, ncol=2, rel_widths=c(6,4), labels=c('A', NULL))
@@ -592,87 +589,150 @@ dev.off()
 #it will be autocorrelated with other values
 #iterative process-use AIC as selection criterion
 c9.gam1<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnotata))+
+               s(Decade, sp=0.5, k=4)+
+               s(lon, sp=0.5)+
+               s(lat, sp=0.5)+
                s(log(1+Totalinvasive), sp=0.5, k=4)+
                s(Agriculture, sp=0.5)+
                s(Forest, sp=0.5)+
                s(Developed, sp=0.5)+
-               s(Density, sp=0.5), 
+               s(Ag_change, sp=0.5)+
+               s(For_change, sp=0.5)+
+               s(Dev_change, sp=0.5), 
              data=pre1995, family="nb")
 summary(c9.gam1)
 AIC(c9.gam1)
 
+visreg(c9.gam1, "Decade",  ylab="Captures")
+visreg(c9.gam1, "lon",  ylab="Captures")
+visreg(c9.gam1, "lat",  ylab="Captures")
 visreg(c9.gam1, "Totalinvasive",  ylab="Captures")
 visreg(c9.gam1, "Agriculture",  ylab="Captures")
 visreg(c9.gam1, "Forest", ylab="Captures")
 visreg(c9.gam1, "Developed",  ylab="Captures")
-visreg(c9.gam1, "Density", ylab="Captures")
+visreg(c9.gam1, "Ag_change", ylab="Captures")
+visreg(c9.gam1, "For_change",  ylab="Captures")
+visreg(c9.gam1, "Dev_change", ylab="Captures")
 
-#not a lot of super strong signals from anything in the "global model"
+#only Decade is popping out right now but let's see what happens when we narrow down sources of variation
 
-#for C9, only invasive present coincident with it  for any time is C7, but for consistency let's do that
+#replace totalinvasive with two major invasives
 
 c9.gam2<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnotata))+
-               s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+               s(Decade, sp=0.5, k=4)+
+               s(lon, sp=0.5)+
+               s(lat, sp=0.5)+
+               #s(Propinvasive, sp=0.5)+
+               #s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+               #s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
                s(Agriculture, sp=0.5)+
                s(Forest, sp=0.5)+
                s(Developed, sp=0.5)+
-               s(Density, sp=0.5), 
+               s(Ag_change, sp=0.5)+
+               s(For_change, sp=0.5)+
+               s(Dev_change, sp=0.5),  
              data=pre1995, family="nb")
 summary(c9.gam2)
 AIC(c9.gam2)
 
-visreg(c9.gam2, "Coccinella.septempunctata",  ylab="Captures")
+visreg(c9.gam2, "Decade",  ylab="Captures")
+#visreg(c9.gam2, "lon",  ylab="Captures")
+visreg(c9.gam2, "lat",  ylab="Captures")
+visreg(c9.gam2, "Propinvasive",  ylab="Captures")
+#visreg(c9.gam2, "Coccinella.septempunctata",  ylab="Captures")
+#visreg(c9.gam2, "Harmonia.axyridis",  ylab="Captures")
 visreg(c9.gam2, "Agriculture",  ylab="Captures")
 visreg(c9.gam2, "Forest", ylab="Captures")
 visreg(c9.gam2, "Developed",  ylab="Captures")
-visreg(c9.gam2, "Density", ylab="Captures")
+visreg(c9.gam2, "Ag_change", ylab="Captures")
+visreg(c9.gam2, "For_change",  ylab="Captures")
+visreg(c9.gam2, "Dev_change", ylab="Captures")
 
-#Looks like totalinvasives is beeter for C9
+
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
 
 c9.gam3<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnotata))+
-               s(log(1+Totalinvasive), sp=0.5, k=4)+
+               s(Decade, sp=0.5, k=4)+
+               s(lon, sp=0.5)+
+               s(lat, sp=0.5)+
                s(Agriculture, sp=0.5)+
-               s(Density, sp=0.5), 
+               s(For_change, sp=0.5),  
              data=pre1995, family="nb")
 summary(c9.gam3)
 AIC(c9.gam3)
 
-c9.inv<-visreg(c9.gam3, "Totalinvasive",  ylab="Residual captures",
-              xlab=expression(paste("Total invasive captures")), 
-              gg=T, 
-              line=list(col="darkred"),
-              fill=list(col="mistyrose1", fill="mistyrose1"),
-              points=list(size=1, pch=24, fill="darkred", col="black"))+
-  theme_classic()
-c9.inv
-c9.inv.gb<-grid.grabExpr(print(c9.inv))
-
-
-c9.agriculture<-visreg(c9.gam3, "Agriculture", ylab="Residual captures", xlab="% Agriculture cover", 
+c9.decade<-visreg(c9.gam3, "Decade",  ylab="Residual captures",
+                  xlab=expression(paste("Year")), 
                   gg=T, 
-                  line=list(col="darkolivegreen4"),
-                  fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
-                  points=list(size=1, pch=22, fill="darkolivegreen4", col="black"))+
+                  line=list(col="gray19"),
+                  fill=list(col="gray57", fill="gray57"),
+                  points=list(size=1, pch=21, fill="gray19", col="black"))+
+  theme_classic()
+c9.decade
+
+c9.lon<-visreg(c9.gam3, "lon",  ylab="Residual captures",
+               xlab=expression(paste("Longitude")), 
+               gg=T, 
+               line=list(col="gray28"),
+               fill=list(col="gray", fill="gray"),
+               points=list(size=1, pch=21, fill="gray28", col="black"))+
+  theme_classic()
+c9.lon
+
+c9.lat<-visreg(c9.gam3, "lat",  ylab="Residual captures",
+               xlab=expression(paste("Latitude")), 
+               gg=T, 
+               line=list(col="gray28"),
+               fill=list(col="gray", fill="gray"),
+               points=list(size=1, pch=21, fill="gray28", col="black"))+
+  theme_classic()
+c9.lat
+
+# c9.pi<-visreg(c9.gam3, "Propinvasive",  ylab="Residual captures", 
+#               xlab=expression(paste("Proportion invasive")), 
+#               gg=T, 
+#               line=list(col="darkmagenta"),
+#               fill=list(col="plum1", fill="plum1"),
+#               points=list(size=1, pch=22, fill="darkmagenta", col="black"))+
+#   theme_classic()
+# c9.pi
+
+
+c9.agriculture<-visreg(c9.gam3, "Agriculture", ylab="Residual Captures", xlab="% Agriculture cover", 
+                       gg=T, 
+                       line=list(col="darkolivegreen4"),
+                       fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
+                       points=list(size=1, pch=23, fill="darkolivegreen4", col="black"))+
   theme_classic()
 c9.agriculture
-c9.agriculture.gb<-grid.grabExpr(print(c9.agriculture))
 
-c9.density<-visreg(c9.gam3, "Density", ylab="Residual captures", xlab="Human population density", 
+c9.forchange<-visreg(c9.gam3, "For_change", ylab="Residual Captures", xlab="Change in forest cover", 
                        gg=T, 
-                       line=list(col="navyblue"),
-                       fill=list(col="lightsteelblue1", fill="lightsteelblue1"),
-                       points=list(size=1, pch=23, fill="navyblue", col="black"))+
+                       line=list(col="palegreen4"),
+                       fill=list(col="palegreen1", fill="palegreen1"),
+                       points=list(size=1, pch=24, fill="palegreen4", col="black"))+
   theme_classic()
-c9.density
-c9.density.gb<-grid.grabExpr(print(c9.density))
+c9.forchange
 
-c9.smooths<-plot_grid(c9.inv, c9.agriculture, c9.density, ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C'))
+
+#create graphical objects for placeholders in plots
+noeffect<-text_grob(paste("No effect"), color="black")
+notpresent<-text_grob(paste("Not present"), color="black")
+
+c9.smooths<-plot_grid(c9.decade, c9.lon, c9.lat, 
+                      noeffect, noeffect, noeffect,
+                      c9.agriculture, noeffect, noeffect,
+                      noeffect, c9.forchange, noeffect,
+                      ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
+                                                            'D', 'E', 'F',
+                                                            'G', 'H', 'I',
+                                                            'J', 'K', 'L'))
 c9.smooths
 
-pdf("plots/c9_smooths.pdf", height=3, width=9)
+pdf("plots/c9_smooths.pdf", height=12, width=9)
 grid.draw(c9.smooths)
 dev.off()
+
 
 
 ##################################################################################################
