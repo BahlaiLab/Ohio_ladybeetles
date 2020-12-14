@@ -9,17 +9,19 @@
 #
 ###################################################################################
 
-setwd("~/The Ohio State University/PostDoc/BLBB Project/Museum Files/Ohio_ladybeetles/community_analyses")
+#setwd("~/The Ohio State University/PostDoc/BLBB Project/Museum Files/Ohio_ladybeetles/community_analyses")
+setwd("E:/Postdoc - Gardiner Lab/BLBB Project/Museum Files/Ohio_ladybeetles/community_analyses")
 
-lb <- read.csv("LB_MuseumData_2020.csv")
+lb <- read.csv("LB_MuseumData_2020_V2.csv")
 
 colnames(lb)
+levels(lb$Name)
 
 library(reshape2)
 
 library(vegan)
 
-#install.packages("devtools")
+install.packages("devtools")
 #library(devtools)
 #install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
 library(pairwiseAdonis)
@@ -539,7 +541,7 @@ adonis2(dist.1900 ~ as.factor(lb.1900.matrix$Landscape), permutations = 999)
 
 lb.abund.1900 <- colSums(lb.1900.matrix[3:18])
 lb.abund.1900
-com.sp.1900 <- lb.abund.1900 > 5
+com.sp.1900 <- lb.abund.1900 > 0
 com.sp.1900
 
 ordiplot(nmds.1900, type="n", xlim = c(-3, 3), ylim = c(-2, 3))
@@ -563,7 +565,7 @@ adonis2(dist.1930 ~ as.factor(lb.1930.matrix$Landscape), permutations = 999)
 
 lb.abund.1930 <- colSums(lb.1930.matrix[3:25])
 lb.abund.1930
-com.sp.1930 <- lb.abund.1930 > 45
+com.sp.1930 <- lb.abund.1930 > 0
 com.sp.1930
 
 ordiplot(nmds.1930, type="n", xlim = c(-2, 2), ylim = c(-2, 1.5))
@@ -587,7 +589,7 @@ adonis2(dist.1950 ~ as.factor(lb.1950.matrix$Landscape), permutations = 999)
 
 lb.abund.1950 <- colSums(lb.1950.matrix[3:23])
 lb.abund.1950
-com.sp.1950 <- lb.abund.1950 > 10
+com.sp.1950 <- lb.abund.1950 > 0
 com.sp.1950
 
 ordiplot(nmds.1950, type="n", xlim = c(-3, 3), ylim = c(-2.5, 2.5))
@@ -611,7 +613,7 @@ adonis2(dist.1960 ~ as.factor(lb.1960.matrix$Landscape), permutations = 999)
 
 lb.abund.1960 <- colSums(lb.1960.matrix[3:21])
 lb.abund.1960
-com.sp.1960 <- lb.abund.1960 > 30
+com.sp.1960 <- lb.abund.1960 > 0
 com.sp.1960
 
 ordiplot(nmds.1960, type="n", xlim = c(-5, 2), ylim = c(-2.5, 2.5))
@@ -635,7 +637,7 @@ adonis2(dist.1980 ~ as.factor(lb.1980.matrix$Landscape), permutations = 999)
 
 lb.abund.1980 <- colSums(lb.1980.matrix[3:22])
 lb.abund.1960
-com.sp.1980 <- lb.abund.1980 > 50
+com.sp.1980 <- lb.abund.1980 > 0
 com.sp.1980
 
 ordiplot(nmds.1980, type="n", xlim = c(-2, 4), ylim = c(-2, 2))
@@ -659,7 +661,7 @@ adonis2(dist.2000 ~ as.factor(lb.2000.matrix$Landscape), permutations = 999)
 
 lb.abund.2000 <- colSums(lb.2000.matrix[3:22])
 lb.abund.2000
-com.sp.2000 <- lb.abund.2000 > 50
+com.sp.2000 <- lb.abund.2000 > 0
 com.sp.2000
 
 ordiplot(nmds.2000, type="n", xlim = c(-1, 1), ylim = c(-0.8, 0.8))
@@ -675,7 +677,7 @@ text(1.1, 0.7, "2000", pos = 4, font = 2, cex = 1.5)
 
 # Combined nmds figure for LB communities overtime in rural vs urban counties
 
-png("NMDS_LB_Landscape_Time.png", width = 1600, height = 2000, pointsize = 30)
+png("NMDS_LB_Landscape_Time_nocutoff.png", width = 1600, height = 2000, pointsize = 30)
 
 par(mfrow=c(3,2))
 par(mar=c(5,4,3,2))
@@ -702,12 +704,12 @@ ordiellipse(nmds.1950, groups=lb.1950.matrix$Landscape, display="sites", lwd = 2
 orditorp(nmds.1950, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1950)
 text(2.5, 2.2, "1950s", pos = 4, font = 2, cex = 1.5)
 
-ordiplot(nmds.1960, type="n", xlim = c(-5, 2), ylim = c(-2.5, 2.5))
+ordiplot(nmds.1960, type="n", xlim = c(-5.5, 3), ylim = c(-2.5, 2.5))
 points(nmds.1960, dis="sites", pch = pchvec[lb.1960.matrix$Landscape], cex=1.5, 
        col=c("gray45", "black")[as.numeric(lb.1960.matrix$Landscape)])
 ordiellipse(nmds.1960, groups=lb.1960.matrix$Landscape, display="sites", lwd = 2.5, draw="lines", conf=0.90)
 orditorp(nmds.1960, display = "species", cex = 0.8, col = "black", air = 0.1, select = com.sp.1960)
-text(1.1, 2.2, "1960s", pos = 4, font = 2, cex = 1.5)
+text(1.5, 2.75, "1960s", pos = 4, font = 2, cex = 1.5)
 
 ordiplot(nmds.1980, type="n", xlim = c(-2, 4), ylim = c(-2, 2))
 points(nmds.1980, dis="sites", pch = pchvec[lb.1980.matrix$Landscape], cex=1.5, 
@@ -747,7 +749,7 @@ adonis2(dist.pre ~ as.factor(lb.pre.matrix$Landscape), permutations = 999)
 
 lb.abund.pre <- colSums(lb.pre.matrix[3:27])
 lb.abund.pre
-com.sp.pre <- lb.abund.pre > 100
+com.sp.pre <- lb.abund.pre > 0
 com.sp.pre
 
 ordiplot(nmds.pre, type="n", xlim = c(-2, 2), ylim = c(-1.5, 1.5))
@@ -779,7 +781,7 @@ adonis2(dist.post ~ as.factor(lb.post.matrix$Landscape), permutations = 999)
 
 lb.abund.post <- colSums(lb.post.matrix[3:29])
 lb.abund.post
-com.sp.post <- lb.abund.post > 50
+com.sp.post <- lb.abund.post > 0
 com.sp.post
 
 ordiplot(nmds.post, type="n", xlim = c(-2, 2), ylim = c(-1.5, 1.5))
@@ -794,7 +796,7 @@ text(1, 1.3, "Post-invasion", pos = 4, font = 2, cex = 1.5)
 
 # make a combined figure for pre- and post-invasion
 
-png("NMDS_LB_Invasion.png", width = 2000, height = 800, pointsize = 20)
+png("NMDS_LB_Invasion_nocutoff.png", width = 2000, height = 800, pointsize = 20)
 layout(matrix(c(1,2), nrow = 1, ncol = 2, byrow = TRUE))
 layout.show(2)
 
