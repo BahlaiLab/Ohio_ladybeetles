@@ -744,7 +744,7 @@ sum(lb_all2$Adalia.bipunctata)
 #also because this species was never collected after 1990 like C9 we need to use that same pre 1995 dataset
 
 
-#try model that is linear with Totalcount (minus the captures of C.9 to make it independent) 
+#try model that is linear with Totalcount (minus the captures of abi to make it independent) 
 #and has a gaussian process-based spatial relationship
 abi.gam<-gam(Adalia.bipunctata~s(lon, lat, bs="gp")+
                offset(log(1+Totalcount-Adalia.bipunctata)), 
@@ -760,9 +760,6 @@ summary(abi.gam.inv)
 AIC(abi.gam.inv)
 b.inv<-getViz(abi.gam.inv)
 
-text_high<-textGrob("Highest")
-text_low<-textGrob("Lowest")
-text_key<-textGrob("Predicted captures")
 
 abimap<- plot(b, select=1)+theme_classic()+
   xlab("Longitude")+ylab("Latitude")+ggtitle(NULL)+
@@ -779,7 +776,6 @@ abi.gb<-grid.grabExpr(print(abimap))
 
 
 #make the maps for each of the invasion periods
-
 
 abimap.inv.1<- plot(b.inv, select=1)+theme_classic()+
   xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
@@ -806,7 +802,7 @@ abi3.gb<-grid.grabExpr(print(abimap.inv.3))
 
 #All right, let's put these together nicely
 
-abi.4<-plot_grid(abi1.gb,abi2.gb,abi3.gb,NULL, ncol=2, labels=c('B', 'C', 'D', 'E'))
+abi.4<-plot_grid(abi1.gb, abi2.gb, abi3.gb, notpresent, ncol=2, labels=c('B', 'C', 'D', 'E'))
 abi.4
 
 abi.all<-plot_grid(abi.gb, abi.4, ncol=2, rel_widths=c(6,4), labels=c('A', NULL))
@@ -820,87 +816,157 @@ dev.off()
 #it will be autocorrelated with other values
 #iterative process-use AIC as selection criterion
 abi.gam1<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
+                s(Decade, sp=0.5, k=4)+
+                s(lon, sp=0.5)+
+                s(lat, sp=0.5)+
                 s(log(1+Totalinvasive), sp=0.5, k=4)+
                 s(Agriculture, sp=0.5)+
                 s(Forest, sp=0.5)+
                 s(Developed, sp=0.5)+
-                s(Density, sp=0.5), 
+                s(Ag_change, sp=0.5)+
+                s(For_change, sp=0.5)+
+                s(Dev_change, sp=0.5), 
               data=pre1995, family="nb")
 summary(abi.gam1)
 AIC(abi.gam1)
 
+visreg(abi.gam1, "Decade",  ylab="Captures")
+visreg(abi.gam1, "lon",  ylab="Captures")
+visreg(abi.gam1, "lat",  ylab="Captures")
 visreg(abi.gam1, "Totalinvasive",  ylab="Captures")
 visreg(abi.gam1, "Agriculture",  ylab="Captures")
 visreg(abi.gam1, "Forest", ylab="Captures")
 visreg(abi.gam1, "Developed",  ylab="Captures")
-visreg(abi.gam1, "Density", ylab="Captures")
+visreg(abi.gam1, "Ag_change", ylab="Captures")
+visreg(abi.gam1, "For_change",  ylab="Captures")
+visreg(abi.gam1, "Dev_change", ylab="Captures")
 
-#not a lot of super strong signals from anything in the "global model"
 
-#for ABI, only invasive present coincident with it  for any time is C7, but for consistency let's do that
+#replace totalinvasive with two major invasives
 
 abi.gam2<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
+                s(Decade, sp=0.5, k=4)+
+                s(lon, sp=0.5)+
+                s(lat, sp=0.5)+
+                s(Propinvasive, sp=0.5)+
                 s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+                #s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
                 s(Agriculture, sp=0.5)+
                 s(Forest, sp=0.5)+
                 s(Developed, sp=0.5)+
-                s(Density, sp=0.5), 
+                s(Ag_change, sp=0.5)+
+                s(For_change, sp=0.5)+
+                s(Dev_change, sp=0.5),  
               data=pre1995, family="nb")
 summary(abi.gam2)
 AIC(abi.gam2)
 
-visreg(abi.gam2, "Coccinella.septempunctata",  ylab="Captures")
+visreg(abi.gam2, "Decade",  ylab="Captures")
+#visreg(abi.gam2, "lon",  ylab="Captures")
+visreg(abi.gam2, "lat",  ylab="Captures")
+visreg(abi.gam2, "Propinvasive",  ylab="Captures")
+#visreg(abi.gam2, "Coccinella.septempunctata",  ylab="Captures")
+#visreg(abi.gam2, "Harmonia.axyridis",  ylab="Captures")
 visreg(abi.gam2, "Agriculture",  ylab="Captures")
 visreg(abi.gam2, "Forest", ylab="Captures")
 visreg(abi.gam2, "Developed",  ylab="Captures")
-visreg(abi.gam2, "Density", ylab="Captures")
+visreg(abi.gam2, "Ag_change", ylab="Captures")
+visreg(abi.gam2, "For_change",  ylab="Captures")
+visreg(abi.gam2, "Dev_change", ylab="Captures")
 
-#Looks like totalinvasives is better for ABI
+
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
 
 abi.gam3<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
-                s(log(1+Totalinvasive), sp=0.5, k=4)+
+                s(lon, sp=0.5)+
+                s(Propinvasive, sp=0.5)+
                 s(Agriculture, sp=0.5)+
-                s(Developed, sp=0.5), 
+                s(Ag_change, sp=0.5)+
+                s(For_change, sp=0.5),  
               data=pre1995, family="nb")
 summary(abi.gam3)
 AIC(abi.gam3)
 
-abi.inv<-visreg(abi.gam3, "Totalinvasive",  ylab="Residual captures",
-                xlab=expression(paste("Total invasive captures")), 
+# abi.decade<-visreg(abi.gam3, "Decade",  ylab="Residual captures",
+#                    xlab=expression(paste("Year")), 
+#                    gg=T, 
+#                    line=list(col="gray19"),
+#                    fill=list(col="gray57", fill="gray57"),
+#                    points=list(size=1, pch=21, fill="gray19", col="black"))+
+#   theme_classic()
+# abi.decade
+
+abi.lon<-visreg(abi.gam3, "lon",  ylab="Residual captures",
+                xlab=expression(paste("Longitude")), 
                 gg=T, 
-                line=list(col="darkred"),
-                fill=list(col="mistyrose1", fill="mistyrose1"),
-                points=list(size=1, pch=24, fill="darkred", col="black"))+
+                line=list(col="gray28"),
+                fill=list(col="gray", fill="gray"),
+                points=list(size=1, pch=21, fill="gray28", col="black"))+
   theme_classic()
-abi.inv
-abi.inv.gb<-grid.grabExpr(print(abi.inv))
+abi.lon
+
+# abi.lat<-visreg(abi.gam3, "lat",  ylab="Residual captures",
+#                 xlab=expression(paste("Latitude")), 
+#                 gg=T, 
+#                 line=list(col="gray28"),
+#                 fill=list(col="gray", fill="gray"),
+#                 points=list(size=1, pch=21, fill="gray28", col="black"))+
+#   theme_classic()
+# abi.lat
+
+abi.pi<-visreg(abi.gam3, "Propinvasive",  ylab="Residual captures",
+              xlab=expression(paste("Proportion invasive")),
+              gg=T,
+              line=list(col="darkmagenta"),
+              fill=list(col="plum1", fill="plum1"),
+              points=list(size=1, pch=22, fill="darkmagenta", col="black"))+
+  theme_classic()
+abi.pi
 
 
-abi.agriculture<-visreg(abi.gam3, "Agriculture", ylab="Residual captures", xlab="% Agriculture cover", 
+abi.agriculture<-visreg(abi.gam3, "Agriculture", ylab="Residual Captures", xlab="% Agriculture cover", 
                         gg=T, 
                         line=list(col="darkolivegreen4"),
                         fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
-                        points=list(size=1, pch=22, fill="darkolivegreen4", col="black"))+
+                        points=list(size=1, pch=23, fill="darkolivegreen4", col="black"))+
   theme_classic()
 abi.agriculture
-abi.agriculture.gb<-grid.grabExpr(print(abi.agriculture))
 
-abi.developed<-visreg(abi.gam3, "Developed", ylab="Residual captures", xlab="% Developed cover", 
-                    gg=T, 
-                    line=list(col="slategray4"),
-                    fill=list(col="slategray2", fill="slategray2"),
-                    points=list(size=1, pch=23, fill="slategray4", col="black"))+
+abi.agchange<-visreg(abi.gam3, "Ag_change", ylab="Residual Captures", xlab="Change in agriculture cover",
+                      gg=T,
+                      line=list(col="lightgoldenrod4"),
+                      fill=list(col="lightgoldenrod1", fill="lightgoldenrod1"),
+                      points=list(size=1, pch=24, fill="lightgoldenrod4", col="black"))+
   theme_classic()
-abi.developed
-abi.developed.gb<-grid.grabExpr(print(abi.developed))
+abi.agchange
 
-abi.smooths<-plot_grid(abi.inv, abi.agriculture, abi.developed, ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C'))
+abi.forchange<-visreg(abi.gam3, "For_change", ylab="Residual Captures", xlab="Change in forest cover",
+                      gg=T,
+                      line=list(col="palegreen4"),
+                      fill=list(col="palegreen1", fill="palegreen1"),
+                      points=list(size=1, pch=24, fill="palegreen4", col="black"))+
+  theme_classic()
+abi.forchange
+
+
+#create graphical objects for placeholders in plots
+noeffect<-text_grob(paste("No effect"), color="black")
+notpresent<-text_grob(paste("Not present"), color="black")
+
+abi.smooths<-plot_grid(noeffect, abi.lon, noeffect, 
+                       abi.pi, noeffect, noeffect,
+                       abi.agriculture, noeffect, noeffect,
+                       abi.agchange, abi.forchange, noeffect,
+                       ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
+                                                             'D', 'E', 'F',
+                                                             'G', 'H', 'I',
+                                                             'J', 'K', 'L'))
 abi.smooths
 
-pdf("plots/abi_smooths.pdf", height=3, width=9)
+pdf("plots/abi_smooths.pdf", height=12, width=9)
 grid.draw(abi.smooths)
 dev.off()
+
 
 ###########################################################################################
 
