@@ -123,58 +123,58 @@ oh4<-merge(oh3, ohregions, by=c("County"), all.x=T)
 
 
 
-ohiomap<- ggplot()+ geom_sf(data=oh4, aes(fill=Regions))+theme_classic()+
-  geom_point(data=lb_allcontext, aes(x=lon, y=lat))+xlab("Longitude")+ylab("Latitude")
+# ohiomap<- ggplot()+ geom_sf(data=oh4, aes(fill=Regions))+theme_classic()+
+#   geom_point(data=lb_allcontext, aes(x=lon, y=lat))+xlab("Longitude")+ylab("Latitude")
+# 
+# ohiomap
+# 
+# 
+# #ok, let's make a demo with one of the moderately rare species that is probably not in all counties
+# 
+# anatismali<-lb_allcontext[which(lb_allcontext$Name=="Anatis mali"),]
 
-ohiomap
-
-
-#ok, let's make a demo with one of the moderately rare species that is probably not in all counties
-
-anatismali<-lb_allcontext[which(lb_allcontext$Name=="Anatis mali"),]
-
-#Count the number of captures per county
-#and f this I'm using plyr
-library(plyr)
-
-amali.density<-ddply(anatismali, c("County","Decade", "lon", "lat"), summarize,
-                     Count=sum(Count))
-
-#and a nonzero dataset for the mapping
-amali.density.1<-amali.density[which(amali.density$Count>0),]
-
-
-#first let's just do a little plot that scales points by number captured
-amalimap<- ggplot()+ geom_sf(data=oh4, aes(fill=Regions))+
-  theme_classic()+
-  geom_point(data=amali.density.1, aes(x=lon, y=lat, size=Count), pch=21, color="black")+
-  xlab("Longitude")+ylab("Latitude")
-
-amalimap
-
-#now a map with binned density
-
-
-amalimap2<- ggplot()+ geom_sf(data=oh4)+
-  theme_classic()+
-  stat_bin2d(data=amali.density.1, aes(x = lon, y = lat),
-             size = 1, bins = 3, alpha = 0.8)+
-  xlab("Longitude")+ylab("Latitude")
-
-amalimap2
-
-#now a map with smoothed density- let's use lb raw counts 
-
-density_plot<- ggplot()+ geom_sf(data=oh4)+
-  theme_classic()+
-  stat_density2d(data=lb_raw, aes(x = lon, y = lat, fill=after_stat(level)),
-                 geom="polygon", alpha=0.7)+
-  scale_fill_viridis()+
-  geom_point(data=lb_raw, aes(x=lon, y=lat), pch=21, color="black", position="jitter")+
-  xlab("Longitude")+ylab("Latitude")+
-  facet_wrap(~Decade30)
-
-density_plot
+# #Count the number of captures per county
+# #and f this I'm using plyr
+# library(plyr)
+# 
+# amali.density<-ddply(anatismali, c("County","Decade", "lon", "lat"), summarize,
+#                      Count=sum(Count))
+# 
+# #and a nonzero dataset for the mapping
+# amali.density.1<-amali.density[which(amali.density$Count>0),]
+# 
+# 
+# #first let's just do a little plot that scales points by number captured
+# amalimap<- ggplot()+ geom_sf(data=oh4, aes(fill=Regions))+
+#   theme_classic()+
+#   geom_point(data=amali.density.1, aes(x=lon, y=lat, size=Count), pch=21, color="black")+
+#   xlab("Longitude")+ylab("Latitude")
+# 
+# amalimap
+# 
+# #now a map with binned density
+# 
+# 
+# amalimap2<- ggplot()+ geom_sf(data=oh4)+
+#   theme_classic()+
+#   stat_bin2d(data=amali.density.1, aes(x = lon, y = lat),
+#              size = 1, bins = 3, alpha = 0.8)+
+#   xlab("Longitude")+ylab("Latitude")
+# 
+# amalimap2
+# 
+# #now a map with smoothed density- let's use lb raw counts 
+# 
+# density_plot<- ggplot()+ geom_sf(data=oh4)+
+#   theme_classic()+
+#   stat_density2d(data=lb_raw, aes(x = lon, y = lat, fill=after_stat(level)),
+#                  geom="polygon", alpha=0.7)+
+#   scale_fill_viridis()+
+#   geom_point(data=lb_raw, aes(x=lon, y=lat), pch=21, color="black", position="jitter")+
+#   xlab("Longitude")+ylab("Latitude")+
+#   facet_wrap(~Decade30)
+# 
+# density_plot
 
 
 #ok, maybe I can make it interpolate
@@ -193,30 +193,30 @@ y.range <- as.numeric(c(min(oh$LAT_SOUTH_), max(oh$LAT_NORTH_)))
 grd <- expand.grid(x = seq(from = x.range[1], to = x.range[2], by = 0.075), 
                    y = seq(from = y.range[1], to = y.range[2], by = 0.075))  # expand 
 
-coordinates(grd) <- ~x + y
-sp::gridded(grd) <- TRUE
-proj4string(grd) <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")
-
-plot(grd, cex = 1.5, col = "grey")
-points(lb_spat, pch = 1, col = "red", cex = 1)
-
-#and now we have a plot of the county centroids on a grid. cute.
-
-#inverse density weight
-
-idw <- gstat::idw(formula = Count ~ 1, locations = lb_spat, newdata = grd)
-
-
-# grab output of IDW for plotting
-idw.output = as.data.frame(idw)  # output is defined as a data table
-# set the names of the idw.output columns
-# basic ggplot using geom_tile to display our interpolated grid within no map
-ggplot() + 
-  geom_sf(data=oh4)+
-  geom_tile(data = idw.output, aes(x = x, y = y, fill = var1.pred), alpha=0.75) + 
-  geom_point(data = lb_allcontext, aes(x = lon, y = lat), shape = 21, color = "red") +
-  scale_fill_viridis()+ 
-  theme_bw() 
+# coordinates(grd) <- ~x + y
+# sp::gridded(grd) <- TRUE
+# proj4string(grd) <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84")
+# 
+# plot(grd, cex = 1.5, col = "grey")
+# points(lb_spat, pch = 1, col = "red", cex = 1)
+# 
+# #and now we have a plot of the county centroids on a grid. cute.
+# 
+# #inverse density weight
+# 
+# idw <- gstat::idw(formula = Count ~ 1, locations = lb_spat, newdata = grd)
+# 
+# 
+# # grab output of IDW for plotting
+# idw.output = as.data.frame(idw)  # output is defined as a data table
+# # set the names of the idw.output columns
+# # basic ggplot using geom_tile to display our interpolated grid within no map
+# ggplot() + 
+#   geom_sf(data=oh4)+
+#   geom_tile(data = idw.output, aes(x = x, y = y, fill = var1.pred), alpha=0.75) + 
+#   geom_point(data = lb_allcontext, aes(x = lon, y = lat), shape = 21, color = "red") +
+#   scale_fill_viridis()+ 
+#   theme_bw() 
 
 
 ######################################
@@ -1088,7 +1088,7 @@ hcon.gam2<-gam(Hippodamia.convergens~offset(log(1+Totalcount-Hippodamia.converge
                  s(lat, sp=0.5)+
                  s(Propinvasive, sp=0.5)+
                  s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
-                 #s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+                 s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
                  s(Agriculture, sp=0.5)+
                  s(Forest, sp=0.5)+
                  s(Developed, sp=0.5)+
@@ -1116,41 +1116,44 @@ visreg(hcon.gam2, "Dev_change", ylab="Captures")
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
 
 hcon.gam3<-gam(Hippodamia.convergens~offset(log(1+Totalcount-Hippodamia.convergens))+
-                 s(lon, sp=0.5)+
+                 s(Decade, sp=0.5, k=4)+
+                 s(lat, sp=0.5)+
                  s(Propinvasive, sp=0.5)+
-                 s(Agriculture, sp=0.5)+
+                 s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+                 s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+                 s(Developed, sp=0.5)+
                  s(Ag_change, sp=0.5)+
-                 s(For_change, sp=0.5),  
+                 s(Dev_change, sp=0.5),  
                data=lb_all2, family="nb")
 summary(hcon.gam3)
 AIC(hcon.gam3)
 
-# hcon.decade<-visreg(hcon.gam3, "Decade",  ylab="Residual captures",
-#                    xlab=expression(paste("Year")), 
-#                    gg=T, 
-#                    line=list(col="gray19"),
-#                    fill=list(col="gray57", fill="gray57"),
-#                    points=list(size=1, pch=21, fill="gray19", col="black"))+
-#   theme_classic()
-# hcon.decade
-
-hcon.lon<-visreg(hcon.gam3, "lon",  ylab="Residual captures",
-                 xlab=expression(paste("Longitude")), 
-                 gg=T, 
-                 line=list(col="gray28"),
-                 fill=list(col="gray", fill="gray"),
-                 points=list(size=1, pch=21, fill="gray28", col="black"))+
+hcon.decade<-visreg(hcon.gam3, "Decade",  ylab="Residual captures",
+                   xlab=expression(paste("Year")),
+                   gg=T,
+                   line=list(col="gray19"),
+                   fill=list(col="gray57", fill="gray57"),
+                   points=list(size=1, pch=21, fill="gray19", col="black"))+
   theme_classic()
-hcon.lon
+hcon.decade
 
-# hcon.lat<-visreg(hcon.gam3, "lat",  ylab="Residual captures",
-#                 xlab=expression(paste("Latitude")), 
-#                 gg=T, 
-#                 line=list(col="gray28"),
-#                 fill=list(col="gray", fill="gray"),
-#                 points=list(size=1, pch=21, fill="gray28", col="black"))+
+# hcon.lon<-visreg(hcon.gam3, "lon",  ylab="Residual captures",
+#                  xlab=expression(paste("Longitude")), 
+#                  gg=T, 
+#                  line=list(col="gray28"),
+#                  fill=list(col="gray", fill="gray"),
+#                  points=list(size=1, pch=21, fill="gray28", col="black"))+
 #   theme_classic()
-# hcon.lat
+# hcon.lon
+
+hcon.lat<-visreg(hcon.gam3, "lat",  ylab="Residual captures",
+                xlab=expression(paste("Latitude")),
+                gg=T,
+                line=list(col="gray28"),
+                fill=list(col="gray", fill="gray"),
+                points=list(size=1, pch=21, fill="gray28", col="black"))+
+  theme_classic()
+hcon.lat
 
 hcon.pi<-visreg(hcon.gam3, "Propinvasive",  ylab="Residual captures",
                 xlab=expression(paste("Proportion invasive")),
@@ -1161,14 +1164,41 @@ hcon.pi<-visreg(hcon.gam3, "Propinvasive",  ylab="Residual captures",
   theme_classic()
 hcon.pi
 
-
-hcon.agriculture<-visreg(hcon.gam3, "Agriculture", ylab="Residual Captures", xlab="% Agriculture cover", 
-                         gg=T, 
-                         line=list(col="darkolivegreen4"),
-                         fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
-                         points=list(size=1, pch=23, fill="darkolivegreen4", col="black"))+
+hcon.c7<-visreg(hcon.gam3, "Coccinella.septempunctata",  ylab="Residual captures",
+                xlab=expression(paste("Captures of ", italic("Coccinella septempunctata"))),
+                gg=T,
+                line=list(col="darkred"),
+                fill=list(col="mistyrose", fill="mistyrose"),
+                points=list(size=1, pch=22, fill="darkred", col="black"))+
   theme_classic()
-hcon.agriculture
+hcon.c7
+
+hcon.ha<-visreg(hcon.gam3, "Harmonia.axyridis",  ylab="Residual captures",
+                xlab=expression(paste("Captures of ", italic("Harmonia axyridis"))),
+                gg=T,
+                line=list(col="darkorange"),
+                fill=list(col="burlywood1", fill="burlywood1"),
+                points=list(size=1, pch=22, fill="darkorange", col="black"))+
+  theme_classic()
+hcon.ha
+
+
+# hcon.agriculture<-visreg(hcon.gam3, "Agriculture", ylab="Residual Captures", xlab="% Agriculture cover", 
+#                          gg=T, 
+#                          line=list(col="darkolivegreen4"),
+#                          fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
+#                          points=list(size=1, pch=23, fill="darkolivegreen4", col="black"))+
+#   theme_classic()
+# hcon.agriculture
+
+hcon.developed<-visreg(hcon.gam3, "Developed", ylab="Residual Captures", xlab="% Developed cover",
+                         gg=T,
+                         line=list(col="slategray4"),
+                         fill=list(col="slategray2", fill="slategray2"),
+                         points=list(size=1, pch=23, fill="slategray4", col="black"))+
+  theme_classic()
+hcon.developed
+
 
 hcon.agchange<-visreg(hcon.gam3, "Ag_change", ylab="Residual Captures", xlab="Change in agriculture cover",
                       gg=T,
@@ -1178,23 +1208,32 @@ hcon.agchange<-visreg(hcon.gam3, "Ag_change", ylab="Residual Captures", xlab="Ch
   theme_classic()
 hcon.agchange
 
-hcon.forchange<-visreg(hcon.gam3, "For_change", ylab="Residual Captures", xlab="Change in forest cover",
+# hcon.forchange<-visreg(hcon.gam3, "For_change", ylab="Residual Captures", xlab="Change in forest cover",
+#                        gg=T,
+#                        line=list(col="palegreen4"),
+#                        fill=list(col="palegreen1", fill="palegreen1"),
+#                        points=list(size=1, pch=24, fill="palegreen4", col="black"))+
+#   theme_classic()
+# hcon.forchange
+
+hcon.devchange<-visreg(hcon.gam3, "Dev_change", ylab="Residual Captures", xlab="Change in developed cover",
                        gg=T,
-                       line=list(col="palegreen4"),
-                       fill=list(col="palegreen1", fill="palegreen1"),
-                       points=list(size=1, pch=24, fill="palegreen4", col="black"))+
+                       line=list(col="navyblue"),
+                       fill=list(col="lightsteelblue1", fill="lightsteelblue1"),
+                       points=list(size=1, pch=24, fill="navyblue", col="black"))+
   theme_classic()
-hcon.forchange
+hcon.devchange
+
 
 
 #create graphical objects for placeholders in plots
 noeffect<-text_grob(paste("No effect"), color="black")
 notpresent<-text_grob(paste("Not present"), color="black")
 
-hcon.smooths<-plot_grid(noeffect, hcon.lon, noeffect, 
-                        hcon.pi, noeffect, noeffect,
-                        hcon.agriculture, noeffect, noeffect,
-                        hcon.agchange, hcon.forchange, noeffect,
+hcon.smooths<-plot_grid(hcon.decade, noeffect, hcon.lat, 
+                        hcon.pi, hcon.c7, hcon.ha,
+                        noeffect, noeffect, hcon.developed,
+                        hcon.agchange,noeffect, hcon.devchange,
                         ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
                                                               'D', 'E', 'F',
                                                               'G', 'H', 'I',
@@ -1216,11 +1255,11 @@ dev.off()
 sum(lb_all2$Chilocorus.stigma)
 
 
-#try model that is linear with Totalcount (minus the captures of Cstig to make it independent) 
+#try model that is linear with Totalcount (minus the captures of cstig to make it independent) 
 #and has a gaussian process-based spatial relationship
 cstig.gam<-gam(Chilocorus.stigma~s(lon, lat, bs="gp")+
-                offset(log(1+Totalcount-Chilocorus.stigma)), 
-              data=lb_all2, family="nb")
+                 offset(log(1+Totalcount-Chilocorus.stigma)), 
+               data=lb_all2, family="nb")
 summary(cstig.gam)
 AIC(cstig.gam)
 b<-getViz(cstig.gam)
@@ -1232,9 +1271,6 @@ summary(cstig.gam.inv)
 AIC(cstig.gam.inv)
 b.inv<-getViz(cstig.gam.inv)
 
-text_high<-textGrob("Highest")
-text_low<-textGrob("Lowest")
-text_key<-textGrob("Predicted captures")
 
 cstigmap<- plot(b, select=1)+theme_classic()+
   xlab("Longitude")+ylab("Latitude")+ggtitle(NULL)+
@@ -1251,7 +1287,6 @@ cstig.gb<-grid.grabExpr(print(cstigmap))
 
 
 #make the maps for each of the invasion periods
-
 
 cstigmap.inv.1<- plot(b.inv, select=1)+theme_classic()+
   xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
@@ -1274,15 +1309,16 @@ cstigmap.inv.3<- plot(b.inv, select=3)+theme_classic()+
 cstigmap.inv.3
 cstig3.gb<-grid.grabExpr(print(cstigmap.inv.3))
 
-cstigmap.inv.4<-plot(b.inv, select=4)+theme_classic()+
+cstigmap.inv.4<- plot(b.inv, select=4)+theme_classic()+
   xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
   theme(legend.position="none", aspect.ratio=1)
+
 cstigmap.inv.4
 cstig4.gb<-grid.grabExpr(print(cstigmap.inv.4))
 
 #All right, let's put these together nicely
 
-cstig.4<-plot_grid(cstig1.gb,cstig2.gb,cstig3.gb,cstig4.gb, ncol=2, labels=c('B', 'C', 'D', 'E'))
+cstig.4<-plot_grid(cstig1.gb, cstig2.gb, cstig3.gb, cstig4.gb, ncol=2, labels=c('B', 'C', 'D', 'E'))
 cstig.4
 
 cstig.all<-plot_grid(cstig.gb, cstig.4, ncol=2, rel_widths=c(6,4), labels=c('A', NULL))
@@ -1296,99 +1332,195 @@ dev.off()
 #it will be autocorrelated with other values
 #iterative process-use AIC as selection criterion
 cstig.gam1<-gam(Chilocorus.stigma~offset(log(1+Totalcount-Chilocorus.stigma))+
-                  s(log(1+Totalinvasive), sp=0.5)+
+                  s(Decade, sp=0.5, k=4)+
+                  s(lon, sp=0.5)+
+                  s(lat, sp=0.5)+
+                  s(log(1+Totalinvasive), sp=0.5, k=4)+
                   s(Agriculture, sp=0.5)+
                   s(Forest, sp=0.5)+
                   s(Developed, sp=0.5)+
-                  s(Density, sp=0.5), 
+                  s(Ag_change, sp=0.5)+
+                  s(For_change, sp=0.5)+
+                  s(Dev_change, sp=0.5), 
                 data=lb_all2, family="nb")
 summary(cstig.gam1)
 AIC(cstig.gam1)
 
+visreg(cstig.gam1, "Decade",  ylab="Captures")
+visreg(cstig.gam1, "lon",  ylab="Captures")
+visreg(cstig.gam1, "lat",  ylab="Captures")
 visreg(cstig.gam1, "Totalinvasive",  ylab="Captures")
 visreg(cstig.gam1, "Agriculture",  ylab="Captures")
 visreg(cstig.gam1, "Forest", ylab="Captures")
 visreg(cstig.gam1, "Developed",  ylab="Captures")
-visreg(cstig.gam1, "Density", ylab="Captures")
+visreg(cstig.gam1, "Ag_change", ylab="Captures")
+visreg(cstig.gam1, "For_change",  ylab="Captures")
+visreg(cstig.gam1, "Dev_change", ylab="Captures")
 
-#not a lot of super strong signals from anything in the "global model"
 
 #replace totalinvasive with two major invasives
 
 cstig.gam2<-gam(Chilocorus.stigma~offset(log(1+Totalcount-Chilocorus.stigma))+
-                  s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
-                  s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+                  s(Decade, sp=0.5, k=4)+
+                  s(lon, sp=0.5)+
+                  s(lat, sp=0.5)+
+                  s(Propinvasive, sp=0.5)+
+                  #s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+                  #s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
                   s(Agriculture, sp=0.5)+
                   s(Forest, sp=0.5)+
                   s(Developed, sp=0.5)+
-                  s(Density, sp=0.5), 
+                  s(Ag_change, sp=0.5)+
+                  s(For_change, sp=0.5)+
+                  s(Dev_change, sp=0.5),  
                 data=lb_all2, family="nb")
 summary(cstig.gam2)
 AIC(cstig.gam2)
 
-visreg(cstig.gam2, "Coccinella.septempunctata",  ylab="Captures")
-visreg(cstig.gam2, "Harmonia.axyridis",  ylab="Captures")
+visreg(cstig.gam2, "Decade",  ylab="Captures")
+#visreg(cstig.gam2, "lon",  ylab="Captures")
+visreg(cstig.gam2, "lat",  ylab="Captures")
+visreg(cstig.gam2, "Propinvasive",  ylab="Captures")
+#visreg(cstig.gam2, "Coccinella.septempunctata",  ylab="Captures")
+#visreg(cstig.gam2, "Harmonia.axyridis",  ylab="Captures")
 visreg(cstig.gam2, "Agriculture",  ylab="Captures")
 visreg(cstig.gam2, "Forest", ylab="Captures")
 visreg(cstig.gam2, "Developed",  ylab="Captures")
-visreg(cstig.gam2, "Density", ylab="Captures")
+visreg(cstig.gam2, "Ag_change", ylab="Captures")
+visreg(cstig.gam2, "For_change",  ylab="Captures")
+visreg(cstig.gam2, "Dev_change", ylab="Captures")
+
 
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
 
 cstig.gam3<-gam(Chilocorus.stigma~offset(log(1+Totalcount-Chilocorus.stigma))+
-                  s(log(1+Totalinvasive), sp=0.5)+
+                  s(lon, sp=0.5)+
+                  s(lat, sp=0.5)+
+                  s(Propinvasive, sp=0.5)+
                   s(Agriculture, sp=0.5)+
                   s(Forest, sp=0.5)+
-                  s(Developed, sp=0.5), 
+                  s(Developed, sp=0.5)+
+                  s(For_change, sp=0.5),  
                 data=lb_all2, family="nb")
 summary(cstig.gam3)
 AIC(cstig.gam3)
 
-cstig.inv<-visreg(cstig.gam3, "Totalinvasive",  ylab="Residual captures",
-                  xlab=expression(paste("Total invasive captures")), 
-                  gg=T, 
-                  line=list(col="darkred"),
-                  fill=list(col="mistyrose1", fill="mistyrose1"),
-                  points=list(size=1, pch=24, fill="darkred", col="black"))+
+cstig.decade<-visreg(cstig.gam3, "Decade",  ylab="Residual captures",
+                     xlab=expression(paste("Year")),
+                     gg=T,
+                     line=list(col="gray19"),
+                     fill=list(col="gray57", fill="gray57"),
+                     points=list(size=1, pch=21, fill="gray19", col="black"))+
   theme_classic()
-cstig.inv
-cstig.inv.gb<-grid.grabExpr(print(cstig.inv))
+cstig.decade
 
-cstig.agriculture<-visreg(cstig.gam3, "Agriculture", ylab="Residual captures", xlab="% Agriculture cover", 
-                 gg=T, 
-                 line=list(col="darkolivegreen4"),
-                 fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
-                 points=list(size=1, pch=22, fill="darkolivegreen4", col="black"))+
+# cstig.lon<-visreg(cstig.gam3, "lon",  ylab="Residual captures",
+#                  xlab=expression(paste("Longitude")), 
+#                  gg=T, 
+#                  line=list(col="gray28"),
+#                  fill=list(col="gray", fill="gray"),
+#                  points=list(size=1, pch=21, fill="gray28", col="black"))+
+#   theme_classic()
+# cstig.lon
+
+cstig.lat<-visreg(cstig.gam3, "lat",  ylab="Residual captures",
+                  xlab=expression(paste("Latitude")),
+                  gg=T,
+                  line=list(col="gray28"),
+                  fill=list(col="gray", fill="gray"),
+                  points=list(size=1, pch=21, fill="gray28", col="black"))+
   theme_classic()
-cstig.agriculture
-cstig.agriculture.gb<-grid.grabExpr(print(cstig.agriculture))
+cstig.lat
 
-cstig.forest<-visreg(cstig.gam3, "Forest", ylab="Residual Captures", xlab="% Forest cover", 
-                     gg=T, 
-                     line=list(col="darkgreen"),
-                     fill=list(col="lightgreen", fill="lightgreen"),
-                     points=list(size=1, pch=21, fill="darkgreen", col="black"))+
+cstig.pi<-visreg(cstig.gam3, "Propinvasive",  ylab="Residual captures",
+                 xlab=expression(paste("Proportion invasive")),
+                 gg=T,
+                 line=list(col="darkmagenta"),
+                 fill=list(col="plum1", fill="plum1"),
+                 points=list(size=1, pch=22, fill="darkmagenta", col="black"))+
   theme_classic()
-cstig.forest
-cstig.forest.gb<-grid.grabExpr(print(cstig.forest))
+cstig.pi
 
-cstig.developed<-visreg(cstig.gam3, "Developed", ylab="Residual captures", xlab="% Developed cover", 
-                      gg=T, 
-                      line=list(col="slategray4"),
-                      fill=list(col="slategray2", fill="slategray2"),
-                      points=list(size=1, pch=23, fill="slategray4", col="black"))+
+cstig.c7<-visreg(cstig.gam3, "Coccinella.septempunctata",  ylab="Residual captures",
+                 xlab=expression(paste("Captures of ", italic("Coccinella septempunctata"))),
+                 gg=T,
+                 line=list(col="darkred"),
+                 fill=list(col="mistyrose", fill="mistyrose"),
+                 points=list(size=1, pch=22, fill="darkred", col="black"))+
+  theme_classic()
+cstig.c7
+
+cstig.ha<-visreg(cstig.gam3, "Harmonia.axyridis",  ylab="Residual captures",
+                 xlab=expression(paste("Captures of ", italic("Harmonia axyridis"))),
+                 gg=T,
+                 line=list(col="darkorange"),
+                 fill=list(col="burlywood1", fill="burlywood1"),
+                 points=list(size=1, pch=22, fill="darkorange", col="black"))+
+  theme_classic()
+cstig.ha
+
+
+# cstig.agriculture<-visreg(cstig.gam3, "Agriculture", ylab="Residual Captures", xlab="% Agriculture cover", 
+#                          gg=T, 
+#                          line=list(col="darkolivegreen4"),
+#                          fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
+#                          points=list(size=1, pch=23, fill="darkolivegreen4", col="black"))+
+#   theme_classic()
+# cstig.agriculture
+
+cstig.developed<-visreg(cstig.gam3, "Developed", ylab="Residual Captures", xlab="% Developed cover",
+                        gg=T,
+                        line=list(col="slategray4"),
+                        fill=list(col="slategray2", fill="slategray2"),
+                        points=list(size=1, pch=23, fill="slategray4", col="black"))+
   theme_classic()
 cstig.developed
-cstig.developed.gb<-grid.grabExpr(print(cstig.developed))
 
 
-cstig.smooths<-plot_grid(cstig.inv, cstig.agriculture, cstig.forest, cstig.developed, ncol=2, 
-                         rel_widths=c(1,1), labels=c('A', 'B', 'C', 'D'))
+cstig.agchange<-visreg(cstig.gam3, "Ag_change", ylab="Residual Captures", xlab="Change in agriculture cover",
+                       gg=T,
+                       line=list(col="lightgoldenrod4"),
+                       fill=list(col="lightgoldenrod1", fill="lightgoldenrod1"),
+                       points=list(size=1, pch=24, fill="lightgoldenrod4", col="black"))+
+  theme_classic()
+cstig.agchange
+
+# cstig.forchange<-visreg(cstig.gam3, "For_change", ylab="Residual Captures", xlab="Change in forest cover",
+#                        gg=T,
+#                        line=list(col="palegreen4"),
+#                        fill=list(col="palegreen1", fill="palegreen1"),
+#                        points=list(size=1, pch=24, fill="palegreen4", col="black"))+
+#   theme_classic()
+# cstig.forchange
+
+cstig.devchange<-visreg(cstig.gam3, "Dev_change", ylab="Residual Captures", xlab="Change in developed cover",
+                        gg=T,
+                        line=list(col="navyblue"),
+                        fill=list(col="lightsteelblue1", fill="lightsteelblue1"),
+                        points=list(size=1, pch=24, fill="navyblue", col="black"))+
+  theme_classic()
+cstig.devchange
+
+
+
+#create graphical objects for placeholders in plots
+noeffect<-text_grob(paste("No effect"), color="black")
+notpresent<-text_grob(paste("Not present"), color="black")
+
+cstig.smooths<-plot_grid(cstig.decade, noeffect, cstig.lat, 
+                         cstig.pi, cstig.c7, cstig.ha,
+                         noeffect, noeffect, cstig.developed,
+                         cstig.agchange,noeffect, cstig.devchange,
+                         ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
+                                                               'D', 'E', 'F',
+                                                               'G', 'H', 'I',
+                                                               'J', 'K', 'L'))
 cstig.smooths
 
-pdf("plots/cstig_smooths.pdf", height=6, width=6)
+pdf("plots/cstig_smooths.pdf", height=12, width=9)
 grid.draw(cstig.smooths)
 dev.off()
+
 
 
 ###########################################################################################
