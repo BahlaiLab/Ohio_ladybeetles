@@ -977,7 +977,7 @@ dev.off()
 sum(lb_all2$Hippodamia.convergens)
 
 
-#try model that is linear with Totalcount (minus the captures of Hcon to make it independent) 
+#try model that is linear with Totalcount (minus the captures of hcon to make it independent) 
 #and has a gaussian process-based spatial relationship
 hcon.gam<-gam(Hippodamia.convergens~s(lon, lat, bs="gp")+
                 offset(log(1+Totalcount-Hippodamia.convergens)), 
@@ -993,9 +993,6 @@ summary(hcon.gam.inv)
 AIC(hcon.gam.inv)
 b.inv<-getViz(hcon.gam.inv)
 
-text_high<-textGrob("Highest")
-text_low<-textGrob("Lowest")
-text_key<-textGrob("Predicted captures")
 
 hconmap<- plot(b, select=1)+theme_classic()+
   xlab("Longitude")+ylab("Latitude")+ggtitle(NULL)+
@@ -1012,7 +1009,6 @@ hcon.gb<-grid.grabExpr(print(hconmap))
 
 
 #make the maps for each of the invasion periods
-
 
 hconmap.inv.1<- plot(b.inv, select=1)+theme_classic()+
   xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
@@ -1035,15 +1031,16 @@ hconmap.inv.3<- plot(b.inv, select=3)+theme_classic()+
 hconmap.inv.3
 hcon3.gb<-grid.grabExpr(print(hconmap.inv.3))
 
-hconmap.inv.4<-plot(b.inv, select=4)+theme_classic()+
+hconmap.inv.4<- plot(b.inv, select=4)+theme_classic()+
   xlab(NULL)+ylab(NULL)+ggtitle(NULL)+
   theme(legend.position="none", aspect.ratio=1)
+
 hconmap.inv.4
 hcon4.gb<-grid.grabExpr(print(hconmap.inv.4))
 
 #All right, let's put these together nicely
 
-hcon.4<-plot_grid(hcon1.gb,hcon2.gb,hcon3.gb,hcon4.gb, ncol=2, labels=c('B', 'C', 'D', 'E'))
+hcon.4<-plot_grid(hcon1.gb, hcon2.gb, hcon3.gb, hcon4.gb, ncol=2, labels=c('B', 'C', 'D', 'E'))
 hcon.4
 
 hcon.all<-plot_grid(hcon.gb, hcon.4, ncol=2, rel_widths=c(6,4), labels=c('A', NULL))
@@ -1057,88 +1054,157 @@ dev.off()
 #it will be autocorrelated with other values
 #iterative process-use AIC as selection criterion
 hcon.gam1<-gam(Hippodamia.convergens~offset(log(1+Totalcount-Hippodamia.convergens))+
-                 s(log(1+Totalinvasive), sp=0.5)+
+                 s(Decade, sp=0.5, k=4)+
+                 s(lon, sp=0.5)+
+                 s(lat, sp=0.5)+
+                 s(log(1+Totalinvasive), sp=0.5, k=4)+
                  s(Agriculture, sp=0.5)+
                  s(Forest, sp=0.5)+
                  s(Developed, sp=0.5)+
-                 s(Density, sp=0.5), 
+                 s(Ag_change, sp=0.5)+
+                 s(For_change, sp=0.5)+
+                 s(Dev_change, sp=0.5), 
                data=lb_all2, family="nb")
 summary(hcon.gam1)
 AIC(hcon.gam1)
 
+visreg(hcon.gam1, "Decade",  ylab="Captures")
+visreg(hcon.gam1, "lon",  ylab="Captures")
+visreg(hcon.gam1, "lat",  ylab="Captures")
 visreg(hcon.gam1, "Totalinvasive",  ylab="Captures")
 visreg(hcon.gam1, "Agriculture",  ylab="Captures")
 visreg(hcon.gam1, "Forest", ylab="Captures")
 visreg(hcon.gam1, "Developed",  ylab="Captures")
-visreg(hcon.gam1, "Density", ylab="Captures")
+visreg(hcon.gam1, "Ag_change", ylab="Captures")
+visreg(hcon.gam1, "For_change",  ylab="Captures")
+visreg(hcon.gam1, "Dev_change", ylab="Captures")
 
-#not a lot of super strong signals from anything in the "global model"
 
 #replace totalinvasive with two major invasives
 
 hcon.gam2<-gam(Hippodamia.convergens~offset(log(1+Totalcount-Hippodamia.convergens))+
+                 s(Decade, sp=0.5, k=4)+
+                 s(lon, sp=0.5)+
+                 s(lat, sp=0.5)+
+                 s(Propinvasive, sp=0.5)+
                  s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
-                 s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+                 #s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
                  s(Agriculture, sp=0.5)+
                  s(Forest, sp=0.5)+
                  s(Developed, sp=0.5)+
-                 s(Density, sp=0.5), 
+                 s(Ag_change, sp=0.5)+
+                 s(For_change, sp=0.5)+
+                 s(Dev_change, sp=0.5),  
                data=lb_all2, family="nb")
 summary(hcon.gam2)
 AIC(hcon.gam2)
 
-visreg(hcon.gam2, "Coccinella.septempunctata",  ylab="Captures")
-visreg(hcon.gam2, "Harmonia.axyridis",  ylab="Captures")
+visreg(hcon.gam2, "Decade",  ylab="Captures")
+#visreg(hcon.gam2, "lon",  ylab="Captures")
+visreg(hcon.gam2, "lat",  ylab="Captures")
+visreg(hcon.gam2, "Propinvasive",  ylab="Captures")
+#visreg(hcon.gam2, "Coccinella.septempunctata",  ylab="Captures")
+#visreg(hcon.gam2, "Harmonia.axyridis",  ylab="Captures")
 visreg(hcon.gam2, "Agriculture",  ylab="Captures")
 visreg(hcon.gam2, "Forest", ylab="Captures")
 visreg(hcon.gam2, "Developed",  ylab="Captures")
-visreg(hcon.gam2, "Density", ylab="Captures")
+visreg(hcon.gam2, "Ag_change", ylab="Captures")
+visreg(hcon.gam2, "For_change",  ylab="Captures")
+visreg(hcon.gam2, "Dev_change", ylab="Captures")
+
 
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
 
 hcon.gam3<-gam(Hippodamia.convergens~offset(log(1+Totalcount-Hippodamia.convergens))+
-                 s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
-                 s(Developed, sp=0.5)+
-                 s(Density, sp=0.5), 
+                 s(lon, sp=0.5)+
+                 s(Propinvasive, sp=0.5)+
+                 s(Agriculture, sp=0.5)+
+                 s(Ag_change, sp=0.5)+
+                 s(For_change, sp=0.5),  
                data=lb_all2, family="nb")
 summary(hcon.gam3)
 AIC(hcon.gam3)
 
-hcon.ha<-visreg(hcon.gam3, "Harmonia.axyridis",  ylab="Residual captures", 
-                xlab=expression(paste(italic("Harmonia axyridis "), "captures")), 
-                gg=T, 
-                line=list(col="darkorange"),
-                fill=list(col="burlywood1", fill="burlywood1"),
-                points=list(size=1, pch=25, fill="darkorange", col="black"))+
+# hcon.decade<-visreg(hcon.gam3, "Decade",  ylab="Residual captures",
+#                    xlab=expression(paste("Year")), 
+#                    gg=T, 
+#                    line=list(col="gray19"),
+#                    fill=list(col="gray57", fill="gray57"),
+#                    points=list(size=1, pch=21, fill="gray19", col="black"))+
+#   theme_classic()
+# hcon.decade
+
+hcon.lon<-visreg(hcon.gam3, "lon",  ylab="Residual captures",
+                 xlab=expression(paste("Longitude")), 
+                 gg=T, 
+                 line=list(col="gray28"),
+                 fill=list(col="gray", fill="gray"),
+                 points=list(size=1, pch=21, fill="gray28", col="black"))+
   theme_classic()
-hcon.ha
-hcon.ha.gb<-grid.grabExpr(print(hcon.ha))
+hcon.lon
 
-hcon.developed<-visreg(hcon.gam3, "Developed", ylab="Residual Captures", xlab="% Developed cover", 
-                    gg=T, 
-                    line=list(col="slategray4"),
-                    fill=list(col="slategray2", fill="slategray2"),
-                    points=list(size=1, pch=23, fill="slategray4", col="black"))+
+# hcon.lat<-visreg(hcon.gam3, "lat",  ylab="Residual captures",
+#                 xlab=expression(paste("Latitude")), 
+#                 gg=T, 
+#                 line=list(col="gray28"),
+#                 fill=list(col="gray", fill="gray"),
+#                 points=list(size=1, pch=21, fill="gray28", col="black"))+
+#   theme_classic()
+# hcon.lat
+
+hcon.pi<-visreg(hcon.gam3, "Propinvasive",  ylab="Residual captures",
+                xlab=expression(paste("Proportion invasive")),
+                gg=T,
+                line=list(col="darkmagenta"),
+                fill=list(col="plum1", fill="plum1"),
+                points=list(size=1, pch=22, fill="darkmagenta", col="black"))+
   theme_classic()
-hcon.developed
-hcon.developed.gb<-grid.grabExpr(print(hcon.developed))
+hcon.pi
 
-hcon.density<-visreg(hcon.gam3, "Density", ylab="Residual Captures", xlab="Human population density", 
-                       gg=T, 
-                       line=list(col="navyblue"),
-                       fill=list(col="lightsteelblue1", fill="lightsteelblue1"),
-                       points=list(size=1, pch=23, fill="navyblue", col="black"))+
+
+hcon.agriculture<-visreg(hcon.gam3, "Agriculture", ylab="Residual Captures", xlab="% Agriculture cover", 
+                         gg=T, 
+                         line=list(col="darkolivegreen4"),
+                         fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
+                         points=list(size=1, pch=23, fill="darkolivegreen4", col="black"))+
   theme_classic()
-hcon.density
-hcon.density.gb<-grid.grabExpr(print(hcon.density))
+hcon.agriculture
+
+hcon.agchange<-visreg(hcon.gam3, "Ag_change", ylab="Residual Captures", xlab="Change in agriculture cover",
+                      gg=T,
+                      line=list(col="lightgoldenrod4"),
+                      fill=list(col="lightgoldenrod1", fill="lightgoldenrod1"),
+                      points=list(size=1, pch=24, fill="lightgoldenrod4", col="black"))+
+  theme_classic()
+hcon.agchange
+
+hcon.forchange<-visreg(hcon.gam3, "For_change", ylab="Residual Captures", xlab="Change in forest cover",
+                       gg=T,
+                       line=list(col="palegreen4"),
+                       fill=list(col="palegreen1", fill="palegreen1"),
+                       points=list(size=1, pch=24, fill="palegreen4", col="black"))+
+  theme_classic()
+hcon.forchange
 
 
-hcon.smooths<-plot_grid(hcon.ha, hcon.developed, hcon.density, ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C'))
+#create graphical objects for placeholders in plots
+noeffect<-text_grob(paste("No effect"), color="black")
+notpresent<-text_grob(paste("Not present"), color="black")
+
+hcon.smooths<-plot_grid(noeffect, hcon.lon, noeffect, 
+                        hcon.pi, noeffect, noeffect,
+                        hcon.agriculture, noeffect, noeffect,
+                        hcon.agchange, hcon.forchange, noeffect,
+                        ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
+                                                              'D', 'E', 'F',
+                                                              'G', 'H', 'I',
+                                                              'J', 'K', 'L'))
 hcon.smooths
 
-pdf("plots/hcon_smooths.pdf", height=3, width=9)
+pdf("plots/hcon_smooths.pdf", height=12, width=9)
 grid.draw(hcon.smooths)
 dev.off()
+
 
 
 ###########################################################################################
