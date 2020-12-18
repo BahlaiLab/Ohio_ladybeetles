@@ -453,6 +453,13 @@ cmac.gam3<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.macula
 summary(cmac.gam3)
 AIC(cmac.gam3)
 
+#for all the 'final' models as chosen by AIC, check the concurvity to identify variables where concurvity is 
+#likely to be causing an issue in the final fit. Eliminate variables with overall estimated concurvity >0.8 
+# (do this one by one and recalculate, record stats in the model selection spreadhseet)
+
+concurvity(cmac.gam3)
+#ok, can stay as is!
+
 cmac.decade<-visreg(cmac.gam3, "Decade",  ylab="Residual captures",
        xlab=expression(paste("Year")), 
        gg=T, 
@@ -660,6 +667,13 @@ c9.gam3<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnota
              data=pre1995, family="nb")
 summary(c9.gam3)
 AIC(c9.gam3)
+
+#for all the 'final' models as chosen by AIC, check the concurvity to identify variables where concurvity is 
+#likely to be causing an issue in the final fit. Eliminate variables with overall estimated concurvity >0.8 
+# (do this one by one and recalculate, record stats in the model selection spreadhseet)
+
+concurvity(c9.gam3)
+#ok, can stay as is!
 
 c9.decade<-visreg(c9.gam3, "Decade",  ylab="Residual captures",
                   xlab=expression(paste("Year")), 
@@ -886,6 +900,15 @@ abi.gam3<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
               data=pre1995, family="nb")
 summary(abi.gam3)
 AIC(abi.gam3)
+
+
+#for all the 'final' models as chosen by AIC, check the concurvity to identify variables where concurvity is 
+#likely to be causing an issue in the final fit. Eliminate variables with overall estimated concurvity >0.8 
+# (do this one by one and recalculate, record stats in the model selection spreadhseet)
+
+concurvity(abi.gam3)
+#ok, can stay as is!
+
 
 # abi.decade<-visreg(abi.gam3, "Decade",  ylab="Residual captures",
 #                    xlab=expression(paste("Year")), 
@@ -1127,6 +1150,13 @@ hcon.gam3<-gam(Hippodamia.convergens~offset(log(1+Totalcount-Hippodamia.converge
                data=lb_all2, family="nb")
 summary(hcon.gam3)
 AIC(hcon.gam3)
+
+#for all the 'final' models as chosen by AIC, check the concurvity to identify variables where concurvity is 
+#likely to be causing an issue in the final fit. Eliminate variables with overall estimated concurvity >0.8 
+# (do this one by one and recalculate, record stats in the model selection spreadhseet)
+
+concurvity(hcon.gam3)
+#ok, can stay as is!
 
 hcon.decade<-visreg(hcon.gam3, "Decade",  ylab="Residual captures",
                    xlab=expression(paste("Year")),
@@ -1402,6 +1432,13 @@ cstig.gam3<-gam(Chilocorus.stigma~offset(log(1+Totalcount-Chilocorus.stigma))+
 summary(cstig.gam3)
 AIC(cstig.gam3)
 
+#for all the 'final' models as chosen by AIC, check the concurvity to identify variables where concurvity is 
+#likely to be causing an issue in the final fit. Eliminate variables with overall estimated concurvity >0.8 
+# (do this one by one and recalculate, record stats in the model selection spreadhseet)
+
+concurvity(cstig.gam3)
+#ok, can stay as is!
+
 # cstig.decade<-visreg(cstig.gam3, "Decade",  ylab="Residual captures",
 #                      xlab=expression(paste("Year")),
 #                      gg=T,
@@ -1675,12 +1712,17 @@ c7.gam3<-gam(Coccinella.septempunctata~offset(log(1+Totalcount-Coccinella.septem
                s(lon, sp=0.5)+
                s(lat, sp=0.5)+
                s(Agriculture, sp=0.5)+
-               s(Forest, sp=0.5)+
-               s(Developed, sp=0.5)+
                s(Dev_change, sp=0.5),  
              data=after1980, family="nb")
 summary(c7.gam3)
 AIC(c7.gam3)
+
+#for all the 'final' models as chosen by AIC, check the concurvity to identify variables where concurvity is 
+#likely to be causing an issue in the final fit. Eliminate variables with overall estimated concurvity >0.8 
+# (do this one by one and recalculate, record stats in the model selection spreadhseet)
+
+concurvity(c7.gam3)
+#must eliminate a few of the lanscape variables!
 
 c7.decade<-visreg(c7.gam3, "Decade",  ylab="Residual captures",
                   xlab=expression(paste("Year")),
@@ -1745,21 +1787,21 @@ c7.agriculture<-visreg(c7.gam3, "Agriculture", ylab="Residual Captures", xlab="%
   theme_classic()
 c7.agriculture
 
-c7.forest<-visreg(c7.gam3, "Forest", ylab="Residual Captures", xlab="% Forest cover",
-                     gg=T,
-                     line=list(col="darkgreen"),
-                     fill=list(col="lightgreen", fill="lightgreen"),
-                     points=list(size=1, pch=23, fill="darkgreen", col="black"))+
-  theme_classic()
-c7.forest
+# c7.forest<-visreg(c7.gam3, "Forest", ylab="Residual Captures", xlab="% Forest cover",
+#                      gg=T,
+#                      line=list(col="darkgreen"),
+#                      fill=list(col="lightgreen", fill="lightgreen"),
+#                      points=list(size=1, pch=23, fill="darkgreen", col="black"))+
+#   theme_classic()
+# c7.forest
 
-c7.developed<-visreg(c7.gam3, "Developed", ylab="Residual Captures", xlab="% Developed cover",
-                     gg=T,
-                     line=list(col="slategray4"),
-                     fill=list(col="slategray2", fill="slategray2"),
-                     points=list(size=1, pch=23, fill="slategray4", col="black"))+
-  theme_classic()
-c7.developed
+# c7.developed<-visreg(c7.gam3, "Developed", ylab="Residual Captures", xlab="% Developed cover",
+#                      gg=T,
+#                      line=list(col="slategray4"),
+#                      fill=list(col="slategray2", fill="slategray2"),
+#                      points=list(size=1, pch=23, fill="slategray4", col="black"))+
+#   theme_classic()
+# c7.developed
 
 
 # c7.agchange<-visreg(c7.gam3, "Ag_change", ylab="Residual Captures", xlab="Change in agriculture cover",
@@ -1794,7 +1836,7 @@ notpresent<-text_grob(paste("Not present"), color="black")
 
 c7.smooths<-plot_grid(c7.decade, c7.lon, c7.lat, 
                       noeffect, noeffect, noeffect,
-                      c7.agriculture, c7.forest, c7.developed,
+                      c7.agriculture, noeffect, noeffect,
                       noeffect,noeffect, c7.devchange,
                       ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
                                                             'D', 'E', 'F',
@@ -1960,6 +2002,14 @@ ha.gam3<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
              data=after1990, family="nb")
 summary(ha.gam3)
 AIC(ha.gam3)
+
+#for all the 'final' models as chosen by AIC, check the concurvity to identify variables where concurvity is 
+#likely to be causing an issue in the final fit. Eliminate variables with overall estimated concurvity >0.8 
+# (do this one by one and recalculate, record stats in the model selection spreadhseet)
+
+concurvity(ha.gam3)
+#needs a bit of tweaking
+
 
 ha.decade<-visreg(ha.gam3, "Decade",  ylab="Residual captures",
                   xlab=expression(paste("Year")),
