@@ -388,10 +388,7 @@ cmac.gam1<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.macula
                  s(log(1+Totalinvasive), sp=0.5)+
                  s(Agriculture, sp=0.5)+
                  s(Forest, sp=0.5)+
-                 s(Developed, sp=0.5)+
-                 s(Ag_change, sp=0.5)+
-                 s(For_change, sp=0.5)+
-                 s(Dev_change, sp=0.5), 
+                 s(Developed, sp=0.5), 
                data=lb_all2, family="nb")
 summary(cmac.gam1)
 AIC(cmac.gam1)
@@ -403,9 +400,7 @@ visreg(cmac.gam1, "Totalinvasive",  ylab="Captures")
 visreg(cmac.gam1, "Agriculture",  ylab="Captures")
 visreg(cmac.gam1, "Forest", ylab="Captures")
 visreg(cmac.gam1, "Developed",  ylab="Captures")
-visreg(cmac.gam1, "Ag_change", ylab="Captures")
-visreg(cmac.gam1, "For_change",  ylab="Captures")
-visreg(cmac.gam1, "Dev_change", ylab="Captures")
+
 
 #not a lot of super strong signals from anything in the "global model"
 
@@ -413,17 +408,14 @@ visreg(cmac.gam1, "Dev_change", ylab="Captures")
 
 cmac.gam2<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.maculata))+
                  s(Decade, sp=0.5, k=4)+
-                 #s(lon, sp=0.5)+
+                 s(lon, sp=0.5)+
                  s(lat, sp=0.5)+
                  s(Propinvasive, sp=0.5)+
-                 #s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
-                 #s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+                 s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+                 s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
                  s(Agriculture, sp=0.5)+
                  s(Forest, sp=0.5)+
-                 s(Developed, sp=0.5)+
-                 s(Ag_change, sp=0.5)+
-                 s(For_change, sp=0.5)+
-                 s(Dev_change, sp=0.5),  
+                 s(Developed, sp=0.5),  
                data=lb_all2, family="nb")
 summary(cmac.gam2)
 AIC(cmac.gam2)
@@ -437,9 +429,7 @@ visreg(cmac.gam2, "Propinvasive",  ylab="Captures")
 visreg(cmac.gam2, "Agriculture",  ylab="Captures")
 visreg(cmac.gam2, "Forest", ylab="Captures")
 visreg(cmac.gam2, "Developed",  ylab="Captures")
-visreg(cmac.gam2, "Ag_change", ylab="Captures")
-visreg(cmac.gam2, "For_change",  ylab="Captures")
-visreg(cmac.gam2, "Dev_change", ylab="Captures")
+
 
 
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
@@ -503,14 +493,12 @@ notpresent<-text_grob(paste("Not present"), color="black")
 cmac.smooths<-plot_grid(cmac.decade, noeffect, cmac.lat, 
                         cmac.pi, noeffect, noeffect,
                         cmac.agriculture, noeffect, noeffect,
-                        noeffect, noeffect, noeffect,
                         ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
                                                               'D', 'E', 'F',
-                                                              'G', 'H', 'I',
-                                                              'J', 'K', 'L'))
+                                                              'G', 'H', 'I'))
 cmac.smooths
 
-pdf("plots/cmac_smooths.pdf", height=12, width=9)
+pdf("plots/cmac_smooths.pdf", height=9, width=9)
 grid.draw(cmac.smooths)
 dev.off()
 
@@ -602,10 +590,7 @@ c9.gam1<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnota
                s(log(1+Totalinvasive), sp=0.5, k=4)+
                s(Agriculture, sp=0.5)+
                s(Forest, sp=0.5)+
-               s(Developed, sp=0.5)+
-               s(Ag_change, sp=0.5)+
-               s(For_change, sp=0.5)+
-               s(Dev_change, sp=0.5), 
+               s(Developed, sp=0.5), 
              data=pre1995, family="nb")
 summary(c9.gam1)
 AIC(c9.gam1)
@@ -617,9 +602,7 @@ visreg(c9.gam1, "Totalinvasive",  ylab="Captures")
 visreg(c9.gam1, "Agriculture",  ylab="Captures")
 visreg(c9.gam1, "Forest", ylab="Captures")
 visreg(c9.gam1, "Developed",  ylab="Captures")
-visreg(c9.gam1, "Ag_change", ylab="Captures")
-visreg(c9.gam1, "For_change",  ylab="Captures")
-visreg(c9.gam1, "Dev_change", ylab="Captures")
+
 
 #only Decade is popping out right now but let's see what happens when we narrow down sources of variation
 
@@ -629,15 +612,11 @@ c9.gam2<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnota
                s(Decade, sp=0.5, k=4)+
                s(lon, sp=0.5)+
                s(lat, sp=0.5)+
-               #s(Propinvasive, sp=0.5)+
-               #s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
-               #s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+               s(Propinvasive, sp=0.5)+
+               s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
                s(Agriculture, sp=0.5)+
                s(Forest, sp=0.5)+
-               s(Developed, sp=0.5)+
-               s(Ag_change, sp=0.5)+
-               s(For_change, sp=0.5)+
-               s(Dev_change, sp=0.5),  
+               s(Developed, sp=0.5),  
              data=pre1995, family="nb")
 summary(c9.gam2)
 AIC(c9.gam2)
@@ -651,9 +630,7 @@ visreg(c9.gam2, "Propinvasive",  ylab="Captures")
 visreg(c9.gam2, "Agriculture",  ylab="Captures")
 visreg(c9.gam2, "Forest", ylab="Captures")
 visreg(c9.gam2, "Developed",  ylab="Captures")
-visreg(c9.gam2, "Ag_change", ylab="Captures")
-visreg(c9.gam2, "For_change",  ylab="Captures")
-visreg(c9.gam2, "Dev_change", ylab="Captures")
+
 
 
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
@@ -662,8 +639,7 @@ c9.gam3<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnota
                s(Decade, sp=0.5, k=4)+
                s(lon, sp=0.5)+
                s(lat, sp=0.5)+
-               s(Agriculture, sp=0.5)+
-               s(For_change, sp=0.5),  
+               s(Agriculture, sp=0.5),  
              data=pre1995, family="nb")
 summary(c9.gam3)
 AIC(c9.gam3)
@@ -720,14 +696,6 @@ c9.agriculture<-visreg(c9.gam3, "Agriculture", ylab="Residual Captures", xlab="%
   theme_classic()
 c9.agriculture
 
-c9.forchange<-visreg(c9.gam3, "For_change", ylab="Residual Captures", xlab="Change in forest cover", 
-                       gg=T, 
-                       line=list(col="palegreen4"),
-                       fill=list(col="palegreen1", fill="palegreen1"),
-                       points=list(size=1, pch=24, fill="palegreen4", col="black"))+
-  theme_classic()
-c9.forchange
-
 
 #create graphical objects for placeholders in plots
 noeffect<-text_grob(paste("No effect"), color="black")
@@ -736,14 +704,12 @@ notpresent<-text_grob(paste("Not present"), color="black")
 c9.smooths<-plot_grid(c9.decade, c9.lon, c9.lat, 
                       noeffect, noeffect, noeffect,
                       c9.agriculture, noeffect, noeffect,
-                      noeffect, c9.forchange, noeffect,
                       ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
                                                             'D', 'E', 'F',
-                                                            'G', 'H', 'I',
-                                                            'J', 'K', 'L'))
+                                                            'G', 'H', 'I'))
 c9.smooths
 
-pdf("plots/c9_smooths.pdf", height=12, width=9)
+pdf("plots/c9_smooths.pdf", height=9, width=9)
 grid.draw(c9.smooths)
 dev.off()
 
@@ -836,10 +802,7 @@ abi.gam1<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
                 s(log(1+Totalinvasive), sp=0.5, k=4)+
                 s(Agriculture, sp=0.5)+
                 s(Forest, sp=0.5)+
-                s(Developed, sp=0.5)+
-                s(Ag_change, sp=0.5)+
-                s(For_change, sp=0.5)+
-                s(Dev_change, sp=0.5), 
+                s(Developed, sp=0.5), 
               data=pre1995, family="nb")
 summary(abi.gam1)
 AIC(abi.gam1)
@@ -851,9 +814,6 @@ visreg(abi.gam1, "Totalinvasive",  ylab="Captures")
 visreg(abi.gam1, "Agriculture",  ylab="Captures")
 visreg(abi.gam1, "Forest", ylab="Captures")
 visreg(abi.gam1, "Developed",  ylab="Captures")
-visreg(abi.gam1, "Ag_change", ylab="Captures")
-visreg(abi.gam1, "For_change",  ylab="Captures")
-visreg(abi.gam1, "Dev_change", ylab="Captures")
 
 
 #replace totalinvasive with two major invasives
@@ -863,14 +823,10 @@ abi.gam2<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
                 s(lon, sp=0.5)+
                 s(lat, sp=0.5)+
                 s(Propinvasive, sp=0.5)+
-                s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
-                #s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+                #s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
                 s(Agriculture, sp=0.5)+
                 s(Forest, sp=0.5)+
-                s(Developed, sp=0.5)+
-                s(Ag_change, sp=0.5)+
-                s(For_change, sp=0.5)+
-                s(Dev_change, sp=0.5),  
+                s(Developed, sp=0.5),  
               data=pre1995, family="nb")
 summary(abi.gam2)
 AIC(abi.gam2)
@@ -884,9 +840,6 @@ visreg(abi.gam2, "Propinvasive",  ylab="Captures")
 visreg(abi.gam2, "Agriculture",  ylab="Captures")
 visreg(abi.gam2, "Forest", ylab="Captures")
 visreg(abi.gam2, "Developed",  ylab="Captures")
-visreg(abi.gam2, "Ag_change", ylab="Captures")
-visreg(abi.gam2, "For_change",  ylab="Captures")
-visreg(abi.gam2, "Dev_change", ylab="Captures")
 
 
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
@@ -895,8 +848,7 @@ abi.gam3<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
                 s(lon, sp=0.5)+
                 s(Propinvasive, sp=0.5)+
                 s(Agriculture, sp=0.5)+
-                s(Ag_change, sp=0.5)+
-                s(For_change, sp=0.5),  
+                s(Developed, sp=0.5),  
               data=pre1995, family="nb")
 summary(abi.gam3)
 AIC(abi.gam3)
@@ -955,21 +907,14 @@ abi.agriculture<-visreg(abi.gam3, "Agriculture", ylab="Residual Captures", xlab=
   theme_classic()
 abi.agriculture
 
-abi.agchange<-visreg(abi.gam3, "Ag_change", ylab="Residual Captures", xlab="Change in agriculture cover",
-                      gg=T,
-                      line=list(col="lightgoldenrod4"),
-                      fill=list(col="lightgoldenrod1", fill="lightgoldenrod1"),
-                      points=list(size=1, pch=24, fill="lightgoldenrod4", col="black"))+
+abi.developed<-visreg(abi.gam3, "Developed", ylab="Residual Captures", xlab="% Developed cover",
+                       gg=T,
+                       line=list(col="slategray4"),
+                       fill=list(col="slategray2", fill="slategray2"),
+                       points=list(size=1, pch=23, fill="slategray4", col="black"))+
   theme_classic()
-abi.agchange
+abi.developed
 
-abi.forchange<-visreg(abi.gam3, "For_change", ylab="Residual Captures", xlab="Change in forest cover",
-                      gg=T,
-                      line=list(col="palegreen4"),
-                      fill=list(col="palegreen1", fill="palegreen1"),
-                      points=list(size=1, pch=24, fill="palegreen4", col="black"))+
-  theme_classic()
-abi.forchange
 
 
 #create graphical objects for placeholders in plots
@@ -978,15 +923,13 @@ notpresent<-text_grob(paste("Not present"), color="black")
 
 abi.smooths<-plot_grid(noeffect, abi.lon, noeffect, 
                        abi.pi, noeffect, noeffect,
-                       abi.agriculture, noeffect, noeffect,
-                       abi.agchange, abi.forchange, noeffect,
+                       abi.agriculture, noeffect, abi.developed,
                        ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
                                                              'D', 'E', 'F',
-                                                             'G', 'H', 'I',
-                                                             'J', 'K', 'L'))
+                                                             'G', 'H', 'I'))
 abi.smooths
 
-pdf("plots/abi_smooths.pdf", height=12, width=9)
+pdf("plots/abi_smooths.pdf", height=9, width=9)
 grid.draw(abi.smooths)
 dev.off()
 
@@ -1083,10 +1026,7 @@ hcon.gam1<-gam(Hippodamia.convergens~offset(log(1+Totalcount-Hippodamia.converge
                  s(log(1+Totalinvasive), sp=0.5, k=4)+
                  s(Agriculture, sp=0.5)+
                  s(Forest, sp=0.5)+
-                 s(Developed, sp=0.5)+
-                 s(Ag_change, sp=0.5)+
-                 s(For_change, sp=0.5)+
-                 s(Dev_change, sp=0.5), 
+                 s(Developed, sp=0.5), 
                data=lb_all2, family="nb")
 summary(hcon.gam1)
 AIC(hcon.gam1)
@@ -1098,9 +1038,6 @@ visreg(hcon.gam1, "Totalinvasive",  ylab="Captures")
 visreg(hcon.gam1, "Agriculture",  ylab="Captures")
 visreg(hcon.gam1, "Forest", ylab="Captures")
 visreg(hcon.gam1, "Developed",  ylab="Captures")
-visreg(hcon.gam1, "Ag_change", ylab="Captures")
-visreg(hcon.gam1, "For_change",  ylab="Captures")
-visreg(hcon.gam1, "Dev_change", ylab="Captures")
 
 
 #replace totalinvasive with two major invasives
@@ -1110,14 +1047,11 @@ hcon.gam2<-gam(Hippodamia.convergens~offset(log(1+Totalcount-Hippodamia.converge
                  s(lon, sp=0.5)+
                  s(lat, sp=0.5)+
                  s(Propinvasive, sp=0.5)+
-                 s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
-                 s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+                 #s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+                 #s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
                  s(Agriculture, sp=0.5)+
                  s(Forest, sp=0.5)+
-                 s(Developed, sp=0.5)+
-                 s(Ag_change, sp=0.5)+
-                 s(For_change, sp=0.5)+
-                 s(Dev_change, sp=0.5),  
+                 s(Developed, sp=0.5),  
                data=lb_all2, family="nb")
 summary(hcon.gam2)
 AIC(hcon.gam2)
@@ -1131,9 +1065,7 @@ visreg(hcon.gam2, "Propinvasive",  ylab="Captures")
 visreg(hcon.gam2, "Agriculture",  ylab="Captures")
 visreg(hcon.gam2, "Forest", ylab="Captures")
 visreg(hcon.gam2, "Developed",  ylab="Captures")
-visreg(hcon.gam2, "Ag_change", ylab="Captures")
-visreg(hcon.gam2, "For_change",  ylab="Captures")
-visreg(hcon.gam2, "Dev_change", ylab="Captures")
+
 
 
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
@@ -1141,12 +1073,9 @@ visreg(hcon.gam2, "Dev_change", ylab="Captures")
 hcon.gam3<-gam(Hippodamia.convergens~offset(log(1+Totalcount-Hippodamia.convergens))+
                  s(Decade, sp=0.5, k=4)+
                  s(lat, sp=0.5)+
-                 s(Propinvasive, sp=0.5)+
                  s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
                  s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
-                 s(Developed, sp=0.5)+
-                 s(Ag_change, sp=0.5)+
-                 s(Dev_change, sp=0.5),  
+                 s(Developed, sp=0.5),  
                data=lb_all2, family="nb")
 summary(hcon.gam3)
 AIC(hcon.gam3)
@@ -1185,14 +1114,14 @@ hcon.lat<-visreg(hcon.gam3, "lat",  ylab="Residual captures",
   theme_classic()
 hcon.lat
 
-hcon.pi<-visreg(hcon.gam3, "Propinvasive",  ylab="Residual captures",
-                xlab=expression(paste("Proportion invasive")),
-                gg=T,
-                line=list(col="darkmagenta"),
-                fill=list(col="plum1", fill="plum1"),
-                points=list(size=1, pch=22, fill="darkmagenta", col="black"))+
-  theme_classic()
-hcon.pi
+# hcon.pi<-visreg(hcon.gam3, "Propinvasive",  ylab="Residual captures",
+#                 xlab=expression(paste("Proportion invasive")),
+#                 gg=T,
+#                 line=list(col="darkmagenta"),
+#                 fill=list(col="plum1", fill="plum1"),
+#                 points=list(size=1, pch=22, fill="darkmagenta", col="black"))+
+#   theme_classic()
+# hcon.pi
 
 hcon.c7<-visreg(hcon.gam3, "Coccinella.septempunctata",  ylab="Residual captures",
                 xlab=expression(paste("Captures of ", italic("Coccinella septempunctata"))),
@@ -1230,30 +1159,6 @@ hcon.developed<-visreg(hcon.gam3, "Developed", ylab="Residual Captures", xlab="%
 hcon.developed
 
 
-hcon.agchange<-visreg(hcon.gam3, "Ag_change", ylab="Residual Captures", xlab="Change in agriculture cover",
-                      gg=T,
-                      line=list(col="lightgoldenrod4"),
-                      fill=list(col="lightgoldenrod1", fill="lightgoldenrod1"),
-                      points=list(size=1, pch=24, fill="lightgoldenrod4", col="black"))+
-  theme_classic()
-hcon.agchange
-
-# hcon.forchange<-visreg(hcon.gam3, "For_change", ylab="Residual Captures", xlab="Change in forest cover",
-#                        gg=T,
-#                        line=list(col="palegreen4"),
-#                        fill=list(col="palegreen1", fill="palegreen1"),
-#                        points=list(size=1, pch=24, fill="palegreen4", col="black"))+
-#   theme_classic()
-# hcon.forchange
-
-hcon.devchange<-visreg(hcon.gam3, "Dev_change", ylab="Residual Captures", xlab="Change in developed cover",
-                       gg=T,
-                       line=list(col="navyblue"),
-                       fill=list(col="lightsteelblue1", fill="lightsteelblue1"),
-                       points=list(size=1, pch=24, fill="navyblue", col="black"))+
-  theme_classic()
-hcon.devchange
-
 
 
 #create graphical objects for placeholders in plots
@@ -1261,16 +1166,14 @@ noeffect<-text_grob(paste("No effect"), color="black")
 notpresent<-text_grob(paste("Not present"), color="black")
 
 hcon.smooths<-plot_grid(hcon.decade, noeffect, hcon.lat, 
-                        hcon.pi, hcon.c7, hcon.ha,
+                        noeffect, hcon.c7, hcon.ha,
                         noeffect, noeffect, hcon.developed,
-                        hcon.agchange,noeffect, hcon.devchange,
                         ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
                                                               'D', 'E', 'F',
-                                                              'G', 'H', 'I',
-                                                              'J', 'K', 'L'))
+                                                              'G', 'H', 'I'))
 hcon.smooths
 
-pdf("plots/hcon_smooths.pdf", height=12, width=9)
+pdf("plots/hcon_smooths.pdf", height=9, width=9)
 grid.draw(hcon.smooths)
 dev.off()
 
@@ -1368,10 +1271,7 @@ cstig.gam1<-gam(Chilocorus.stigma~offset(log(1+Totalcount-Chilocorus.stigma))+
                   s(log(1+Totalinvasive), sp=0.5, k=4)+
                   s(Agriculture, sp=0.5)+
                   s(Forest, sp=0.5)+
-                  s(Developed, sp=0.5)+
-                  s(Ag_change, sp=0.5)+
-                  s(For_change, sp=0.5)+
-                  s(Dev_change, sp=0.5), 
+                  s(Developed, sp=0.5), 
                 data=lb_all2, family="nb")
 summary(cstig.gam1)
 AIC(cstig.gam1)
@@ -1383,9 +1283,7 @@ visreg(cstig.gam1, "Totalinvasive",  ylab="Captures")
 visreg(cstig.gam1, "Agriculture",  ylab="Captures")
 visreg(cstig.gam1, "Forest", ylab="Captures")
 visreg(cstig.gam1, "Developed",  ylab="Captures")
-visreg(cstig.gam1, "Ag_change", ylab="Captures")
-visreg(cstig.gam1, "For_change",  ylab="Captures")
-visreg(cstig.gam1, "Dev_change", ylab="Captures")
+
 
 
 #replace totalinvasive with two major invasives
@@ -1395,14 +1293,11 @@ cstig.gam2<-gam(Chilocorus.stigma~offset(log(1+Totalcount-Chilocorus.stigma))+
                   s(lon, sp=0.5)+
                   s(lat, sp=0.5)+
                   s(Propinvasive, sp=0.5)+
-                  #s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
-                  #s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+                  s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+                  s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
                   s(Agriculture, sp=0.5)+
                   s(Forest, sp=0.5)+
-                  s(Developed, sp=0.5)+
-                  s(Ag_change, sp=0.5)+
-                  s(For_change, sp=0.5)+
-                  s(Dev_change, sp=0.5),  
+                  s(Developed, sp=0.5),  
                 data=lb_all2, family="nb")
 summary(cstig.gam2)
 AIC(cstig.gam2)
@@ -1416,9 +1311,6 @@ visreg(cstig.gam2, "Propinvasive",  ylab="Captures")
 visreg(cstig.gam2, "Agriculture",  ylab="Captures")
 visreg(cstig.gam2, "Forest", ylab="Captures")
 visreg(cstig.gam2, "Developed",  ylab="Captures")
-visreg(cstig.gam2, "Ag_change", ylab="Captures")
-visreg(cstig.gam2, "For_change",  ylab="Captures")
-visreg(cstig.gam2, "Dev_change", ylab="Captures")
 
 
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
@@ -1518,31 +1410,6 @@ cstig.forest
 # cstig.developed
 
 
-# cstig.agchange<-visreg(cstig.gam3, "Ag_change", ylab="Residual Captures", xlab="Change in agriculture cover",
-#                        gg=T,
-#                        line=list(col="lightgoldenrod4"),
-#                        fill=list(col="lightgoldenrod1", fill="lightgoldenrod1"),
-#                        points=list(size=1, pch=24, fill="lightgoldenrod4", col="black"))+
-#   theme_classic()
-# cstig.agchange
-
-# cstig.forchange<-visreg(cstig.gam3, "For_change", ylab="Residual Captures", xlab="Change in forest cover",
-#                        gg=T,
-#                        line=list(col="palegreen4"),
-#                        fill=list(col="palegreen1", fill="palegreen1"),
-#                        points=list(size=1, pch=24, fill="palegreen4", col="black"))+
-#   theme_classic()
-# cstig.forchange
-
-# cstig.devchange<-visreg(cstig.gam3, "Dev_change", ylab="Residual Captures", xlab="Change in developed cover",
-#                         gg=T,
-#                         line=list(col="navyblue"),
-#                         fill=list(col="lightsteelblue1", fill="lightsteelblue1"),
-#                         points=list(size=1, pch=24, fill="navyblue", col="black"))+
-#   theme_classic()
-# cstig.devchange
-
-
 
 #create graphical objects for placeholders in plots
 noeffect<-text_grob(paste("No effect"), color="black")
@@ -1551,14 +1418,12 @@ notpresent<-text_grob(paste("Not present"), color="black")
 cstig.smooths<-plot_grid(noeffect, cstig.lon, cstig.lat, 
                          cstig.pi, noeffect, noeffect,
                          cstig.forest, noeffect, noeffect,
-                         noeffect,noeffect, noeffect,
                          ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
                                                                'D', 'E', 'F',
-                                                               'G', 'H', 'I',
-                                                               'J', 'K', 'L'))
+                                                               'G', 'H', 'I'))
 cstig.smooths
 
-pdf("plots/cstig_smooths.pdf", height=12, width=9)
+pdf("plots/cstig_smooths.pdf", height=9, width=9)
 grid.draw(cstig.smooths)
 dev.off()
 
@@ -1653,10 +1518,7 @@ c7.gam1<-gam(Coccinella.septempunctata~offset(log(1+Totalcount-Coccinella.septem
                s(log(1+Aphidophagous-Coccinella.septempunctata), sp=0.5, k=4)+
                s(Agriculture, sp=0.5)+
                s(Forest, sp=0.5)+
-               s(Developed, sp=0.5)+
-               s(Ag_change, sp=0.5)+
-               s(For_change, sp=0.5)+
-               s(Dev_change, sp=0.5), 
+               s(Developed, sp=0.5), 
              data=after1980, family="nb")
 summary(c7.gam1)
 AIC(c7.gam1)
@@ -1668,9 +1530,6 @@ visreg(c7.gam1, "Aphidophagous",  ylab="Captures")
 visreg(c7.gam1, "Agriculture",  ylab="Captures")
 visreg(c7.gam1, "Forest", ylab="Captures")
 visreg(c7.gam1, "Developed",  ylab="Captures")
-visreg(c7.gam1, "Ag_change", ylab="Captures")
-visreg(c7.gam1, "For_change",  ylab="Captures")
-visreg(c7.gam1, "Dev_change", ylab="Captures")
 
 
 #replace totalinvasive with two major invasives
@@ -1683,10 +1542,7 @@ c7.gam2<-gam(Coccinella.septempunctata~offset(log(1+Totalcount-Coccinella.septem
                s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
                s(Agriculture, sp=0.5)+
                s(Forest, sp=0.5)+
-               s(Developed, sp=0.5)+
-               s(Ag_change, sp=0.5)+
-               s(For_change, sp=0.5)+
-               s(Dev_change, sp=0.5),  
+               s(Developed, sp=0.5),  
              data=after1980, family="nb")
 summary(c7.gam2)
 AIC(c7.gam2)
@@ -1700,19 +1556,12 @@ visreg(c7.gam2, "Propinvasive",  ylab="Captures")
 visreg(c7.gam2, "Agriculture",  ylab="Captures")
 visreg(c7.gam2, "Forest", ylab="Captures")
 visreg(c7.gam2, "Developed",  ylab="Captures")
-visreg(c7.gam2, "Ag_change", ylab="Captures")
-visreg(c7.gam2, "For_change",  ylab="Captures")
-visreg(c7.gam2, "Dev_change", ylab="Captures")
 
 
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
 
 c7.gam3<-gam(Coccinella.septempunctata~offset(log(1+Totalcount-Coccinella.septempunctata))+
-               s(Decade, sp=0.5, k=4)+
-               s(lon, sp=0.5)+
-               s(lat, sp=0.5)+
-               s(Agriculture, sp=0.5)+
-               s(Dev_change, sp=0.5),  
+               s(Agriculture, sp=0.5),  
              data=after1980, family="nb")
 summary(c7.gam3)
 AIC(c7.gam3)
@@ -1724,32 +1573,32 @@ AIC(c7.gam3)
 concurvity(c7.gam3)
 #must eliminate a few of the lanscape variables!
 
-c7.decade<-visreg(c7.gam3, "Decade",  ylab="Residual captures",
-                  xlab=expression(paste("Year")),
-                  gg=T,
-                  line=list(col="gray19"),
-                  fill=list(col="gray57", fill="gray57"),
-                  points=list(size=1, pch=21, fill="gray19", col="black"))+
-  theme_classic()
-c7.decade
-
-c7.lon<-visreg(c7.gam3, "lon",  ylab="Residual captures",
-                 xlab=expression(paste("Longitude")),
-                 gg=T,
-                 line=list(col="gray28"),
-                 fill=list(col="gray", fill="gray"),
-                 points=list(size=1, pch=21, fill="gray28", col="black"))+
-  theme_classic()
-c7.lon
-
-c7.lat<-visreg(c7.gam3, "lat",  ylab="Residual captures",
-               xlab=expression(paste("Latitude")),
-               gg=T,
-               line=list(col="gray28"),
-               fill=list(col="gray", fill="gray"),
-               points=list(size=1, pch=21, fill="gray28", col="black"))+
-  theme_classic()
-c7.lat
+# c7.decade<-visreg(c7.gam3, "Decade",  ylab="Residual captures",
+#                   xlab=expression(paste("Year")),
+#                   gg=T,
+#                   line=list(col="gray19"),
+#                   fill=list(col="gray57", fill="gray57"),
+#                   points=list(size=1, pch=21, fill="gray19", col="black"))+
+#   theme_classic()
+# c7.decade
+# 
+# c7.lon<-visreg(c7.gam3, "lon",  ylab="Residual captures",
+#                  xlab=expression(paste("Longitude")),
+#                  gg=T,
+#                  line=list(col="gray28"),
+#                  fill=list(col="gray", fill="gray"),
+#                  points=list(size=1, pch=21, fill="gray28", col="black"))+
+#   theme_classic()
+# c7.lon
+# 
+# c7.lat<-visreg(c7.gam3, "lat",  ylab="Residual captures",
+#                xlab=expression(paste("Latitude")),
+#                gg=T,
+#                line=list(col="gray28"),
+#                fill=list(col="gray", fill="gray"),
+#                points=list(size=1, pch=21, fill="gray28", col="black"))+
+#   theme_classic()
+# c7.lat
 
 # c7.pi<-visreg(c7.gam3, "Propinvasive",  ylab="Residual captures",
 #               xlab=expression(paste("Proportion invasive")),
@@ -1804,47 +1653,20 @@ c7.agriculture
 # c7.developed
 
 
-# c7.agchange<-visreg(c7.gam3, "Ag_change", ylab="Residual Captures", xlab="Change in agriculture cover",
-#                     gg=T,
-#                     line=list(col="lightgoldenrod4"),
-#                     fill=list(col="lightgoldenrod1", fill="lightgoldenrod1"),
-#                     points=list(size=1, pch=24, fill="lightgoldenrod4", col="black"))+
-#   theme_classic()
-# c7.agchange
-
-# c7.forchange<-visreg(c7.gam3, "For_change", ylab="Residual Captures", xlab="Change in forest cover",
-#                        gg=T,
-#                        line=list(col="palegreen4"),
-#                        fill=list(col="palegreen1", fill="palegreen1"),
-#                        points=list(size=1, pch=24, fill="palegreen4", col="black"))+
-#   theme_classic()
-# c7.forchange
-
-c7.devchange<-visreg(c7.gam3, "Dev_change", ylab="Residual Captures", xlab="Change in developed cover",
-                     gg=T,
-                     line=list(col="navyblue"),
-                     fill=list(col="lightsteelblue1", fill="lightsteelblue1"),
-                     points=list(size=1, pch=24, fill="navyblue", col="black"))+
-  theme_classic()
-c7.devchange
-
-
 
 #create graphical objects for placeholders in plots
 noeffect<-text_grob(paste("No effect"), color="black")
 notpresent<-text_grob(paste("Not present"), color="black")
 
-c7.smooths<-plot_grid(c7.decade, c7.lon, c7.lat, 
+c7.smooths<-plot_grid(noeffect, noeffect, noeffect, 
                       noeffect, noeffect, noeffect,
                       c7.agriculture, noeffect, noeffect,
-                      noeffect,noeffect, c7.devchange,
                       ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
                                                             'D', 'E', 'F',
-                                                            'G', 'H', 'I',
-                                                            'J', 'K', 'L'))
+                                                            'G', 'H', 'I'))
 c7.smooths
 
-pdf("plots/c7_smooths.pdf", height=12, width=9)
+pdf("plots/c7_smooths.pdf", height=9, width=9)
 grid.draw(c7.smooths)
 dev.off()
 
@@ -1937,10 +1759,7 @@ ha.gam1<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
                s(log(1+Aphidophagous-Harmonia.axyridis), sp=0.5, k=4)+
                s(Agriculture, sp=0.5)+
                s(Forest, sp=0.5)+
-               s(Developed, sp=0.5)+
-               s(Ag_change, sp=0.5)+
-               s(For_change, sp=0.5)+
-               s(Dev_change, sp=0.5), 
+               s(Developed, sp=0.5), 
              data=after1990, family="nb")
 summary(ha.gam1)
 AIC(ha.gam1)
@@ -1952,9 +1771,7 @@ visreg(ha.gam1, "Aphidophagous",  ylab="Captures")
 visreg(ha.gam1, "Agriculture",  ylab="Captures")
 visreg(ha.gam1, "Forest", ylab="Captures")
 visreg(ha.gam1, "Developed",  ylab="Captures")
-visreg(ha.gam1, "Ag_change", ylab="Captures")
-visreg(ha.gam1, "For_change",  ylab="Captures")
-visreg(ha.gam1, "Dev_change", ylab="Captures")
+
 
 
 #replace totalinvasive with two major invasives
@@ -1967,10 +1784,7 @@ ha.gam2<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
                s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
                s(Agriculture, sp=0.5)+
                s(Forest, sp=0.5)+
-               s(Developed, sp=0.5)+
-               s(Ag_change, sp=0.5)+
-               s(For_change, sp=0.5)+
-               s(Dev_change, sp=0.5),  
+               s(Developed, sp=0.5),  
              data=after1990, family="nb")
 summary(ha.gam2)
 AIC(ha.gam2)
@@ -1984,21 +1798,17 @@ visreg(ha.gam2, "Propinvasive",  ylab="Captures")
 visreg(ha.gam2, "Agriculture",  ylab="Captures")
 visreg(ha.gam2, "Forest", ylab="Captures")
 visreg(ha.gam2, "Developed",  ylab="Captures")
-visreg(ha.gam2, "Ag_change", ylab="Captures")
-visreg(ha.gam2, "For_change",  ylab="Captures")
-visreg(ha.gam2, "Dev_change", ylab="Captures")
+
 
 
 #Model selection to whittle down landscape parameters in final model (intermediate form statistics recorded in excel file):
 
 ha.gam3<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
                s(Decade, sp=0.5, k=3)+
-               s(lon, sp=0.5)+
                s(lat, sp=0.5)+
                s(log(1+Aphidophagous-Harmonia.axyridis), sp=0.5, k=4)+
-               s(Agriculture, sp=0.5)+
-               s(Ag_change, sp=0.5)+
-               s(Dev_change, sp=0.5),   
+               s(Forest, sp=0.5)+
+               s(Developed, sp=0.5),  
              data=after1990, family="nb")
 summary(ha.gam3)
 AIC(ha.gam3)
@@ -2020,14 +1830,14 @@ ha.decade<-visreg(ha.gam3, "Decade",  ylab="Residual captures",
   theme_classic()
 ha.decade
 
-ha.lon<-visreg(ha.gam3, "lon",  ylab="Residual captures",
-               xlab=expression(paste("Longitude")),
-               gg=T,
-               line=list(col="gray28"),
-               fill=list(col="gray", fill="gray"),
-               points=list(size=1, pch=21, fill="gray28", col="black"))+
-  theme_classic()
-ha.lon
+# ha.lon<-visreg(ha.gam3, "lon",  ylab="Residual captures",
+#                xlab=expression(paste("Longitude")),
+#                gg=T,
+#                line=list(col="gray28"),
+#                fill=list(col="gray", fill="gray"),
+#                points=list(size=1, pch=21, fill="gray28", col="black"))+
+#   theme_classic()
+# ha.lon
 
 ha.lat<-visreg(ha.gam3, "lat",  ylab="Residual captures",
                xlab=expression(paste("Latitude")),
@@ -2066,54 +1876,30 @@ ha.pi
 # ha.ha
 
 
-ha.agriculture<-visreg(ha.gam3, "Agriculture", ylab="Residual Captures", xlab="% Agriculture cover",
-                       gg=T,
-                       line=list(col="darkolivegreen4"),
-                       fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
-                       points=list(size=1, pch=23, fill="darkolivegreen4", col="black"))+
-  theme_classic()
-ha.agriculture
-
-# ha.forest<-visreg(ha.gam3, "Forest", ylab="Residual Captures", xlab="% Forest cover",
-#                   gg=T,
-#                   line=list(col="darkgreen"),
-#                   fill=list(col="lightgreen", fill="lightgreen"),
-#                   points=list(size=1, pch=23, fill="darkgreen", col="black"))+
-#   theme_classic()
-# ha.forest
-
-# ha.developed<-visreg(ha.gam3, "Developed", ylab="Residual Captures", xlab="% Developed cover",
-#                      gg=T,
-#                      line=list(col="slategray4"),
-#                      fill=list(col="slategray2", fill="slategray2"),
-#                      points=list(size=1, pch=23, fill="slategray4", col="black"))+
-#   theme_classic()
-# ha.developed
-
-
-ha.agchange<-visreg(ha.gam3, "Ag_change", ylab="Residual Captures", xlab="Change in agriculture cover",
-                    gg=T,
-                    line=list(col="lightgoldenrod4"),
-                    fill=list(col="lightgoldenrod1", fill="lightgoldenrod1"),
-                    points=list(size=1, pch=24, fill="lightgoldenrod4", col="black"))+
-  theme_classic()
-ha.agchange
-
-# ha.forchange<-visreg(ha.gam3, "For_change", ylab="Residual Captures", xlab="Change in forest cover",
+# ha.agriculture<-visreg(ha.gam3, "Agriculture", ylab="Residual Captures", xlab="% Agriculture cover",
 #                        gg=T,
-#                        line=list(col="palegreen4"),
-#                        fill=list(col="palegreen1", fill="palegreen1"),
-#                        points=list(size=1, pch=24, fill="palegreen4", col="black"))+
+#                        line=list(col="darkolivegreen4"),
+#                        fill=list(col="darkolivegreen1", fill="darkolivegreen1"),
+#                        points=list(size=1, pch=23, fill="darkolivegreen4", col="black"))+
 #   theme_classic()
-# ha.forchange
+# ha.agriculture
 
-ha.devchange<-visreg(ha.gam3, "Dev_change", ylab="Residual Captures", xlab="Change in developed cover",
-                     gg=T,
-                     line=list(col="navyblue"),
-                     fill=list(col="lightsteelblue1", fill="lightsteelblue1"),
-                     points=list(size=1, pch=24, fill="navyblue", col="black"))+
+ha.forest<-visreg(ha.gam3, "Forest", ylab="Residual Captures", xlab="% Forest cover",
+                  gg=T,
+                  line=list(col="darkgreen"),
+                  fill=list(col="lightgreen", fill="lightgreen"),
+                  points=list(size=1, pch=23, fill="darkgreen", col="black"))+
   theme_classic()
-ha.devchange
+ha.forest
+
+ha.developed<-visreg(ha.gam3, "Developed", ylab="Residual Captures", xlab="% Developed cover",
+                     gg=T,
+                     line=list(col="slategray4"),
+                     fill=list(col="slategray2", fill="slategray2"),
+                     points=list(size=1, pch=23, fill="slategray4", col="black"))+
+  theme_classic()
+ha.developed
+
 
 
 
@@ -2121,14 +1907,12 @@ ha.devchange
 noeffect<-text_grob(paste("No effect"), color="black")
 notpresent<-text_grob(paste("Not present"), color="black")
 
-ha.smooths<-plot_grid(ha.decade, ha.lon, ha.lat, 
+ha.smooths<-plot_grid(ha.decade, noeffect, ha.lat, 
                       ha.pi, noeffect, noeffect,
-                      ha.agriculture, noeffect, noeffect,
-                      ha.agchange,noeffect, ha.devchange,
+                      noeffect, ha.forest, ha.developed,
                       ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
                                                             'D', 'E', 'F',
-                                                            'G', 'H', 'I',
-                                                            'J', 'K', 'L'))
+                                                            'G', 'H', 'I'))
 ha.smooths
 
 pdf("plots/ha_smooths.pdf", height=12, width=9)
