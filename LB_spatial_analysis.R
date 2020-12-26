@@ -1265,13 +1265,7 @@ dev.off()
 #it will be autocorrelated with other values
 #iterative process-use AIC as selection criterion
 cstig.gam1<-gam(Chilocorus.stigma~offset(log(1+Totalcount-Chilocorus.stigma))+
-                  s(Decade, sp=0.5, k=4)+
-                  s(lon, sp=0.5)+
-                  s(lat, sp=0.5)+
-                  s(log(1+Totalinvasive), sp=0.5, k=4)+
-                  s(Agriculture, sp=0.5)+
-                  s(Forest, sp=0.5)+
-                  s(Developed, sp=0.5), 
+                  s(Decade, sp=0.5, k=4), 
                 data=lb_all2, family="nb")
 summary(cstig.gam1)
 AIC(cstig.gam1)
@@ -1417,7 +1411,7 @@ notpresent<-text_grob(paste("Not present"), color="black")
 
 cstig.smooths<-plot_grid(noeffect, cstig.lon, cstig.lat, 
                          cstig.pi, noeffect, noeffect,
-                         cstig.forest, noeffect, noeffect,
+                        noeffect, cstig.forest, noeffect,
                          ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
                                                                'D', 'E', 'F',
                                                                'G', 'H', 'I'))
@@ -1918,3 +1912,118 @@ ha.smooths
 pdf("plots/ha_smooths.pdf", height=12, width=9)
 grid.draw(ha.smooths)
 dev.off()
+
+######################################################################################
+
+#now let's make a stacked timeseries figure with a GAM for decade for each of these species
+
+#gam will include sampling correction but that's it- we want to see the raw 
+#population trend for each species
+
+cmac.gam0<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.maculata))+
+                 s(Decade, sp=0.5, k=3), 
+             data=lb_all2, family="nb")
+summary(cmac.gam0)
+
+cmac.decade0<-visreg(cmac.gam0, "Decade",  ylab="Residual captures",
+                    xlab=expression(paste("Year")),
+                    gg=T,
+                    line=list(col="gray19"),
+                    fill=list(col="gray57", fill="gray57"),
+                    points=list(size=1, pch=21, fill="gray19", col="black"))+
+  theme_classic()+
+  xlim(1930, 2010)
+cmac.decade0
+
+c9.gam0<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnotata))+
+                 s(Decade, sp=0.5, k=3), 
+               data=pre1995, family="nb")
+summary(c9.gam0)
+
+c9.decade0<-visreg(c9.gam0, "Decade",  ylab="Residual captures",
+                     xlab=expression(paste("Year")),
+                     gg=T,
+                     line=list(col="gray19"),
+                     fill=list(col="gray57", fill="gray57"),
+                     points=list(size=1, pch=21, fill="gray19", col="black"))+
+  theme_classic()+
+  xlim(1930, 2010)
+c9.decade0
+
+abi.gam0<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
+               s(Decade, sp=0.5, k=3), 
+             data=pre1995, family="nb")
+summary(abi.gam0)
+
+abi.decade0<-visreg(abi.gam0, "Decade",  ylab="Residual captures",
+                   xlab=expression(paste("Year")),
+                   gg=T,
+                   line=list(col="gray19"),
+                   fill=list(col="gray57", fill="gray57"),
+                   points=list(size=1, pch=21, fill="gray19", col="black"))+
+  theme_classic()+
+  xlim(1930, 2010)
+abi.decade0
+
+hcon.gam0<-gam(Hippodamia.convergens~offset(log(1+Totalcount-Hippodamia.convergens))+
+               s(Decade, sp=0.5, k=3), 
+             data=lb_all2, family="nb")
+summary(hcon.gam0)
+
+hcon.decade0<-visreg(hcon.gam0, "Decade",  ylab="Residual captures",
+                   xlab=expression(paste("Year")),
+                   gg=T,
+                   line=list(col="gray19"),
+                   fill=list(col="gray57", fill="gray57"),
+                   points=list(size=1, pch=21, fill="gray19", col="black"))+
+  theme_classic()+
+  xlim(1930, 2010)
+hcon.decade0
+
+cstig.gam0<-gam(Chilocorus.stigma~offset(log(1+Totalcount-Chilocorus.stigma))+
+                 s(Decade, sp=0.5, k=3), 
+               data=lb_all2, family="nb")
+summary(cstig.gam0)
+
+cstig.decade0<-visreg(cstig.gam0, "Decade",  ylab="Residual captures",
+                     xlab=expression(paste("Year")),
+                     gg=T,
+                     line=list(col="gray19"),
+                     fill=list(col="gray57", fill="gray57"),
+                     points=list(size=1, pch=21, fill="gray19", col="black"))+
+  theme_classic()+
+  xlim(1930, 2010)
+cstig.decade0
+
+c7.gam0<-gam(Coccinella.septempunctata~offset(log(1+Totalcount-Coccinella.septempunctata))+
+                  s(Decade, sp=0.5, k=3), 
+                data=after1980, family="nb")
+summary(c7.gam0)
+
+c7.decade0<-visreg(c7.gam0, "Decade",  ylab="Residual captures",
+                      xlab=expression(paste("Year")),
+                      gg=T,
+                      line=list(col="gray19"),
+                      fill=list(col="gray57", fill="gray57"),
+                      points=list(size=1, pch=21, fill="gray19", col="black"))+
+  theme_classic()+
+  xlim(1930, 2010)
+c7.decade0
+
+ha.gam0<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
+               s(Decade, sp=0.5, k=3), 
+             data=after1990, family="nb")
+summary(c7.gam0)
+
+ha.decade0<-visreg(ha.gam0, "Decade",  ylab="Residual captures",
+                   xlab=expression(paste("Year")),
+                   gg=T,
+                   line=list(col="gray19"),
+                   fill=list(col="gray57", fill="gray57"),
+                   points=list(size=1, pch=21, fill="gray19", col="black"))+
+  theme_classic()+
+  xlim(1930, 2010)
+ha.decade0
+
+
+
