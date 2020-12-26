@@ -71,6 +71,15 @@ ladybeetle.allcombos[is.na(ladybeetle.allcombos)]<-0
 #total ladybeetles per countyXdecade, can use in model later
 ladybeetle.allcombos$Totalcount<-rowSums(ladybeetle.allcombos[3:30])
 
+#also create a dataset that doesn't have the zero county-decades, which likely just means they weren't monitored at that time
+
+ladybeetle.notallcombos<-merge(county.decade, ladybeetle.wide, all.y=T, by=c("County", "Decade"))
+#now replace all those new NAs with zero
+ladybeetle.notallcombos[is.na(ladybeetle.allcombos)]<-0
+
+#total ladybeetles per countyXdecade, can use in model later
+ladybeetle.notallcombos$Totalcount<-rowSums(ladybeetle.notallcombos[3:30])
+
 #now remelt that data
 
 ladybeetle.long<-melt(ladybeetle.allcombos, id=c("County", "Decade","Totalcount"))
@@ -1925,8 +1934,8 @@ cmac.gam0<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.macula
              data=lb_all2, family="nb")
 summary(cmac.gam0)
 
-cmac.decade0<-visreg(cmac.gam0, "Decade",  ylab="Residual captures",
-                    xlab=expression(paste("Year")),
+cmac.decade0<-visreg(cmac.gam0, "Decade",  ylab=NULL,
+                    xlab=expression(paste("")),
                     gg=T,
                     line=list(col="gray19"),
                     fill=list(col="gray57", fill="gray57"),
@@ -1940,8 +1949,8 @@ c9.gam0<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnota
                data=pre1995, family="nb")
 summary(c9.gam0)
 
-c9.decade0<-visreg(c9.gam0, "Decade",  ylab="Residual captures",
-                     xlab=expression(paste("Year")),
+c9.decade0<-visreg(c9.gam0, "Decade",  ylab=NULL,
+                     xlab=expression(paste("")),
                      gg=T,
                      line=list(col="gray19"),
                      fill=list(col="gray57", fill="gray57"),
@@ -1955,8 +1964,8 @@ abi.gam0<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
              data=pre1995, family="nb")
 summary(abi.gam0)
 
-abi.decade0<-visreg(abi.gam0, "Decade",  ylab="Residual captures",
-                   xlab=expression(paste("Year")),
+abi.decade0<-visreg(abi.gam0, "Decade",  ylab=NULL,
+                   xlab=expression(paste("")),
                    gg=T,
                    line=list(col="gray19"),
                    fill=list(col="gray57", fill="gray57"),
@@ -1970,8 +1979,8 @@ hcon.gam0<-gam(Hippodamia.convergens~offset(log(1+Totalcount-Hippodamia.converge
              data=lb_all2, family="nb")
 summary(hcon.gam0)
 
-hcon.decade0<-visreg(hcon.gam0, "Decade",  ylab="Residual captures",
-                   xlab=expression(paste("Year")),
+hcon.decade0<-visreg(hcon.gam0, "Decade",  ylab=NULL,
+                   xlab=expression(paste("")),
                    gg=T,
                    line=list(col="gray19"),
                    fill=list(col="gray57", fill="gray57"),
@@ -1985,8 +1994,8 @@ cstig.gam0<-gam(Chilocorus.stigma~offset(log(1+Totalcount-Chilocorus.stigma))+
                data=lb_all2, family="nb")
 summary(cstig.gam0)
 
-cstig.decade0<-visreg(cstig.gam0, "Decade",  ylab="Residual captures",
-                     xlab=expression(paste("Year")),
+cstig.decade0<-visreg(cstig.gam0, "Decade",  ylab=NULL,
+                     xlab=expression(paste("")),
                      gg=T,
                      line=list(col="gray19"),
                      fill=list(col="gray57", fill="gray57"),
@@ -2000,8 +2009,8 @@ c7.gam0<-gam(Coccinella.septempunctata~offset(log(1+Totalcount-Coccinella.septem
                 data=after1980, family="nb")
 summary(c7.gam0)
 
-c7.decade0<-visreg(c7.gam0, "Decade",  ylab="Residual captures",
-                      xlab=expression(paste("Year")),
+c7.decade0<-visreg(c7.gam0, "Decade",  ylab=NULL,
+                      xlab=expression(paste("")),
                       gg=T,
                       line=list(col="gray19"),
                       fill=list(col="gray57", fill="gray57"),
@@ -2013,10 +2022,10 @@ c7.decade0
 ha.gam0<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
                s(Decade, sp=0.5, k=3), 
              data=after1990, family="nb")
-summary(c7.gam0)
+summary(ha.gam0)
 
-ha.decade0<-visreg(ha.gam0, "Decade",  ylab="Residual captures",
-                   xlab=expression(paste("Year")),
+ha.decade0<-visreg(ha.gam0, "Decade",  ylab=NULL,
+                   xlab=expression(paste("")),
                    gg=T,
                    line=list(col="gray19"),
                    fill=list(col="gray57", fill="gray57"),
@@ -2025,5 +2034,24 @@ ha.decade0<-visreg(ha.gam0, "Decade",  ylab="Residual captures",
   xlim(1930, 2010)
 ha.decade0
 
+all.gam0<-gam(Totalcount~ s(Decade, sp=0.5, k=3), 
+             data=lb_all2, family="nb")
+summary(all.gam0)
+
+all.decade0<-visreg(all.gam0, "Decade",  ylab=NULL,
+                   xlab=expression(paste("")),
+                   gg=T,
+                   line=list(col="gray19"),
+                   fill=list(col="gray57", fill="gray57"),
+                   points=list(size=1, pch=21, fill="gray19", col="black"))+
+  theme_classic()+
+  xlim(1930, 2010)
+all.decade0
 
 
+timeseries.stack<-plot_grid(abi.decade0, c9.decade0, cmac.decade0,
+                      hcon.decade0, cstig.decade0, c7.decade0,
+                      ha.decade0, all.decade0,
+                      ncol=2, rel_widths=c(1, 1), labels=c('A', 'B', 'C','D', 'E', 'F',
+                                                            'G', 'H'))
+timeseries.stack
