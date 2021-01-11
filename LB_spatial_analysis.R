@@ -1931,121 +1931,129 @@ dev.off()
 
 cmac.gam0<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.maculata))+
                  s(Decade, sp=0.5, k=3), 
-             data=lb_all2, family="nb")
+             data=lb_all2)
 summary(cmac.gam0)
 
-cmac.decade0<-visreg(cmac.gam0, "Decade",  ylab=NULL,
+cmac.decade0<-visreg(cmac.gam0, "Decade",  ylab="",
                     xlab=expression(paste("")),
                     gg=T,
                     line=list(col="gray19"),
                     fill=list(col="gray57", fill="gray57"),
                     points=list(size=1, pch=21, fill="gray19", col="black"))+
   theme_classic()+
-  xlim(1930, 2010)
+  xlim(1930, 2010)+
+  scale_y_continuous(trans='pseudo_log')
 cmac.decade0
 
 c9.gam0<-gam(Coccinella.novemnotata~offset(log(1+Totalcount-Coccinella.novemnotata))+
                  s(Decade, sp=0.5, k=3), 
-               data=pre1995, family="nb")
+               data=pre1995)
 summary(c9.gam0)
 
-c9.decade0<-visreg(c9.gam0, "Decade",  ylab=NULL,
+c9.decade0<-visreg(c9.gam0, "Decade",  ylab="",
                      xlab=expression(paste("")),
                      gg=T,
                      line=list(col="gray19"),
                      fill=list(col="gray57", fill="gray57"),
                      points=list(size=1, pch=21, fill="gray19", col="black"))+
   theme_classic()+
-  xlim(1930, 2010)
+  xlim(1930, 2010)+
+  scale_y_continuous(trans='pseudo_log')
 c9.decade0
 
 abi.gam0<-gam(Adalia.bipunctata~offset(log(1+Totalcount-Adalia.bipunctata))+
                s(Decade, sp=0.5, k=3), 
-             data=pre1995, family="nb")
+             data=pre1995)
 summary(abi.gam0)
 
-abi.decade0<-visreg(abi.gam0, "Decade",  ylab=NULL,
+abi.decade0<-visreg(abi.gam0, "Decade",  ylab="",
                    xlab=expression(paste("")),
                    gg=T,
                    line=list(col="gray19"),
                    fill=list(col="gray57", fill="gray57"),
                    points=list(size=1, pch=21, fill="gray19", col="black"))+
   theme_classic()+
-  xlim(1930, 2010)
+  xlim(1930, 2010)+
+  scale_y_continuous(trans='pseudo_log')
 abi.decade0
 
 hcon.gam0<-gam(Hippodamia.convergens~offset(log(1+Totalcount-Hippodamia.convergens))+
                s(Decade, sp=0.5, k=3), 
-             data=lb_all2, family="nb")
+             data=lb_all2)
 summary(hcon.gam0)
 
-hcon.decade0<-visreg(hcon.gam0, "Decade",  ylab=NULL,
+hcon.decade0<-visreg(hcon.gam0, "Decade",  ylab="",
                    xlab=expression(paste("")),
                    gg=T,
                    line=list(col="gray19"),
                    fill=list(col="gray57", fill="gray57"),
                    points=list(size=1, pch=21, fill="gray19", col="black"))+
   theme_classic()+
-  xlim(1930, 2010)
+  xlim(1930, 2010)+
+  scale_y_continuous(trans='pseudo_log')
 hcon.decade0
 
 cstig.gam0<-gam(Chilocorus.stigma~offset(log(1+Totalcount-Chilocorus.stigma))+
                  s(Decade, sp=0.5, k=3), 
-               data=lb_all2, family="nb")
+               data=lb_all2)
 summary(cstig.gam0)
 
-cstig.decade0<-visreg(cstig.gam0, "Decade",  ylab=NULL,
+cstig.decade0<-visreg(cstig.gam0, "Decade", ylab="",
                      xlab=expression(paste("")),
                      gg=T,
                      line=list(col="gray19"),
                      fill=list(col="gray57", fill="gray57"),
                      points=list(size=1, pch=21, fill="gray19", col="black"))+
   theme_classic()+
-  xlim(1930, 2010)
+  xlim(1930, 2010)+
+  scale_y_continuous(trans='pseudo_log')
 cstig.decade0
 
 c7.gam0<-gam(Coccinella.septempunctata~offset(log(1+Totalcount-Coccinella.septempunctata))+
                   s(Decade, sp=0.5, k=3), 
-                data=after1980, family="nb")
+                data=after1980)
 summary(c7.gam0)
 
-c7.decade0<-visreg(c7.gam0, "Decade",  ylab=NULL,
+c7.decade0<-visreg(c7.gam0, "Decade",  ylab="",
                       xlab=expression(paste("")),
                       gg=T,
                       line=list(col="gray19"),
                       fill=list(col="gray57", fill="gray57"),
                       points=list(size=1, pch=21, fill="gray19", col="black"))+
   theme_classic()+
-  xlim(1930, 2010)
+  xlim(1930, 2010)+
+  scale_y_continuous(trans='pseudo_log')
 c7.decade0
 
 ha.gam0<-gam(Harmonia.axyridis~offset(log(1+Totalcount-Harmonia.axyridis))+
                s(Decade, sp=0.5, k=3), 
-             data=after1990, family="nb")
+             data=after1990)
 summary(ha.gam0)
 
-ha.decade0<-visreg(ha.gam0, "Decade",  ylab=NULL,
+ha.decade0<-visreg(ha.gam0, "Decade", shift = coef(ha.gam0)[1], ylab="",
                    xlab=expression(paste("")),
                    gg=T,
                    line=list(col="gray19"),
                    fill=list(col="gray57", fill="gray57"),
                    points=list(size=1, pch=21, fill="gray19", col="black"))+
   theme_classic()+
-  xlim(1930, 2010)
+  xlim(1930, 2010)+
+  scale_y_continuous(trans='pseudo_log')
 ha.decade0
 
 all.gam0<-gam(Totalcount~ s(Decade, sp=0.5, k=3), 
-             data=lb_all2, family="nb")
+             data=lb_all2)
 summary(all.gam0)
 
-all.decade0<-visreg(all.gam0, "Decade",  ylab=NULL,
+all.decade0<-visreg(all.gam0, "Decade", shift = coef(all.gam0)[1],  ylab="",
                    xlab=expression(paste("")),
                    gg=T,
                    line=list(col="gray19"),
                    fill=list(col="gray57", fill="gray57"),
-                   points=list(size=1, pch=21, fill="gray19", col="black"))+
+                   points=list(size=1, pch=21, fill="gray57", col="black"), jitter=TRUE)+
   theme_classic()+
-  xlim(1930, 2010)
+  xlim(1930, 2010)+
+  scale_y_continuous(trans='pseudo_log')
 all.decade0
 
 
