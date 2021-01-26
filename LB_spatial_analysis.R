@@ -1930,7 +1930,7 @@ dev.off()
 #population trend for each species
 
 cmac.gam0<-gam(Coleomegilla.maculata~offset(log(1+Totalcount-Coleomegilla.maculata))+
-                 s(Decade, sp=0.5, k=3), 
+                 s(Decade, sp=0.5, k=4), 
              data=lb_all2)
 summary(cmac.gam0)
 
@@ -1939,7 +1939,7 @@ cmac.decade0<-visreg(cmac.gam0, "Decade",  ylab="",
                     gg=T,
                     line=list(col="gray19"),
                     fill=list(col="gray57", fill="gray57"),
-                    points=list(size=1, pch=21, fill="gray19", col="black"))+
+                    points=list(size=1, pch=21, fill="gray19", col="black"), jitter=TRUE)+
   theme_classic()+
   xlim(1930, 2010)+
   scale_y_continuous(trans='pseudo_log')
@@ -1955,7 +1955,7 @@ c9.decade0<-visreg(c9.gam0, "Decade",  ylab="",
                      gg=T,
                      line=list(col="gray19"),
                      fill=list(col="gray57", fill="gray57"),
-                     points=list(size=1, pch=21, fill="gray19", col="black"))+
+                     points=list(size=1, pch=21, fill="gray19", col="black"), jitter=TRUE)+
   theme_classic()+
   xlim(1930, 2010)+
   scale_y_continuous(trans='pseudo_log')
@@ -1971,7 +1971,7 @@ abi.decade0<-visreg(abi.gam0, "Decade",  ylab="",
                    gg=T,
                    line=list(col="gray19"),
                    fill=list(col="gray57", fill="gray57"),
-                   points=list(size=1, pch=21, fill="gray19", col="black"))+
+                   points=list(size=1, pch=21, fill="gray19", col="black"), jitter=TRUE)+
   theme_classic()+
   xlim(1930, 2010)+
   scale_y_continuous(trans='pseudo_log')
@@ -1987,7 +1987,7 @@ hcon.decade0<-visreg(hcon.gam0, "Decade",  ylab="",
                    gg=T,
                    line=list(col="gray19"),
                    fill=list(col="gray57", fill="gray57"),
-                   points=list(size=1, pch=21, fill="gray19", col="black"))+
+                   points=list(size=1, pch=21, fill="gray19", col="black"), jitter=TRUE)+
   theme_classic()+
   xlim(1930, 2010)+
   scale_y_continuous(trans='pseudo_log')
@@ -1998,12 +1998,12 @@ cstig.gam0<-gam(Chilocorus.stigma~offset(log(1+Totalcount-Chilocorus.stigma))+
                data=lb_all2)
 summary(cstig.gam0)
 
-cstig.decade0<-visreg(cstig.gam0, "Decade", ylab="",
+cstig.decade0<-visreg(cstig.gam0, "Decade", shift = 12,  ylab="",
                      xlab=expression(paste("")),
                      gg=T,
                      line=list(col="gray19"),
                      fill=list(col="gray57", fill="gray57"),
-                     points=list(size=1, pch=21, fill="gray19", col="black"))+
+                     points=list(size=1, pch=21, fill="gray19", col="black"), jitter=TRUE)+
   theme_classic()+
   xlim(1930, 2010)+
   scale_y_continuous(trans='pseudo_log')
@@ -2019,7 +2019,7 @@ c7.decade0<-visreg(c7.gam0, "Decade",  ylab="",
                       gg=T,
                       line=list(col="gray19"),
                       fill=list(col="gray57", fill="gray57"),
-                      points=list(size=1, pch=21, fill="gray19", col="black"))+
+                      points=list(size=1, pch=21, fill="gray19", col="black"), jitter=TRUE)+
   theme_classic()+
   xlim(1930, 2010)+
   scale_y_continuous(trans='pseudo_log')
@@ -2035,7 +2035,7 @@ ha.decade0<-visreg(ha.gam0, "Decade", shift = coef(ha.gam0)[1], ylab="",
                    gg=T,
                    line=list(col="gray19"),
                    fill=list(col="gray57", fill="gray57"),
-                   points=list(size=1, pch=21, fill="gray19", col="black"))+
+                   points=list(size=1, pch=21, fill="gray19", col="black"), jitter=TRUE)+
   theme_classic()+
   xlim(1930, 2010)+
   scale_y_continuous(trans='pseudo_log')
@@ -2045,7 +2045,7 @@ all.gam0<-gam(Totalcount~ s(Decade, sp=0.5, k=3),
              data=lb_all2)
 summary(all.gam0)
 
-all.decade0<-visreg(all.gam0, "Decade", shift = coef(all.gam0)[1],  ylab="",
+all.decade0<-visreg(all.gam0, "Decade", ylab="",
                    xlab=expression(paste("")),
                    gg=T,
                    line=list(col="gray19"),
@@ -2061,5 +2061,9 @@ timeseries.stack<-plot_grid(abi.decade0, c9.decade0, cmac.decade0,
                       hcon.decade0, cstig.decade0, c7.decade0,
                       ha.decade0, all.decade0,
                       ncol=2, rel_widths=c(1, 1), labels=c('A', 'B', 'C','D', 'E', 'F',
-                                                            'G', 'H'))
+                                                            'G', 'H'), align="v")
 timeseries.stack
+
+pdf("plots/timeseries_stack.pdf", height=12, width=6)
+grid.draw(timeseries.stack)
+dev.off()
