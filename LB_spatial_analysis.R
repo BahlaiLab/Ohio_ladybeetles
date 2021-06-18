@@ -411,6 +411,10 @@ visreg(cmac.gam1, "Forest", ylab="Captures")
 visreg(cmac.gam1, "Developed",  ylab="Captures")
 
 
+
+
+
+
 #not a lot of super strong signals from anything in the "global model"
 
 #replace totalinvasive with two major invasives
