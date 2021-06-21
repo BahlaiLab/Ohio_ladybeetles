@@ -449,7 +449,7 @@ cstig.pred.forest<-ggplot(data=cstig.pred, aes(Forest, fit))+
   theme_classic()+
   xlab(expression(paste("% Forest cover")))+ylab("Predicted captures")+
   coord_cartesian(ylim=c(-0.1, NA))
-cstig.pred.agriculture
+cstig.pred.forest
 
 
 
@@ -464,4 +464,45 @@ cstig.predictions
 pdf("plots/cstig_predictions.pdf", height=9, width=9)
 grid.draw(cstig.predictions)
 dev.off()
+
+#####################
+#ok, things are fussier from here out because we're deling with invasives, or strong responses to individual invasives.
+
+#Ok, first let's do C& because it's only the one prediction interval we need
+
+c7.gam4<-gam(Coccinella.septempunctata~offset(log(1+Totalcount))+
+               s(Agriculture, sp=0.5),  
+             data=after1980, family="nb")
+summary(c7.gam4)
+AIC(c7.gam4)
+#Now we've got to adjust prediction intervals a bit because the remaining taxa aren't responding to proportion invasive
+
+d<-2000
+
+c7.pred<-predict.gam(c7.gam4, newAgriculture, se.fit = T, type="link")
+c7.pred<-cbind(newAgriculture,c7.pred)
+c7.pred$lower<-c7.pred$fit-2*c7.pred$se.fit
+c7.pred$upper<-c7.pred$fit+2*c7.pred$se.fit
+
+
+c7.pred.agriculture<-ggplot(data=c7.pred, aes(Agriculture, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="darkolivegreen1", alpha=0.6)+
+  geom_line(col="darkolivegreen")+
+  theme_classic()+
+  xlab(expression(paste("% Agriculture cover")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+c7.pred.agriculture
+
+c7.smooths<-plot_grid(noeffect, noeffect, noeffect, 
+                      noeffect, noeffect, noeffect,
+                      c7.pred.agriculture, noeffect, noeffect,
+                      ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
+                                                            'D', 'E', 'F',
+                                                            'G', 'H', 'I'))
+c7.smooths
+
+pdf("plots/c7_smooths.pdf", height=9, width=9)
+grid.draw(c7.smooths)
+dev.off()
+
 
