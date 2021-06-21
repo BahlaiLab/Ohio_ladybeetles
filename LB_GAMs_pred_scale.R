@@ -369,3 +369,99 @@ pdf("plots/abi_predictions.pdf", height=9, width=9)
 grid.draw(abi.predictions)
 dev.off()
 
+#############
+#Cstig
+
+#pull in final model from other analysis, just cut the number of that species in the offset
+
+cstig.gam4<-gam(Chilocorus.stigma~offset(log(1+Totalcount))+
+                  s(lon, sp=0.5)+
+                  s(lat, sp=0.5)+
+                  s(Propinvasive, sp=0.5)+
+                  s(Forest, sp=0.5),  
+                data=lb_all2, family="nb")
+summary(cstig.gam4)
+AIC(cstig.gam4)
+
+#decade
+#set decade for rest of analyses
+d<-2000
+
+
+#lon
+cstig.pred<-predict.gam(cstig.gam4, newlon, se.fit = T, type="link")
+cstig.pred<-cbind(newlon,cstig.pred)
+cstig.pred$lower<-cstig.pred$fit-2*cstig.pred$se.fit
+cstig.pred$upper<-cstig.pred$fit+2*cstig.pred$se.fit
+
+cstig.pred.lon<-ggplot(data=cstig.pred, aes(lon, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
+  geom_line(col="gray28")+
+  theme_classic()+
+  xlab(expression(paste("Longitude")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+cstig.pred.lon
+
+
+#lat
+cstig.pred<-predict.gam(cstig.gam4, newlat, se.fit = T, type="link")
+cstig.pred<-cbind(newlat,cstig.pred)
+cstig.pred$lower<-cstig.pred$fit-2*cstig.pred$se.fit
+cstig.pred$upper<-cstig.pred$fit+2*cstig.pred$se.fit
+
+cstig.pred.lat<-ggplot(data=cstig.pred, aes(lat, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
+  geom_line(col="gray28")+
+  theme_classic()+
+  xlab(expression(paste("Latitude")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+cstig.pred.lat
+
+
+#prop invasive
+
+cstig.pred<-predict.gam(cstig.gam4, newPI, se.fit = T, type="link")
+cstig.pred<-cbind(newPI,cstig.pred)
+cstig.pred$lower<-cstig.pred$fit-2*cstig.pred$se.fit
+cstig.pred$upper<-cstig.pred$fit+2*cstig.pred$se.fit
+
+cstig.pred.pi<-ggplot(data=cstig.pred, aes(Propinvasive, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="plum1", alpha=0.6)+
+  geom_line(col="darkmagenta")+
+  theme_classic()+
+  xlab(expression(paste("Proportion invasive")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+cstig.pred.pi
+
+
+
+
+#Forest
+
+cstig.pred<-predict.gam(cstig.gam4, newForest, se.fit = T, type="link")
+cstig.pred<-cbind(newForest,cstig.pred)
+cstig.pred$lower<-cstig.pred$fit-2*cstig.pred$se.fit
+cstig.pred$upper<-cstig.pred$fit+2*cstig.pred$se.fit
+
+cstig.pred.forest<-ggplot(data=cstig.pred, aes(Forest, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="lightgreen", alpha=0.6)+
+  geom_line(col="darkgreen")+
+  theme_classic()+
+  xlab(expression(paste("% Forest cover")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+cstig.pred.agriculture
+
+
+
+cstig.predictions<-plot_grid(noeffect, cstig.pred.lon, cstig.pred.lat, 
+                             cstig.pred.pi, noeffect, noeffect,
+                             noeffect, cstig.pred.forest, noeffect,
+                             ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
+                                                                   'D', 'E', 'F',
+                                                                   'G', 'H', 'I'))
+cstig.predictions
+
+pdf("plots/cstig_predictions.pdf", height=9, width=9)
+grid.draw(cstig.predictions)
+dev.off()
+
