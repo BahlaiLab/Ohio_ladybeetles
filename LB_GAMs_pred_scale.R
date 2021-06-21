@@ -5,7 +5,8 @@
 #experimental pred code
 
 #make prediction data for each  different variable. 100 points? yeah
-
+#decade is 2000 when fixed, but need to switch so make it variable
+d<-2000
 #decade
 newDecade <- with(lb_all2,
              data.frame(Decade = seq(min(Decade), max(Decade), length = 100),
@@ -20,7 +21,7 @@ newDecade <- with(lb_all2,
 
 #lon
 newlon <- with(lb_all2,
-                  data.frame(Decade = 2000,
+                  data.frame(Decade = d,
                              Totalcount= 500, 
                              lon=seq(min(lon), max(lon), length = 100), 
                              lat=mean(lat), 
@@ -31,7 +32,7 @@ newlon <- with(lb_all2,
 
 #lat
 newlat <- with(lb_all2,
-               data.frame(Decade = 2000,
+               data.frame(Decade = d,
                           Totalcount= 500, 
                           lon=mean(lon), 
                           lat=seq(min(lat), max(lat), length = 100), 
@@ -41,7 +42,7 @@ newlat <- with(lb_all2,
                           Developed=mean(Developed, na.rm=T)))
 #Propinvasive
 newPI <- with(lb_all2,
-               data.frame(Decade = 2000,
+               data.frame(Decade = d,
                           Totalcount= 500, 
                           lon=mean(lon), 
                           lat=mean(lat), 
@@ -51,7 +52,7 @@ newPI <- with(lb_all2,
                           Developed=mean(Developed, na.rm=T)))
 #Agriculture
 newAgriculture <- with(lb_all2,
-               data.frame(Decade = 2000,
+               data.frame(Decade = d,
                           Totalcount= 500, 
                           lon=mean(lon), 
                           lat=mean(lat), 
@@ -61,7 +62,7 @@ newAgriculture <- with(lb_all2,
                           Developed=mean(Developed, na.rm=T)))
 #Forest
 newForest <- with(lb_all2,
-               data.frame(Decade = 2000,
+               data.frame(Decade = d,
                           Totalcount= 500, 
                           lon=mean(lon), 
                           lat=mean(lat), 
@@ -71,7 +72,7 @@ newForest <- with(lb_all2,
                           Developed=mean(Developed, na.rm=T)))
 #Developed
 newDeveloped <- with(lb_all2,
-               data.frame(Decade = 2000,
+               data.frame(Decade = d,
                           Totalcount= 500, 
                           lon=mean(lon), 
                           lat=mean(lat), 
@@ -82,9 +83,9 @@ newDeveloped <- with(lb_all2,
 
 
 ##########################################
+#cmac
 
-
-#pull in final model from other analysis, just cut the number of species in the offset
+#pull in final model from other analysis, just cut the number of that species in the offset
 
 cmac.gam4<-gam(Coleomegilla.maculata~offset(log(1+Totalcount))+
                  s(Decade, sp=0.5, k=4)+
@@ -95,11 +96,15 @@ cmac.gam4<-gam(Coleomegilla.maculata~offset(log(1+Totalcount))+
 summary(cmac.gam4)
 AIC(cmac.gam4)
 cmac.pred<-predict.gam(cmac.gam4, newDecade, se.fit = T, type="link")
-cmac.pred<-cbind(newd,cmac.pred)
+cmac.pred<-cbind(newDecade,cmac.pred)
 cmac.pred$lower<-cmac.pred$fit-2*cmac.pred$se.fit
 cmac.pred$upper<-cmac.pred$fit+2*cmac.pred$se.fit
 
+#decade
+#set decade for rest of analyses
+d<-2000
 
+##
 cmac.pred.decade<-ggplot(data=cmac.pred, aes(Decade, fit))+
   geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey19", alpha=0.6)+
   geom_line()+
@@ -175,3 +180,192 @@ dev.off()
 
 
 ######################################
+
+
+#c9
+#pull in final model from other analysis, just cut the number of that species in the offset
+
+c9.gam4<-gam(Coccinella.novemnotata~offset(log(1+Totalcount))+
+               s(Decade, sp=0.5, k=4)+
+               s(lon, sp=0.5)+
+               s(lat, sp=0.5)+
+               s(Agriculture, sp=0.5),  
+             data=pre1995, family="nb")
+summary(c9.gam4)
+AIC(c9.gam4)
+
+c9.pred<-predict.gam(c9.gam4, newDecade, se.fit = T, type="link")
+c9.pred<-cbind(newDecade,c9.pred)
+c9.pred<-c9.pred[which(c9.pred$Decade<=1990),]
+c9.pred$lower<-c9.pred$fit-2*c9.pred$se.fit
+c9.pred$upper<-c9.pred$fit+2*c9.pred$se.fit
+
+
+#decade
+#set decade for rest of analyses
+d<-1960
+
+
+##
+c9.pred.decade<-ggplot(data=c9.pred, aes(Decade, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey19", alpha=0.6)+
+  geom_line()+
+  theme_classic()+
+  xlim(1929, 2011)+
+  xlab(expression(paste("Year")))+ylab("Predicted captures")+
+  scale_y_continuous(limits=c(-0.1, NA))
+c9.pred.decade
+#lon
+c9.pred<-predict.gam(c9.gam4, newlon, se.fit = T, type="link")
+c9.pred<-cbind(newlon,c9.pred)
+c9.pred$lower<-c9.pred$fit-2*c9.pred$se.fit
+c9.pred$upper<-c9.pred$fit+2*c9.pred$se.fit
+
+c9.pred.lon<-ggplot(data=c9.pred, aes(lon, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
+  geom_line(col="gray28")+
+  theme_classic()+
+  xlab(expression(paste("Longitude")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+c9.pred.lon
+
+
+#lat
+c9.pred<-predict.gam(c9.gam4, newlat, se.fit = T, type="link")
+c9.pred<-cbind(newlat,c9.pred)
+c9.pred$lower<-c9.pred$fit-2*c9.pred$se.fit
+c9.pred$upper<-c9.pred$fit+2*c9.pred$se.fit
+
+c9.pred.lat<-ggplot(data=c9.pred, aes(lat, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
+  geom_line(col="gray28")+
+  theme_classic()+
+  xlab(expression(paste("Latitude")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+c9.pred.lat
+
+
+#agriculture
+
+c9.pred<-predict.gam(c9.gam4, newAgriculture, se.fit = T, type="link")
+c9.pred<-cbind(newAgriculture,c9.pred)
+c9.pred$lower<-c9.pred$fit-2*c9.pred$se.fit
+c9.pred$upper<-c9.pred$fit+2*c9.pred$se.fit
+
+c9.pred.agriculture<-ggplot(data=c9.pred, aes(Agriculture, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="darkolivegreen1", alpha=0.6)+
+  geom_line(col="darkolivegreen")+
+  theme_classic()+
+  xlab(expression(paste("% Agriculture cover")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+c9.pred.agriculture
+
+
+c9.predictions<-plot_grid(c9.pred.decade, c9.pred.lon, c9.pred.lat, 
+                          noeffect, noeffect, noeffect,
+                          c9.pred.agriculture, noeffect, noeffect,
+                          ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
+                                                                'D', 'E', 'F',
+                                                                'G', 'H', 'I'))
+c9.predictions
+
+pdf("plots/c9_predictions.pdf", height=9, width=9)
+grid.draw(c9.predictions)
+dev.off()
+
+###
+#Adalia
+
+#pull in final model from other analysis, just cut the number of that species in the offset
+
+abi.gam4<-gam(Adalia.bipunctata~offset(log(1+Totalcount))+
+                s(lon, sp=0.5)+
+                s(Propinvasive, sp=0.5)+
+                s(Agriculture, sp=0.5)+
+                s(Developed, sp=0.5),  
+              data=pre1995, family="nb")
+summary(abi.gam4)
+AIC(abi.gam4)
+
+
+#decade
+#set decade for rest of analyses
+d<-1960
+
+##
+
+#lon
+abi.pred<-predict.gam(abi.gam4, newlon, se.fit = T, type="link")
+abi.pred<-cbind(newlon,abi.pred)
+abi.pred$lower<-abi.pred$fit-2*abi.pred$se.fit
+abi.pred$upper<-abi.pred$fit+2*abi.pred$se.fit
+
+abi.pred.lon<-ggplot(data=abi.pred, aes(lon, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
+  geom_line(col="gray28")+
+  theme_classic()+
+  xlab(expression(paste("Longitude")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+abi.pred.lon
+
+
+
+#prop invasive
+
+abi.pred<-predict.gam(abi.gam4, newPI, se.fit = T, type="link")
+abi.pred<-cbind(newPI,abi.pred)
+abi.pred$lower<-abi.pred$fit-2*abi.pred$se.fit
+abi.pred$upper<-abi.pred$fit+2*abi.pred$se.fit
+
+abi.pred.pi<-ggplot(data=abi.pred, aes(Propinvasive, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="plum1", alpha=0.6)+
+  geom_line(col="darkmagenta")+
+  theme_classic()+
+  xlab(expression(paste("Proportion invasive")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+abi.pred.pi
+
+
+#agriculture
+
+abi.pred<-predict.gam(abi.gam4, newAgriculture, se.fit = T, type="link")
+abi.pred<-cbind(newAgriculture,abi.pred)
+abi.pred$lower<-abi.pred$fit-2*abi.pred$se.fit
+abi.pred$upper<-abi.pred$fit+2*abi.pred$se.fit
+
+abi.pred.agriculture<-ggplot(data=abi.pred, aes(Agriculture, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="darkolivegreen1", alpha=0.6)+
+  geom_line(col="darkolivegreen")+
+  theme_classic()+
+  xlab(expression(paste("% Agriculture cover")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+abi.pred.agriculture
+
+#Developed
+abi.pred<-predict.gam(abi.gam4, newDeveloped, se.fit = T, type="link")
+abi.pred<-cbind(newDeveloped,abi.pred)
+abi.pred$lower<-abi.pred$fit-2*abi.pred$se.fit
+abi.pred$upper<-abi.pred$fit+2*abi.pred$se.fit
+
+abi.pred.developed<-ggplot(data=abi.pred, aes(Developed, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="slategray2", alpha=0.6)+
+  geom_line(col="slategray4")+
+  theme_classic()+
+  xlab(expression(paste("% Developed cover")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+abi.pred.developed
+
+
+
+abi.predictions<-plot_grid(noeffect, abi.pred.lon, noeffect, 
+                           abi.pred.pi, noeffect, noeffect,
+                           abi.pred.agriculture, noeffect, abi.pred.developed,
+                           ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
+                                                                 'D', 'E', 'F',
+                                                                 'G', 'H', 'I'))
+abi.predictions
+
+pdf("plots/abi_predictions.pdf", height=9, width=9)
+grid.draw(abi.predictions)
+dev.off()
+
