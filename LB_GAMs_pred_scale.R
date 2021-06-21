@@ -10,7 +10,7 @@ d<-2000
 #decade
 newDecade <- with(lb_all2,
              data.frame(Decade = seq(min(Decade), max(Decade), length = 100),
-                        Totalcount= 500, 
+                        Totalcount=500, 
                         lon=mean(lon), 
                         lat=mean(lat), 
                         Propinvasive=mean(Propinvasive),
@@ -22,7 +22,7 @@ newDecade <- with(lb_all2,
 #lon
 newlon <- with(lb_all2,
                   data.frame(Decade = d,
-                             Totalcount= 500, 
+                             Totalcount=500, 
                              lon=seq(min(lon), max(lon), length = 100), 
                              lat=mean(lat), 
                              Propinvasive=mean(Propinvasive),
@@ -33,7 +33,7 @@ newlon <- with(lb_all2,
 #lat
 newlat <- with(lb_all2,
                data.frame(Decade = d,
-                          Totalcount= 500, 
+                          Totalcount=500, 
                           lon=mean(lon), 
                           lat=seq(min(lat), max(lat), length = 100), 
                           Propinvasive=mean(Propinvasive),
@@ -43,7 +43,7 @@ newlat <- with(lb_all2,
 #Propinvasive
 newPI <- with(lb_all2,
                data.frame(Decade = d,
-                          Totalcount= 500, 
+                          Totalcount=500, 
                           lon=mean(lon), 
                           lat=mean(lat), 
                           Propinvasive=seq(min(Propinvasive), max(Propinvasive)-0.05, length = 100),
@@ -53,7 +53,7 @@ newPI <- with(lb_all2,
 #Agriculture
 newAgriculture <- with(lb_all2,
                data.frame(Decade = d,
-                          Totalcount= 500, 
+                          Totalcount=500, 
                           lon=mean(lon), 
                           lat=mean(lat), 
                           Propinvasive=mean(Propinvasive),
@@ -63,7 +63,7 @@ newAgriculture <- with(lb_all2,
 #Forest
 newForest <- with(lb_all2,
                data.frame(Decade = d,
-                          Totalcount= 500, 
+                          Totalcount=500, 
                           lon=mean(lon), 
                           lat=mean(lat), 
                           Propinvasive=mean(Propinvasive),
@@ -73,7 +73,7 @@ newForest <- with(lb_all2,
 #Developed
 newDeveloped <- with(lb_all2,
                data.frame(Decade = d,
-                          Totalcount= 500, 
+                          Totalcount=500, 
                           lon=mean(lon), 
                           lat=mean(lat), 
                           Propinvasive=mean(Propinvasive),
@@ -87,7 +87,7 @@ newDeveloped <- with(lb_all2,
 
 #pull in final model from other analysis, just cut the number of that species in the offset
 
-cmac.gam4<-gam(Coleomegilla.maculata~offset(log(1+Totalcount))+
+cmac.gam4<-gam(Coleomegilla.maculata~offset(log(Totalcount))+
                  s(Decade, sp=0.5, k=4)+
                  s(lat, sp=0.5)+
                  s(Propinvasive, sp=0.5)+
@@ -111,7 +111,7 @@ cmac.pred.decade<-ggplot(data=cmac.pred, aes(Decade, fit))+
   theme_classic()+
   xlim(1929, 2011)+
   xlab(expression(paste("Year")))+ylab("Predicted captures")+
-  scale_y_continuous(limits=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, NA))
 cmac.pred.decade
 
 #lat
@@ -125,7 +125,7 @@ cmac.pred.lat<-ggplot(data=cmac.pred, aes(lat, fit))+
   geom_line(col="gray28")+
   theme_classic()+
   xlab(expression(paste("Latitude")))+ylab("Predicted captures")+
-  scale_y_continuous(limits=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, NA))
 cmac.pred.lat
 
 
@@ -141,7 +141,7 @@ cmac.pred.pi<-ggplot(data=cmac.pred, aes(Propinvasive, fit))+
   geom_line(col="darkmagenta")+
   theme_classic()+
   xlab(expression(paste("Proportion invasive")))+ylab("Predicted captures")+
-  scale_y_continuous(limits=c(-0.5, NA))
+  coord_cartesian(ylim=c(-0.1, NA))
 cmac.pred.pi
 
 
@@ -157,7 +157,7 @@ cmac.pred.agriculture<-ggplot(data=cmac.pred, aes(Agriculture, fit))+
   geom_line(col="darkolivegreen")+
   theme_classic()+
   xlab(expression(paste("% Agriculture cover")))+ylab("Predicted captures")+
-  scale_y_continuous(limits=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, NA))
 cmac.pred.agriculture
 
 
@@ -468,7 +468,7 @@ dev.off()
 #####################
 #ok, things are fussier from here out because we're deling with invasives, or strong responses to individual invasives.
 
-#Ok, first let's do C& because it's only the one prediction interval we need
+#Ok, first let's do C7 because it's only the one prediction interval we need
 
 c7.gam4<-gam(Coccinella.septempunctata~offset(log(1+Totalcount))+
                s(Agriculture, sp=0.5),  
@@ -493,16 +493,241 @@ c7.pred.agriculture<-ggplot(data=c7.pred, aes(Agriculture, fit))+
   coord_cartesian(ylim=c(-0.1, NA))
 c7.pred.agriculture
 
-c7.smooths<-plot_grid(noeffect, noeffect, noeffect, 
+c7.predictions<-plot_grid(noeffect, noeffect, noeffect, 
                       noeffect, noeffect, noeffect,
                       c7.pred.agriculture, noeffect, noeffect,
                       ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
                                                             'D', 'E', 'F',
                                                             'G', 'H', 'I'))
-c7.smooths
+c7.predictions
 
-pdf("plots/c7_smooths.pdf", height=9, width=9)
-grid.draw(c7.smooths)
+pdf("plots/c7_predictions.pdf", height=9, width=9)
+grid.draw(c7.predictions)
 dev.off()
+
+##############
+#hcon intervals  for decade, lat, c7, ha, dev
+
+#decade
+newDecade <- with(lb_all2,
+                  data.frame(Decade = seq(min(Decade), max(Decade), length = 100),
+                             Totalcount=500,
+                             lat=mean(lat), 
+                             Coccinella.septempunctata=mean(Coccinella.septempunctata),
+                             Harmonia.axyridis=mean(Harmonia.axyridis),
+                             Developed=mean(Developed, na.rm=T)))
+
+
+#lat
+newlat <- with(lb_all2,
+               data.frame(Decade = d,
+                          Totalcount=500, 
+                          lat=seq(min(lat), max(lat), length = 100), 
+                          Coccinella.septempunctata=mean(Coccinella.septempunctata),
+                          Harmonia.axyridis=mean(Harmonia.axyridis),
+                          Developed=mean(Developed, na.rm=T)))
+
+#C7
+newC7 <- with(lb_all2,
+              data.frame(Decade = d,
+                         Totalcount=500, 
+                         lat=mean(lat), 
+                         Coccinella.septempunctata=seq(min(Coccinella.septempunctata), max(Coccinella.septempunctata), length = 100),
+                         Harmonia.axyridis=mean(Harmonia.axyridis),
+                         Developed=mean(Developed, na.rm=T)))
+#HA
+newHA <- with(lb_all2,
+              data.frame(Decade = d,
+                         Totalcount=500, 
+                         lat=mean(lat),
+                         Coccinella.septempunctata=mean(Coccinella.septempunctata),
+                         Harmonia.axyridis=seq(min(Harmonia.axyridis), max(Harmonia.axyridis), length = 100),
+                         Developed=mean(Developed, na.rm=T)))
+
+
+#Developed
+newDeveloped <- with(lb_all2,
+                     data.frame(Decade = d,
+                                Totalcount=500,
+                                lat=mean(lat), 
+                                Coccinella.septempunctata=mean(Coccinella.septempunctata),
+                                Harmonia.axyridis=mean(Harmonia.axyridis),
+                                Developed=seq(min(Developed, na.rm=T), max(Developed, na.rm=T), length = 100)))
+
+
+
+
+#pull in final model from other analysis, just cut the number of that species in the offset
+
+hcon.gam4<-gam(Hippodamia.convergens~offset(log(1+Totalcount))+
+                 s(Decade, sp=0.5, k=4)+
+                 s(lat, sp=0.5)+
+                 s(log(1+Coccinella.septempunctata), sp=0.5, k=4)+
+                 s(log(1+Harmonia.axyridis), sp=0.5, k=4)+
+                 s(Developed, sp=0.5),  
+               data=lb_all2, family="nb")
+summary(hcon.gam4)
+AIC(hcon.gam4)
+
+
+hcon.pred<-predict.gam(hcon.gam4, newDecade, se.fit = T, type="link")
+hcon.pred<-cbind(newDecade,hcon.pred)
+hcon.pred$lower<-hcon.pred$fit-2*hcon.pred$se.fit
+hcon.pred$upper<-hcon.pred$fit+2*hcon.pred$se.fit
+
+#decade
+#set decade for rest of analyses
+d<-2000
+
+##
+hcon.pred.decade<-ggplot(data=hcon.pred, aes(Decade, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey19", alpha=0.6)+
+  geom_line()+
+  theme_classic()+
+  xlim(1929, 2011)+
+  xlab(expression(paste("Year")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+hcon.pred.decade
+
+
+#lat
+hcon.pred<-predict.gam(hcon.gam4, newlat, se.fit = T, type="link")
+hcon.pred<-cbind(newlat,hcon.pred)
+hcon.pred$lower<-hcon.pred$fit-2*hcon.pred$se.fit
+hcon.pred$upper<-hcon.pred$fit+2*hcon.pred$se.fit
+
+hcon.pred.lat<-ggplot(data=hcon.pred, aes(lat, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
+  geom_line(col="gray28")+
+  theme_classic()+
+  xlab(expression(paste("Latitude")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+hcon.pred.lat
+
+
+#c7
+
+hcon.pred<-predict.gam(hcon.gam4, newC7, se.fit = T, type="link")
+hcon.pred<-cbind(newC7,hcon.pred)
+hcon.pred$lower<-hcon.pred$fit-2*hcon.pred$se.fit
+hcon.pred$upper<-hcon.pred$fit+2*hcon.pred$se.fit
+
+hcon.pred.c7<-ggplot(data=hcon.pred, aes(Coccinella.septempunctata, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="mistyrose", alpha=0.6)+
+  geom_line(col="darkred")+
+  theme_classic()+
+  xlab(expression(paste("Captures of ", italic("Coccinella septempunctata"))))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+hcon.pred.c7
+
+#harmonia
+
+hcon.pred<-predict.gam(hcon.gam4, newHA, se.fit = T, type="link")
+hcon.pred<-cbind(newHA,hcon.pred)
+hcon.pred$lower<-hcon.pred$fit-2*hcon.pred$se.fit
+hcon.pred$upper<-hcon.pred$fit+2*hcon.pred$se.fit
+
+hcon.pred.ha<-ggplot(data=hcon.pred, aes(Harmonia.axyridis, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="burlywood1", alpha=0.6)+
+  geom_line(col="darkorange")+
+  theme_classic()+
+  xlab(expression(paste("Captures of ", italic("Harmonia axyridis"))))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+hcon.pred.ha
+
+
+#Developed
+hcon.pred<-predict.gam(hcon.gam4, newDeveloped, se.fit = T, type="link")
+hcon.pred<-cbind(newDeveloped,hcon.pred)
+hcon.pred$lower<-hcon.pred$fit-2*hcon.pred$se.fit
+hcon.pred$upper<-hcon.pred$fit+2*hcon.pred$se.fit
+
+hcon.pred.developed<-ggplot(data=hcon.pred, aes(Developed, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="slategray2", alpha=0.6)+
+  geom_line(col="slategray4")+
+  theme_classic()+
+  xlab(expression(paste("% Developed cover")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+hcon.pred.developed
+
+
+
+hcon.predictions<-plot_grid(hcon.pred.decade, noeffect, hcon.pred.lat, 
+                            noeffect, hcon.pred.c7, hcon.pred.ha,
+                            noeffect, noeffect, hcon.pred.developed,
+                            ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
+                                                                  'D', 'E', 'F',
+                                                                  'G', 'H', 'I'))
+hcon.predictions
+
+pdf("plots/hcon_predictions.pdf", height=9, width=9)
+grid.draw(hcon.predictions)
+dev.off()
+
+###########################
+# now finally the harmonia predictions
+
+d<-2000
+#decade
+
+after1990<-lb_all2[which(lb_all2$Decade>=1990),]
+
+#effed up after this point, gotta fix
+newDecade <- with(after1990,
+                  data.frame(Decade = seq(min(Decade), max(Decade), length = 100),
+                             Totalcount=500, 
+                             lon=mean(lon), 
+                             lat=mean(lat), 
+                             Propinvasive=mean(Propinvasive),
+                             Agriculture=mean(Agriculture, na.rm=T), 
+                             Forest=mean(Forest, na.rm=T), 
+                             Developed=mean(Developed, na.rm=T)))
+
+
+
+#lat
+newlat <- with(after1990,
+               data.frame(Decade = d,
+                          Totalcount=500, 
+                          lon=mean(lon), 
+                          lat=seq(min(lat), max(lat), length = 100), 
+                          Propinvasive=mean(Propinvasive),
+                          Agriculture=mean(Agriculture, na.rm=T), 
+                          Forest=mean(Forest, na.rm=T), 
+                          Developed=mean(Developed, na.rm=T)))
+
+#Propinvasive
+newAp <- with(after1990,
+                  data.frame(Decade = d,
+                         Totalcount=500, 
+                         lon=mean(lon), 
+                         lat=mean(lat), 
+                         Propinvasive=seq(min(Propinvasive), max(Propinvasive)-0.05, length = 100),
+                         Agriculture=mean(Agriculture, na.rm=T), 
+                         Forest=mean(Forest, na.rm=T), 
+                         Developed=mean(Developed, na.rm=T)))
+                         
+
+#Forest
+newForest <- with(after1990,
+                  data.frame(Decade = d,
+                             Totalcount=500, 
+                             lon=mean(lon), 
+                             lat=mean(lat), 
+                             Propinvasive=mean(Propinvasive),
+                             Agriculture=mean(Agriculture, na.rm=T), 
+                             Forest=seq(min(Forest, na.rm=T), max(Forest, na.rm=T), length = 100), 
+                             Developed=mean(Developed, na.rm=T)))
+#Developed
+newDeveloped <- with(after1990,
+                     data.frame(Decade = d,
+                                Totalcount=500, 
+                                lon=mean(lon), 
+                                lat=mean(lat), 
+                                Propinvasive=mean(Propinvasive),
+                                Agriculture=mean(Agriculture, na.rm=T), 
+                                Forest=mean(Forest, na.rm=T), 
+                                Developed=seq(min(Developed, na.rm=T), max(Developed, na.rm=T), length = 100)))
+
 
 
