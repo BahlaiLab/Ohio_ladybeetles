@@ -87,7 +87,7 @@ newDeveloped <- with(lb_all2,
 
 #pull in final model from other analysis, just cut the number of that species in the offset
 
-cmac.gam4<-gam(Coleomegilla.maculata~offset(log(Totalcount))+
+cmac.gam4<-gam(Coleomegilla.maculata~offset(log(1+Totalcount))+
                  s(Decade, sp=0.5, k=4)+
                  s(lat, sp=0.5)+
                  s(Propinvasive, sp=0.5)+
@@ -672,14 +672,12 @@ d<-2000
 
 after1990<-lb_all2[which(lb_all2$Decade>=1990),]
 
-#effed up after this point, gotta fix
+
 newDecade <- with(after1990,
                   data.frame(Decade = seq(min(Decade), max(Decade), length = 100),
                              Totalcount=500, 
-                             lon=mean(lon), 
                              lat=mean(lat), 
-                             Propinvasive=mean(Propinvasive),
-                             Agriculture=mean(Agriculture, na.rm=T), 
+                             Aphidophagous=mean(Aphidophagous), 
                              Forest=mean(Forest, na.rm=T), 
                              Developed=mean(Developed, na.rm=T)))
 
@@ -689,21 +687,17 @@ newDecade <- with(after1990,
 newlat <- with(after1990,
                data.frame(Decade = d,
                           Totalcount=500, 
-                          lon=mean(lon), 
                           lat=seq(min(lat), max(lat), length = 100), 
-                          Propinvasive=mean(Propinvasive),
-                          Agriculture=mean(Agriculture, na.rm=T), 
+                          Aphidophagous=mean(Aphidophagous), 
                           Forest=mean(Forest, na.rm=T), 
                           Developed=mean(Developed, na.rm=T)))
 
-#Propinvasive
+#Aphidophagous
 newAp <- with(after1990,
                   data.frame(Decade = d,
                          Totalcount=500, 
-                         lon=mean(lon), 
                          lat=mean(lat), 
-                         Propinvasive=seq(min(Propinvasive), max(Propinvasive)-0.05, length = 100),
-                         Agriculture=mean(Agriculture, na.rm=T), 
+                         Aphidophagous=seq(min(Aphidophagous), max(Aphidophagous), length = 100),
                          Forest=mean(Forest, na.rm=T), 
                          Developed=mean(Developed, na.rm=T)))
                          
@@ -712,22 +706,123 @@ newAp <- with(after1990,
 newForest <- with(after1990,
                   data.frame(Decade = d,
                              Totalcount=500, 
-                             lon=mean(lon), 
                              lat=mean(lat), 
-                             Propinvasive=mean(Propinvasive),
-                             Agriculture=mean(Agriculture, na.rm=T), 
+                             Aphidophagous=mean(Aphidophagous),
                              Forest=seq(min(Forest, na.rm=T), max(Forest, na.rm=T), length = 100), 
                              Developed=mean(Developed, na.rm=T)))
 #Developed
 newDeveloped <- with(after1990,
                      data.frame(Decade = d,
                                 Totalcount=500, 
-                                lon=mean(lon), 
                                 lat=mean(lat), 
-                                Propinvasive=mean(Propinvasive),
-                                Agriculture=mean(Agriculture, na.rm=T), 
+                                Aphidophagous=mean(Aphidophagous),
                                 Forest=mean(Forest, na.rm=T), 
                                 Developed=seq(min(Developed, na.rm=T), max(Developed, na.rm=T), length = 100)))
 
+
+#ok, harmonia
+ha.gam4<-gam(Harmonia.axyridis~offset(log(1+Totalcount))+
+               s(Decade, sp=0.5, k=3)+
+               s(lat, sp=0.5)+
+               s(log(1+Aphidophagous), sp=0.5, k=4)+
+               s(Forest, sp=0.5)+
+               s(Developed, sp=0.5),  
+             data=after1990, family="nb")
+summary(ha.gam4)
+AIC(ha.gam4)
+
+
+
+ha.pred<-predict.gam(ha.gam4, newDecade, se.fit = T, type="link")
+ha.pred<-cbind(newDecade,ha.pred)
+ha.pred$lower<-ha.pred$fit-2*ha.pred$se.fit
+ha.pred$upper<-ha.pred$fit+2*ha.pred$se.fit
+
+#decade
+#set decade for rest of analyses
+d<-2000
+
+##
+ha.pred.decade<-ggplot(data=ha.pred, aes(Decade, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey19", alpha=0.6)+
+  geom_line()+
+  theme_classic()+
+  xlim(1929, 2011)+
+  xlab(expression(paste("Year")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+ha.pred.decade
+#lat
+ha.pred<-predict.gam(ha.gam4, newlat, se.fit = T, type="link")
+ha.pred<-cbind(newlat,ha.pred)
+ha.pred$lower<-ha.pred$fit-2*ha.pred$se.fit
+ha.pred$upper<-ha.pred$fit+2*ha.pred$se.fit
+
+ha.pred.lat<-ggplot(data=ha.pred, aes(lat, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
+  geom_line(col="gray28")+
+  theme_classic()+
+  xlab(expression(paste("Latitude")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+ha.pred.lat
+
+
+#aphidophagous
+
+ha.pred<-predict.gam(ha.gam4, newAp, se.fit = T, type="link")
+ha.pred<-cbind(newAp,ha.pred)
+ha.pred$lower<-ha.pred$fit-2*ha.pred$se.fit
+ha.pred$upper<-ha.pred$fit+2*ha.pred$se.fit
+
+ha.pred.ap<-ggplot(data=ha.pred, aes(Aphidophagous, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="palevioletred", alpha=0.6)+
+  geom_line(col="maroon4")+
+  theme_classic()+
+  xlab(expression(paste("Other Aphidophagous")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+ha.pred.ap
+
+#Forest
+
+ha.pred<-predict.gam(ha.gam4, newForest, se.fit = T, type="link")
+ha.pred<-cbind(newForest,ha.pred)
+ha.pred$lower<-ha.pred$fit-2*ha.pred$se.fit
+ha.pred$upper<-ha.pred$fit+2*ha.pred$se.fit
+
+ha.pred.forest<-ggplot(data=ha.pred, aes(Forest, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="lightgreen", alpha=0.6)+
+  geom_line(col="darkgreen")+
+  theme_classic()+
+  xlab(expression(paste("% Forest cover")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+ha.pred.forest
+
+#Developed
+ha.pred<-predict.gam(ha.gam4, newDeveloped, se.fit = T, type="link")
+ha.pred<-cbind(newDeveloped,ha.pred)
+ha.pred$lower<-ha.pred$fit-2*ha.pred$se.fit
+ha.pred$upper<-ha.pred$fit+2*ha.pred$se.fit
+
+ha.pred.developed<-ggplot(data=ha.pred, aes(Developed, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="slategray2", alpha=0.6)+
+  geom_line(col="slategray4")+
+  theme_classic()+
+  xlab(expression(paste("% Developed cover")))+ylab("Predicted captures")+
+  coord_cartesian(ylim=c(-0.1, NA))
+ha.pred.developed
+
+
+
+
+ha.predictions<-plot_grid(ha.pred.decade, noeffect, ha.pred.lat, 
+                      ha.pred.ap, noeffect, noeffect,
+                      noeffect, ha.pred.forest, ha.pred.developed,
+                      ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
+                                                            'D', 'E', 'F',
+                                                            'G', 'H', 'I'))
+ha.predictions
+
+pdf("plots/ha_predictions.pdf", height=12, width=9)
+grid.draw(ha.predictions)
+dev.off()
 
 
