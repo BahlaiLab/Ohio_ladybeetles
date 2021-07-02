@@ -825,4 +825,18 @@ pdf("plots/ha_predictions.pdf", height=12, width=9)
 grid.draw(ha.predictions)
 dev.off()
 
+######################
+#build the big grid fig
+
+#create graphical objects for labels in plots
+blankspace<-text_grob(paste(""), color="black")
+adalia<-text_grob(paste("Adalia bipunctata"), color="black")
+cnovo<-text_grob(paste("Coccinella novemnota"), color="black")
+colmac<-text_grob(paste("Coleomegilla maculata"), color="black")
+hippo<-text_grob(paste("hippodamia convergens"), color="black")
+
+
+
+
+
 
