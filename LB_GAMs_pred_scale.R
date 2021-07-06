@@ -541,7 +541,7 @@ newHA <- with(lb_all2,
                          Totalcount=500, 
                          lat=mean(lat),
                          Coccinella.septempunctata=mean(Coccinella.septempunctata),
-                         Harmonia.axyridis=seq(min(Harmonia.axyridis), max(Harmonia.axyridis), length = 100),
+                         Harmonia.axyridis=seq(min(Harmonia.axyridis), 15, length = 100),
                          Developed=mean(Developed, na.rm=T)))
 
 
@@ -613,7 +613,7 @@ hcon.pred$lower<-hcon.pred$fit-2*hcon.pred$se.fit
 hcon.pred$upper<-hcon.pred$fit+2*hcon.pred$se.fit
 
 hcon.pred.c7<-ggplot(data=hcon.pred, aes(Coccinella.septempunctata, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="mistyrose", alpha=0.6)+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="lightcoral", alpha=0.6)+
   geom_line(col="darkred")+
   theme_classic()+
   xlab(expression(paste("Captures of ", italic("Coccinella septempunctata"))))+ylab("Predicted captures")+
@@ -830,13 +830,86 @@ dev.off()
 
 #create graphical objects for labels in plots
 blankspace<-text_grob(paste(""), color="black")
-adalia<-text_grob(paste("Adalia bipunctata"), color="black")
-cnovo<-text_grob(paste("Coccinella novemnota"), color="black")
-colmac<-text_grob(paste("Coleomegilla maculata"), color="black")
-hippo<-text_grob(paste("hippodamia convergens"), color="black")
+adalia<-text_grob(paste("Adalia \nbipunctata"), color="black", face="italic", size=11)
+cnovo<-text_grob(paste("Coccinella \nnovemnota"), color="black", face="italic", size=11)
+colmac<-text_grob(paste("Coleomegilla \nmaculata"), color="black", face="italic", size=11)
+hippo<-text_grob(paste("Hippodamia \nconvergens"), color="black", face="italic", size=11)
+cstigm<-text_grob(paste("Chilocorus \nstigma"), color="black", face="italic", size=11)
+landscape<-text_grob(paste("Landscape parameters"), color="black", face="bold", size=13)
+invasion<-text_grob(paste("Invasion parameters"), color="black", face="bold", size=13)
+prop.inv<-text_grob(paste("Proportion \ninvasive"), color="black", size=11)
+csept<-text_grob(paste("Coccinella \nseptempunctata"), color="black", face="italic", size=11)
+haxy<-text_grob(paste("Harmonia \naxyridis"), color="black", face="italic", size=11)
+agri<-text_grob(paste("% Agriculture"), color="black", size=11)
+fore<-text_grob(paste("% Forest"), color="black", size=11)
+devel<-text_grob(paste("% Developed"), color="black", size=11)
+
+titlerow<-plot_grid(blankspace, invasion, landscape,
+                    ncol=3, rel_widths=c(1,3,3))
+labelrow<-plot_grid(blankspace, prop.inv, csept, haxy, agri, fore, devel,
+                    ncol=7, rel_widths=c(1,1,1,1,1,1,1))
+adaliarow<-plot_grid(adalia,
+                     abi.pred.pi+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                             plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
+                     blankspace,
+                     blankspace, 
+                     abi.pred.agriculture+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                                      plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
+                     blankspace, 
+                     abi.pred.developed+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                                    plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
+                     ncol=7, rel_widths=c(1,1,1,1,1,1,1))
+
+c9row<-plot_grid(cnovo,
+                     blankspace,
+                     blankspace,
+                     blankspace, 
+                     c9.pred.agriculture+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                                     plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
+                     blankspace, 
+                     blankspace,
+                     ncol=7, rel_widths=c(1,1,1,1,1,1,1))
+
+cmacrow<-plot_grid(colmac,
+                     cmac.pred.pi+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                              plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
+                     blankspace,
+                     blankspace, 
+                     cmac.pred.agriculture+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                                       plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
+                     blankspace, 
+                     blankspace,
+                     ncol=7, rel_widths=c(1,1,1,1,1,1,1))
+hconrow<-plot_grid(hippo,
+                   blankspace,
+                   hcon.pred.c7+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                            plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
+                   hcon.pred.ha+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                            plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
+                   blankspace, 
+                   blankspace, 
+                   hcon.pred.developed+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                                   plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
+                   ncol=7, rel_widths=c(1,1,1,1,1,1,1))
+
+cstigrow<-plot_grid(cstigm,
+                    cstig.pred.pi+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                              plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
+                    blankspace,
+                    blankspace,
+                    blankspace, 
+                    cstig.pred.forest+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                                  plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
+                    blankspace, 
+                    ncol=7, rel_widths=c(1,1,1,1,1,1,1))
 
 
+megaplot<-plot_grid(titlerow, labelrow, adaliarow, c9row, cmacrow, hconrow, cstigrow,
+                              ncol=1, rel_heights = c(0.2,0.7,1,1,1,1,1))
+
+megaplot
 
 
-
-
+pdf("plots/predictions_megaplot.pdf", height=6, width=7)
+grid.draw(megaplot)
+dev.off()

@@ -1140,7 +1140,7 @@ hcon.c7<-visreg(hcon.gam3, "Coccinella.septempunctata",  ylab="Residual captures
                 xlab=expression(paste("Captures of ", italic("Coccinella septempunctata"))),
                 gg=T,
                 line=list(col="darkred"),
-                fill=list(col="mistyrose", fill="mistyrose"),
+                fill=list(col="lightcoral", fill="lightcoral"),
                 points=list(size=1, pch=22, fill="darkred", col="black"))+
   theme_classic()
 hcon.c7
@@ -1378,7 +1378,7 @@ cstig.pi
 #                  xlab=expression(paste("Captures of ", italic("Coccinella septempunctata"))),
 #                  gg=T,
 #                  line=list(col="darkred"),
-#                  fill=list(col="mistyrose", fill="mistyrose"),
+#                  fill=list(col="lightcoral", fill="lightcoral"),
 #                  points=list(size=1, pch=22, fill="darkred", col="black"))+
 #   theme_classic()
 # cstig.c7
@@ -1620,7 +1620,7 @@ concurvity(c7.gam3)
 #               xlab=expression(paste("Captures of ", italic("Coccinella septempunctata"))),
 #               gg=T,
 #               line=list(col="darkred"),
-#               fill=list(col="mistyrose", fill="mistyrose"),
+#               fill=list(col="lightcoral", fill="lightcoral"),
 #               points=list(size=1, pch=22, fill="darkred", col="black"))+
 #   theme_classic()
 # c7.c7
@@ -1868,7 +1868,7 @@ ha.pi
 #               xlab=expression(paste("Captures of ", italic("Coccinella septempunctata"))),
 #               gg=T,
 #               line=list(col="darkred"),
-#               fill=list(col="mistyrose", fill="mistyrose"),
+#               fill=list(col="lightcoral", fill="lightcoral"),
 #               points=list(size=1, pch=22, fill="darkred", col="black"))+
 #   theme_classic()
 # ha.ha
