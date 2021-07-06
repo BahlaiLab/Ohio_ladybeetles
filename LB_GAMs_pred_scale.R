@@ -844,6 +844,19 @@ agri<-text_grob(paste("% Agriculture"), color="black", size=11)
 fore<-text_grob(paste("% Forest"), color="black", size=11)
 devel<-text_grob(paste("% Developed"), color="black", size=11)
 
+#create a blank plot too for the space holders
+blankspace1<-ggplot(data=hcon.pred, aes(Developed, fit))+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill="white", alpha=0.6)+
+  geom_line(col="white")+
+  theme_classic()+
+  xlab(NULL)+ylab(NULL)+
+  theme(axis.text=element_text(size=5, colour="white"),
+        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt"),
+      axis.line=element_line(color="grey"),
+      axis.ticks=element_line(color="grey"))+
+  annotate(geom="text", label="No effect", color="grey", x=40, y=2, size=2)
+
+
 titlerow<-plot_grid(blankspace, invasion, landscape,
                     ncol=3, rel_widths=c(1,3,3))
 labelrow<-plot_grid(blankspace, prop.inv, csept, haxy, agri, fore, devel,
@@ -851,43 +864,44 @@ labelrow<-plot_grid(blankspace, prop.inv, csept, haxy, agri, fore, devel,
 adaliarow<-plot_grid(adalia,
                      abi.pred.pi+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                              plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
-                     blankspace,
-                     blankspace, 
+                     blankspace1,
+                     blankspace1, 
                      abi.pred.agriculture+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                                       plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
-                     blankspace, 
+                     blankspace1, 
                      abi.pred.developed+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                                     plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
                      ncol=7, rel_widths=c(1,1,1,1,1,1,1))
 
 c9row<-plot_grid(cnovo,
-                     blankspace,
-                     blankspace,
-                     blankspace, 
+                     blankspace1,
+                     blankspace1,
+                     blankspace1, 
                      c9.pred.agriculture+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                                      plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
-                     blankspace, 
-                     blankspace,
+                     blankspace1, 
+                     blankspace1,
                      ncol=7, rel_widths=c(1,1,1,1,1,1,1))
 
 cmacrow<-plot_grid(colmac,
                      cmac.pred.pi+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                               plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
-                     blankspace,
-                     blankspace, 
+                     blankspace1,
+                     blankspace1, 
                      cmac.pred.agriculture+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                                        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
-                     blankspace, 
-                     blankspace,
+                     blankspace1, 
+                     blankspace1,
                      ncol=7, rel_widths=c(1,1,1,1,1,1,1))
 hconrow<-plot_grid(hippo,
-                   blankspace,
+                   blankspace1,
                    hcon.pred.c7+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                             plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
                    hcon.pred.ha+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
-                                                            plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
-                   blankspace, 
-                   blankspace, 
+                                                            plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt"))+
+                     scale_y_continuous(breaks=c(0,1,2,3)), 
+                   blankspace1, 
+                   blankspace1, 
                    hcon.pred.developed+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                                    plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
                    ncol=7, rel_widths=c(1,1,1,1,1,1,1))
@@ -895,17 +909,17 @@ hconrow<-plot_grid(hippo,
 cstigrow<-plot_grid(cstigm,
                     cstig.pred.pi+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                               plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
-                    blankspace,
-                    blankspace,
-                    blankspace, 
+                    blankspace1,
+                    blankspace1,
+                    blankspace1, 
                     cstig.pred.forest+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                                   plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
-                    blankspace, 
+                    blankspace1, 
                     ncol=7, rel_widths=c(1,1,1,1,1,1,1))
 
 
 megaplot<-plot_grid(titlerow, labelrow, adaliarow, c9row, cmacrow, hconrow, cstigrow,
-                              ncol=1, rel_heights = c(0.2,0.7,1,1,1,1,1))
+                              ncol=1, rel_heights = c(0.2,0.5,1,1,1,1,1))
 
 megaplot
 
