@@ -835,6 +835,7 @@ cnovo<-text_grob(paste("Coccinella \nnovemnota"), color="black", face="italic", 
 colmac<-text_grob(paste("Coleomegilla \nmaculata"), color="black", face="italic", size=11)
 hippo<-text_grob(paste("Hippodamia \nconvergens"), color="black", face="italic", size=11)
 cstigm<-text_grob(paste("Chilocorus \nstigma"), color="black", face="italic", size=11)
+spatio<-text_grob(paste("Spatio-temporal parameters"), color="black", face="bold", size=13)
 landscape<-text_grob(paste("Landscape parameters"), color="black", face="bold", size=13)
 invasion<-text_grob(paste("Invasion parameters"), color="black", face="bold", size=13)
 prop.inv<-text_grob(paste("Proportion \ninvasive"), color="black", size=11)
@@ -843,6 +844,10 @@ haxy<-text_grob(paste("Harmonia \naxyridis"), color="black", face="italic", size
 agri<-text_grob(paste("% Agriculture"), color="black", size=11)
 fore<-text_grob(paste("% Forest"), color="black", size=11)
 devel<-text_grob(paste("% Developed"), color="black", size=11)
+deca<-text_grob(paste("Decade"), color="black", size=11)
+longi<-text_grob(paste("Longitude"), color="black", size=11)
+lati<-text_grob(paste("Latitude"), color="black", size=11)
+
 
 #create a blank plot too for the space holders
 blankspace1<-ggplot(data=hcon.pred, aes(Developed, fit))+
@@ -857,11 +862,15 @@ blankspace1<-ggplot(data=hcon.pred, aes(Developed, fit))+
   annotate(geom="text", label="No effect", color="grey", x=40, y=2, size=2)
 
 
-titlerow<-plot_grid(blankspace, invasion, landscape,
-                    ncol=3, rel_widths=c(1,3,3))
-labelrow<-plot_grid(blankspace, prop.inv, csept, haxy, agri, fore, devel,
-                    ncol=7, rel_widths=c(1,1,1,1,1,1,1))
+titlerow<-plot_grid(blankspace, spatio, invasion, landscape,
+                    ncol=4, rel_widths=c(1,3,3,3))
+labelrow<-plot_grid(blankspace, deca, longi, lati, prop.inv, csept, haxy, agri, fore, devel,
+                    ncol=10, rel_widths=c(1,1,1,1,1,1,1,1,1,1))
 adaliarow<-plot_grid(adalia,
+                     blankspace1,
+                     abi.pred.lon+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                              plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
+                     blankspace1,
                      abi.pred.pi+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                              plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
                      blankspace1,
@@ -871,9 +880,15 @@ adaliarow<-plot_grid(adalia,
                      blankspace1, 
                      abi.pred.developed+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                                     plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
-                     ncol=7, rel_widths=c(1,1,1,1,1,1,1))
+                     ncol=10, rel_widths=c(1,1,1,1,1,1,1,1,1,1))
 
 c9row<-plot_grid(cnovo,
+                     c9.pred.decade+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                                plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
+                     c9.pred.lon+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                             plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
+                     c9.pred.lat+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                             plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
                      blankspace1,
                      blankspace1,
                      blankspace1, 
@@ -881,9 +896,14 @@ c9row<-plot_grid(cnovo,
                                                                      plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
                      blankspace1, 
                      blankspace1,
-                     ncol=7, rel_widths=c(1,1,1,1,1,1,1))
+                     ncol=10, rel_widths=c(1,1,1,1,1,1,1,1,1,1))
 
 cmacrow<-plot_grid(colmac,
+                     cmac.pred.decade+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                                  plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
+                     blankspace1,
+                     cmac.pred.lat+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                               plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
                      cmac.pred.pi+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                               plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
                      blankspace1,
@@ -892,8 +912,13 @@ cmacrow<-plot_grid(colmac,
                                                                        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
                      blankspace1, 
                      blankspace1,
-                     ncol=7, rel_widths=c(1,1,1,1,1,1,1))
+                   ncol=10, rel_widths=c(1,1,1,1,1,1,1,1,1,1))
 hconrow<-plot_grid(hippo,
+                   hcon.pred.decade+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                                plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
+                   blankspace1,
+                   hcon.pred.lat+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                             plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
                    blankspace1,
                    hcon.pred.c7+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                             plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
@@ -904,9 +929,14 @@ hconrow<-plot_grid(hippo,
                    blankspace1, 
                    hcon.pred.developed+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                                    plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
-                   ncol=7, rel_widths=c(1,1,1,1,1,1,1))
+                   ncol=10, rel_widths=c(1,1,1,1,1,1,1,1,1,1))
 
 cstigrow<-plot_grid(cstigm,
+                    blankspace1,
+                    cstig.pred.lon+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                                plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
+                    cstig.pred.lat+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
+                                                               plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")), 
                     cstig.pred.pi+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                               plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
                     blankspace1,
@@ -915,7 +945,7 @@ cstigrow<-plot_grid(cstigm,
                     cstig.pred.forest+xlab(NULL)+ylab(NULL)+theme(axis.text=element_text(size=5),
                                                                   plot.margin = margin(0.5, 0.5, 0.5, 0.5, "pt")),
                     blankspace1, 
-                    ncol=7, rel_widths=c(1,1,1,1,1,1,1))
+                    ncol=10, rel_widths=c(1,1,1,1,1,1,1,1,1,1))
 
 
 megaplot<-plot_grid(titlerow, labelrow, adaliarow, c9row, cmacrow, hconrow, cstigrow,
@@ -924,6 +954,6 @@ megaplot<-plot_grid(titlerow, labelrow, adaliarow, c9row, cmacrow, hconrow, csti
 megaplot
 
 
-pdf("plots/predictions_megaplot.pdf", height=6, width=7)
+pdf("plots/predictions_megaplot.pdf", height=6, width=10)
 grid.draw(megaplot)
 dev.off()
