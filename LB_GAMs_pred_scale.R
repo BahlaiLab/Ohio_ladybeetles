@@ -831,7 +831,7 @@ dev.off()
 #create graphical objects for labels in plots
 blankspace<-text_grob(paste(""), color="black")
 adalia<-text_grob(paste("Adalia \nbipunctata"), color="black", face="italic", size=11)
-cnovo<-text_grob(paste("Coccinella \nnovemnota"), color="black", face="italic", size=11)
+cnovo<-text_grob(paste("Coccinella \nnovemnotata"), color="black", face="italic", size=11)
 colmac<-text_grob(paste("Coleomegilla \nmaculata"), color="black", face="italic", size=11)
 hippo<-text_grob(paste("Hippodamia \nconvergens"), color="black", face="italic", size=11)
 cstigm<-text_grob(paste("Chilocorus \nstigma"), color="black", face="italic", size=11)

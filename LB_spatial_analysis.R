@@ -516,7 +516,7 @@ grid.draw(cmac.smooths)
 dev.off()
 
 ##################################################################################################
-#Coccinella novemnota
+#Coccinella novemnotata
 
 #first, how many captures are we working with?
 sum(lb_all2$Coccinella.novemnotata)
