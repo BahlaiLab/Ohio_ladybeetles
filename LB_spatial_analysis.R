@@ -2116,4 +2116,3 @@ pdf("plots/timeseries_stack_named.pdf", height=12, width=7)
 grid.draw(timeseries.stack.named)
 dev.off()
 
-#new token
