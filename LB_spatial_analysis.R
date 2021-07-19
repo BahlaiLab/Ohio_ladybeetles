@@ -2071,3 +2071,47 @@ timeseries.stack
 pdf("plots/timeseries_stack.pdf", height=12, width=6)
 grid.draw(timeseries.stack)
 dev.off()
+
+#named timeseries stack
+timeseries.stack.named<-plot_grid(abi.decade0 + 
+                                    ggtitle("Adalia bipunctata")+
+                                    theme(plot.title=element_text(size=14, face="bold.italic",
+                                                                  hjust = 0.5)),
+                                     
+                                  c9.decade0+ 
+                                    ggtitle("Coccinella novemnotata")+
+                                    theme(plot.title=element_text(size=14, face="bold.italic",
+                                                                  hjust = 0.5)),
+                                  cmac.decade0+ 
+                                    ggtitle("Coleomegilla maculata")+
+                                    theme(plot.title=element_text(size=14, face="bold.italic",
+                                                                  hjust = 0.5)),
+                                  hcon.decade0+ 
+                                    ggtitle("Hippodamia convergens")+
+                                    theme(plot.title=element_text(size=14, face="bold.italic",
+                                                                  hjust = 0.5)),
+                                  cstig.decade0+ 
+                                    ggtitle("Chilocorus stigma")+
+                                    theme(plot.title=element_text(size=14, face="bold.italic",
+                                                                  hjust = 0.5)),
+                                  c7.decade0+ 
+                                    ggtitle("Coccinella septempunctata")+
+                                    theme(plot.title=element_text(size=14, face="bold.italic",
+                                                                  hjust = 0.5)),
+                                  ha.decade0+ 
+                                    ggtitle("Harmonia axyridis")+
+                                    theme(plot.title=element_text(size=14, face="bold.italic",
+                                                                  hjust = 0.5)),
+                                  all.decade0+ 
+                                    ggtitle("All species")+
+                                    theme(plot.title=element_text(size=14, face="bold",
+                                                                  hjust = 0.5)),
+                                  
+                            ncol=2, rel_widths=c(1, 1), label_fontface="italic",
+                            labels=c('A', 'B', 'C','D', 'E', 'F',
+                                                                 'G', 'H'), align="v")
+timeseries.stack.named
+
+pdf("plots/timeseries_stack_named.pdf", height=12, width=7)
+grid.draw(timeseries.stack.named)
+dev.off()
