@@ -104,15 +104,33 @@ cmac.pred$upper<-cmac.pred$fit+2*cmac.pred$se.fit
 #set decade for rest of analyses
 d<-2000
 
-##
+#stuff for creating heatmap scale for correlation coefficients
+
+#Create a function to generate a continuous color palette for 'hot' to 'cool' trends
+rbPal <- colorRampPalette(c('blue3', 'grey55','darkred'))
+#turn it into a discrete palette,
+discrbPal<-rbPal(181)
+#lighten the palette for ribbons
+library(colorspace)
+discrbPallt<-lighten(discrbPal, amount=0.3)
+#create a vector where we can extract the index and use it to find the value in the palette
+scalePal<-seq(-0.9,0.9, by=0.01)
+
+#cmac space is up to 6
+fitspace<-5
+#calulate slope for overall 
+this.slope<-(max(cmac.pred$Decade)-min(cmac.pred$Decade))*((lm(cmac.pred$fit~cmac.pred$Decade))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 cmac.pred.decade<-ggplot(data=cmac.pred, aes(Decade, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey19", alpha=0.6)+
-  geom_line()+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlim(1929, 2011)+
   xlab(expression(paste("Year")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 cmac.pred.decade
+
 
 #lat
 cmac.pred<-predict.gam(cmac.gam4, newlat, se.fit = T, type="link")
@@ -120,12 +138,15 @@ cmac.pred<-cbind(newlat,cmac.pred)
 cmac.pred$lower<-cmac.pred$fit-2*cmac.pred$se.fit
 cmac.pred$upper<-cmac.pred$fit+2*cmac.pred$se.fit
 
+this.slope<-(max(cmac.pred$lat)-min(cmac.pred$lat))*((lm(cmac.pred$fit~cmac.pred$lat))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 cmac.pred.lat<-ggplot(data=cmac.pred, aes(lat, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
-  geom_line(col="gray28")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("Latitude")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 cmac.pred.lat
 
 
@@ -136,12 +157,15 @@ cmac.pred<-cbind(newPI,cmac.pred)
 cmac.pred$lower<-cmac.pred$fit-2*cmac.pred$se.fit
 cmac.pred$upper<-cmac.pred$fit+2*cmac.pred$se.fit
 
+this.slope<-(max(cmac.pred$Propinvasive)-min(cmac.pred$Propinvasive))*((lm(cmac.pred$fit~cmac.pred$Propinvasive))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 cmac.pred.pi<-ggplot(data=cmac.pred, aes(Propinvasive, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="plum1", alpha=0.6)+
-  geom_line(col="darkmagenta")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("Proportion invasive")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 cmac.pred.pi
 
 
@@ -152,30 +176,16 @@ cmac.pred<-cbind(newAgriculture,cmac.pred)
 cmac.pred$lower<-cmac.pred$fit-2*cmac.pred$se.fit
 cmac.pred$upper<-cmac.pred$fit+2*cmac.pred$se.fit
 
+this.slope<-(max(cmac.pred$Agriculture)-min(cmac.pred$Agriculture))*((lm(cmac.pred$fit~cmac.pred$Agriculture))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 cmac.pred.agriculture<-ggplot(data=cmac.pred, aes(Agriculture, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="darkolivegreen1", alpha=0.6)+
-  geom_line(col="darkolivegreen")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("% Agriculture cover")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 cmac.pred.agriculture
-
-
-#create graphical objects for placeholders in plots
-noeffect<-text_grob(paste("No effect"), color="black")
-notpresent<-text_grob(paste("Not present"), color="black")
-
-cmac.predictions<-plot_grid(cmac.pred.decade, noeffect, cmac.pred.lat, 
-                        cmac.pred.pi, noeffect, noeffect,
-                        cmac.pred.agriculture, noeffect, noeffect,
-                        ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
-                                                              'D', 'E', 'F',
-                                                              'G', 'H', 'I'))
-cmac.predictions
-
-pdf("plots/cmac_predictions.pdf", height=9, width=9)
-grid.draw(cmac.predictions)
-dev.off()
 
 
 
@@ -200,6 +210,10 @@ c9.pred<-c9.pred[which(c9.pred$Decade<=1990),]
 c9.pred$lower<-c9.pred$fit-2*c9.pred$se.fit
 c9.pred$upper<-c9.pred$fit+2*c9.pred$se.fit
 
+fitspace<-5
+
+this.slope<-(max(c9.pred$Decade)-min(c9.pred$Decade))*((lm(c9.pred$fit~c9.pred$Decade))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
 
 #decade
 #set decade for rest of analyses
@@ -208,25 +222,29 @@ d<-1960
 
 ##
 c9.pred.decade<-ggplot(data=c9.pred, aes(Decade, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey19", alpha=0.6)+
-  geom_line()+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlim(1929, 2011)+
   xlab(expression(paste("Year")))+ylab("Predicted captures")+
   scale_y_continuous(limits=c(-0.1, NA))
 c9.pred.decade
+
 #lon
 c9.pred<-predict.gam(c9.gam4, newlon, se.fit = T, type="link")
 c9.pred<-cbind(newlon,c9.pred)
 c9.pred$lower<-c9.pred$fit-2*c9.pred$se.fit
 c9.pred$upper<-c9.pred$fit+2*c9.pred$se.fit
 
+this.slope<-(max(c9.pred$lon)-min(c9.pred$lon))*((lm(c9.pred$fit~c9.pred$lon))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 c9.pred.lon<-ggplot(data=c9.pred, aes(lon, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
-  geom_line(col="gray28")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("Longitude")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 c9.pred.lon
 
 
@@ -236,12 +254,15 @@ c9.pred<-cbind(newlat,c9.pred)
 c9.pred$lower<-c9.pred$fit-2*c9.pred$se.fit
 c9.pred$upper<-c9.pred$fit+2*c9.pred$se.fit
 
+this.slope<-(max(c9.pred$lat)-min(c9.pred$lat))*((lm(c9.pred$fit~c9.pred$lat))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 c9.pred.lat<-ggplot(data=c9.pred, aes(lat, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
-  geom_line(col="gray28")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("Latitude")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 c9.pred.lat
 
 
@@ -252,26 +273,19 @@ c9.pred<-cbind(newAgriculture,c9.pred)
 c9.pred$lower<-c9.pred$fit-2*c9.pred$se.fit
 c9.pred$upper<-c9.pred$fit+2*c9.pred$se.fit
 
+this.slope<-(max(c9.pred$Agriculture)-min(c9.pred$Agriculture))*((lm(c9.pred$fit~c9.pred$Agriculture))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 c9.pred.agriculture<-ggplot(data=c9.pred, aes(Agriculture, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="darkolivegreen1", alpha=0.6)+
-  geom_line(col="darkolivegreen")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("% Agriculture cover")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 c9.pred.agriculture
 
 
-c9.predictions<-plot_grid(c9.pred.decade, c9.pred.lon, c9.pred.lat, 
-                          noeffect, noeffect, noeffect,
-                          c9.pred.agriculture, noeffect, noeffect,
-                          ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
-                                                                'D', 'E', 'F',
-                                                                'G', 'H', 'I'))
-c9.predictions
 
-pdf("plots/c9_predictions.pdf", height=9, width=9)
-grid.draw(c9.predictions)
-dev.off()
 
 ###
 #Adalia
@@ -291,7 +305,7 @@ AIC(abi.gam4)
 #decade
 #set decade for rest of analyses
 d<-1960
-
+fitspace<-5
 ##
 
 #lon
@@ -300,12 +314,15 @@ abi.pred<-cbind(newlon,abi.pred)
 abi.pred$lower<-abi.pred$fit-2*abi.pred$se.fit
 abi.pred$upper<-abi.pred$fit+2*abi.pred$se.fit
 
+this.slope<-(max(abi.pred$lon)-min(abi.pred$lon))*((lm(abi.pred$fit~abi.pred$lon))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 abi.pred.lon<-ggplot(data=abi.pred, aes(lon, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
-  geom_line(col="gray28")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("Longitude")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 abi.pred.lon
 
 
@@ -317,12 +334,15 @@ abi.pred<-cbind(newPI,abi.pred)
 abi.pred$lower<-abi.pred$fit-2*abi.pred$se.fit
 abi.pred$upper<-abi.pred$fit+2*abi.pred$se.fit
 
+this.slope<-(max(abi.pred$Propinvasive)-min(abi.pred$Propinvasive))*((lm(abi.pred$fit~abi.pred$Propinvasive))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 abi.pred.pi<-ggplot(data=abi.pred, aes(Propinvasive, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="plum1", alpha=0.6)+
-  geom_line(col="darkmagenta")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("Proportion invasive")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 abi.pred.pi
 
 
@@ -333,12 +353,15 @@ abi.pred<-cbind(newAgriculture,abi.pred)
 abi.pred$lower<-abi.pred$fit-2*abi.pred$se.fit
 abi.pred$upper<-abi.pred$fit+2*abi.pred$se.fit
 
+this.slope<-(max(abi.pred$Agriculture)-min(abi.pred$Agriculture))*((lm(abi.pred$fit~abi.pred$Agriculture))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 abi.pred.agriculture<-ggplot(data=abi.pred, aes(Agriculture, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="darkolivegreen1", alpha=0.6)+
-  geom_line(col="darkolivegreen")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("% Agriculture cover")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 abi.pred.agriculture
 
 #Developed
@@ -347,27 +370,18 @@ abi.pred<-cbind(newDeveloped,abi.pred)
 abi.pred$lower<-abi.pred$fit-2*abi.pred$se.fit
 abi.pred$upper<-abi.pred$fit+2*abi.pred$se.fit
 
+this.slope<-(max(abi.pred$Developed)-min(abi.pred$Developed))*((lm(abi.pred$fit~abi.pred$Developed))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 abi.pred.developed<-ggplot(data=abi.pred, aes(Developed, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="slategray2", alpha=0.6)+
-  geom_line(col="slategray4")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("% Developed cover")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 abi.pred.developed
 
 
-
-abi.predictions<-plot_grid(noeffect, abi.pred.lon, noeffect, 
-                           abi.pred.pi, noeffect, noeffect,
-                           abi.pred.agriculture, noeffect, abi.pred.developed,
-                           ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
-                                                                 'D', 'E', 'F',
-                                                                 'G', 'H', 'I'))
-abi.predictions
-
-pdf("plots/abi_predictions.pdf", height=9, width=9)
-grid.draw(abi.predictions)
-dev.off()
 
 #############
 #Cstig
@@ -386,7 +400,7 @@ AIC(cstig.gam4)
 #decade
 #set decade for rest of analyses
 d<-2000
-
+fitspace<-5
 
 #lon
 cstig.pred<-predict.gam(cstig.gam4, newlon, se.fit = T, type="link")
@@ -394,12 +408,15 @@ cstig.pred<-cbind(newlon,cstig.pred)
 cstig.pred$lower<-cstig.pred$fit-2*cstig.pred$se.fit
 cstig.pred$upper<-cstig.pred$fit+2*cstig.pred$se.fit
 
+this.slope<-(max(cstig.pred$lon)-min(cstig.pred$lon))*((lm(cstig.pred$fit~cstig.pred$lon))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 cstig.pred.lon<-ggplot(data=cstig.pred, aes(lon, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
-  geom_line(col="gray28")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("Longitude")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 cstig.pred.lon
 
 
@@ -409,12 +426,16 @@ cstig.pred<-cbind(newlat,cstig.pred)
 cstig.pred$lower<-cstig.pred$fit-2*cstig.pred$se.fit
 cstig.pred$upper<-cstig.pred$fit+2*cstig.pred$se.fit
 
+this.slope<-(max(cstig.pred$lat)-min(cstig.pred$lat))*((lm(cstig.pred$fit~cstig.pred$lat))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
+
 cstig.pred.lat<-ggplot(data=cstig.pred, aes(lat, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
-  geom_line(col="gray28")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("Latitude")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 cstig.pred.lat
 
 
@@ -425,12 +446,15 @@ cstig.pred<-cbind(newPI,cstig.pred)
 cstig.pred$lower<-cstig.pred$fit-2*cstig.pred$se.fit
 cstig.pred$upper<-cstig.pred$fit+2*cstig.pred$se.fit
 
+this.slope<-(max(cstig.pred$Propinvasive)-min(cstig.pred$Propinvasive))*((lm(cstig.pred$fit~cstig.pred$Propinvasive))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 cstig.pred.pi<-ggplot(data=cstig.pred, aes(Propinvasive, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="plum1", alpha=0.6)+
-  geom_line(col="darkmagenta")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("Proportion invasive")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 cstig.pred.pi
 
 
@@ -443,67 +467,22 @@ cstig.pred<-cbind(newForest,cstig.pred)
 cstig.pred$lower<-cstig.pred$fit-2*cstig.pred$se.fit
 cstig.pred$upper<-cstig.pred$fit+2*cstig.pred$se.fit
 
+this.slope<-(max(cstig.pred$Forest)-min(cstig.pred$Forest))*((lm(cstig.pred$fit~cstig.pred$Forest))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 cstig.pred.forest<-ggplot(data=cstig.pred, aes(Forest, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="lightgreen", alpha=0.6)+
-  geom_line(col="darkgreen")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("% Forest cover")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 cstig.pred.forest
 
 
 
-cstig.predictions<-plot_grid(noeffect, cstig.pred.lon, cstig.pred.lat, 
-                             cstig.pred.pi, noeffect, noeffect,
-                             noeffect, cstig.pred.forest, noeffect,
-                             ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
-                                                                   'D', 'E', 'F',
-                                                                   'G', 'H', 'I'))
-cstig.predictions
-
-pdf("plots/cstig_predictions.pdf", height=9, width=9)
-grid.draw(cstig.predictions)
-dev.off()
-
-#####################
-#ok, things are fussier from here out because we're deling with invasives, or strong responses to individual invasives.
-
-#Ok, first let's do C7 because it's only the one prediction interval we need
-
-c7.gam4<-gam(Coccinella.septempunctata~offset(log(1+Totalcount))+
-               s(Agriculture, sp=0.5),  
-             data=after1980, family="nb")
-summary(c7.gam4)
-AIC(c7.gam4)
-#Now we've got to adjust prediction intervals a bit because the remaining taxa aren't responding to proportion invasive
-
-d<-2000
-
-c7.pred<-predict.gam(c7.gam4, newAgriculture, se.fit = T, type="link")
-c7.pred<-cbind(newAgriculture,c7.pred)
-c7.pred$lower<-c7.pred$fit-2*c7.pred$se.fit
-c7.pred$upper<-c7.pred$fit+2*c7.pred$se.fit
 
 
-c7.pred.agriculture<-ggplot(data=c7.pred, aes(Agriculture, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="darkolivegreen1", alpha=0.6)+
-  geom_line(col="darkolivegreen")+
-  theme_classic()+
-  xlab(expression(paste("% Agriculture cover")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
-c7.pred.agriculture
 
-c7.predictions<-plot_grid(noeffect, noeffect, noeffect, 
-                      noeffect, noeffect, noeffect,
-                      c7.pred.agriculture, noeffect, noeffect,
-                      ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
-                                                            'D', 'E', 'F',
-                                                            'G', 'H', 'I'))
-c7.predictions
-
-pdf("plots/c7_predictions.pdf", height=9, width=9)
-grid.draw(c7.predictions)
-dev.off()
 
 ##############
 #hcon intervals  for decade, lat, c7, ha, dev
@@ -578,15 +557,18 @@ hcon.pred$upper<-hcon.pred$fit+2*hcon.pred$se.fit
 #decade
 #set decade for rest of analyses
 d<-2000
+fitscpace<-5
 
+this.slope<-(max(hcon.pred$Decade)-min(hcon.pred$Decade))*((lm(hcon.pred$fit~hcon.pred$Decade))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
 ##
 hcon.pred.decade<-ggplot(data=hcon.pred, aes(Decade, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey19", alpha=0.6)+
-  geom_line()+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlim(1929, 2011)+
   xlab(expression(paste("Year")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 hcon.pred.decade
 
 
@@ -596,12 +578,16 @@ hcon.pred<-cbind(newlat,hcon.pred)
 hcon.pred$lower<-hcon.pred$fit-2*hcon.pred$se.fit
 hcon.pred$upper<-hcon.pred$fit+2*hcon.pred$se.fit
 
+this.slope<-(max(hcon.pred$lat)-min(hcon.pred$lat))*((lm(hcon.pred$fit~hcon.pred$lat))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
+
 hcon.pred.lat<-ggplot(data=hcon.pred, aes(lat, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
-  geom_line(col="gray28")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("Latitude")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 hcon.pred.lat
 
 
@@ -612,12 +598,15 @@ hcon.pred<-cbind(newC7,hcon.pred)
 hcon.pred$lower<-hcon.pred$fit-2*hcon.pred$se.fit
 hcon.pred$upper<-hcon.pred$fit+2*hcon.pred$se.fit
 
+this.slope<-(max(hcon.pred$Coccinella.septempunctata)-min(hcon.pred$Coccinella.septempunctata))*((lm(hcon.pred$fit~hcon.pred$Coccinella.septempunctata))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 hcon.pred.c7<-ggplot(data=hcon.pred, aes(Coccinella.septempunctata, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="lightcoral", alpha=0.6)+
-  geom_line(col="darkred")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("Captures of ", italic("Coccinella septempunctata"))))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 hcon.pred.c7
 
 #harmonia
@@ -627,12 +616,15 @@ hcon.pred<-cbind(newHA,hcon.pred)
 hcon.pred$lower<-hcon.pred$fit-2*hcon.pred$se.fit
 hcon.pred$upper<-hcon.pred$fit+2*hcon.pred$se.fit
 
+this.slope<-(max(hcon.pred$Harmonia.axyridis)-min(hcon.pred$Harmonia.axyridis))*((lm(hcon.pred$fit~hcon.pred$Harmonia.axyridis))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 hcon.pred.ha<-ggplot(data=hcon.pred, aes(Harmonia.axyridis, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="burlywood1", alpha=0.6)+
-  geom_line(col="darkorange")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("Captures of ", italic("Harmonia axyridis"))))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 hcon.pred.ha
 
 
@@ -642,188 +634,24 @@ hcon.pred<-cbind(newDeveloped,hcon.pred)
 hcon.pred$lower<-hcon.pred$fit-2*hcon.pred$se.fit
 hcon.pred$upper<-hcon.pred$fit+2*hcon.pred$se.fit
 
+this.slope<-(max(hcon.pred$Developed)-min(hcon.pred$Developed))*((lm(hcon.pred$fit~hcon.pred$Developed))$coefficients[2])/fitspace
+colindex<-which.min(abs(scalePal - this.slope))
+
 hcon.pred.developed<-ggplot(data=hcon.pred, aes(Developed, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="slategray2", alpha=0.6)+
-  geom_line(col="slategray4")+
+  geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
+  geom_line(color=discrbPal[colindex])+
   theme_classic()+
   xlab(expression(paste("% Developed cover")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
+  coord_cartesian(ylim=c(-0.1, fitspace))
 hcon.pred.developed
 
 
 
-hcon.predictions<-plot_grid(hcon.pred.decade, noeffect, hcon.pred.lat, 
-                            noeffect, hcon.pred.c7, hcon.pred.ha,
-                            noeffect, noeffect, hcon.pred.developed,
-                            ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
-                                                                  'D', 'E', 'F',
-                                                                  'G', 'H', 'I'))
-hcon.predictions
-
-pdf("plots/hcon_predictions.pdf", height=9, width=9)
-grid.draw(hcon.predictions)
-dev.off()
-
-###########################
-# now finally the harmonia predictions
-
-d<-2000
-#decade
-
-after1990<-lb_all2[which(lb_all2$Decade>=1990),]
-
-
-newDecade <- with(after1990,
-                  data.frame(Decade = seq(min(Decade), max(Decade), length = 100),
-                             Totalcount=500, 
-                             lat=mean(lat), 
-                             Aphidophagous=mean(Aphidophagous), 
-                             Forest=mean(Forest, na.rm=T), 
-                             Developed=mean(Developed, na.rm=T)))
-
-
-
-#lat
-newlat <- with(after1990,
-               data.frame(Decade = d,
-                          Totalcount=500, 
-                          lat=seq(min(lat), max(lat), length = 100), 
-                          Aphidophagous=mean(Aphidophagous), 
-                          Forest=mean(Forest, na.rm=T), 
-                          Developed=mean(Developed, na.rm=T)))
-
-#Aphidophagous
-newAp <- with(after1990,
-                  data.frame(Decade = d,
-                         Totalcount=500, 
-                         lat=mean(lat), 
-                         Aphidophagous=seq(min(Aphidophagous), max(Aphidophagous), length = 100),
-                         Forest=mean(Forest, na.rm=T), 
-                         Developed=mean(Developed, na.rm=T)))
-                         
-
-#Forest
-newForest <- with(after1990,
-                  data.frame(Decade = d,
-                             Totalcount=500, 
-                             lat=mean(lat), 
-                             Aphidophagous=mean(Aphidophagous),
-                             Forest=seq(min(Forest, na.rm=T), max(Forest, na.rm=T), length = 100), 
-                             Developed=mean(Developed, na.rm=T)))
-#Developed
-newDeveloped <- with(after1990,
-                     data.frame(Decade = d,
-                                Totalcount=500, 
-                                lat=mean(lat), 
-                                Aphidophagous=mean(Aphidophagous),
-                                Forest=mean(Forest, na.rm=T), 
-                                Developed=seq(min(Developed, na.rm=T), max(Developed, na.rm=T), length = 100)))
-
-
-#ok, harmonia
-ha.gam4<-gam(Harmonia.axyridis~offset(log(1+Totalcount))+
-               s(Decade, sp=0.5, k=3)+
-               s(lat, sp=0.5)+
-               s(log(1+Aphidophagous), sp=0.5, k=4)+
-               s(Forest, sp=0.5)+
-               s(Developed, sp=0.5),  
-             data=after1990, family="nb")
-summary(ha.gam4)
-AIC(ha.gam4)
-
-
-
-ha.pred<-predict.gam(ha.gam4, newDecade, se.fit = T, type="link")
-ha.pred<-cbind(newDecade,ha.pred)
-ha.pred$lower<-ha.pred$fit-2*ha.pred$se.fit
-ha.pred$upper<-ha.pred$fit+2*ha.pred$se.fit
-
-#decade
-#set decade for rest of analyses
-d<-2000
-
-##
-ha.pred.decade<-ggplot(data=ha.pred, aes(Decade, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey19", alpha=0.6)+
-  geom_line()+
-  theme_classic()+
-  xlim(1929, 2011)+
-  xlab(expression(paste("Year")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
-ha.pred.decade
-#lat
-ha.pred<-predict.gam(ha.gam4, newlat, se.fit = T, type="link")
-ha.pred<-cbind(newlat,ha.pred)
-ha.pred$lower<-ha.pred$fit-2*ha.pred$se.fit
-ha.pred$upper<-ha.pred$fit+2*ha.pred$se.fit
-
-ha.pred.lat<-ggplot(data=ha.pred, aes(lat, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="grey", alpha=0.6)+
-  geom_line(col="gray28")+
-  theme_classic()+
-  xlab(expression(paste("Latitude")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
-ha.pred.lat
-
-
-#aphidophagous
-
-ha.pred<-predict.gam(ha.gam4, newAp, se.fit = T, type="link")
-ha.pred<-cbind(newAp,ha.pred)
-ha.pred$lower<-ha.pred$fit-2*ha.pred$se.fit
-ha.pred$upper<-ha.pred$fit+2*ha.pred$se.fit
-
-ha.pred.ap<-ggplot(data=ha.pred, aes(Aphidophagous, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="palevioletred", alpha=0.6)+
-  geom_line(col="maroon4")+
-  theme_classic()+
-  xlab(expression(paste("Other Aphidophagous")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
-ha.pred.ap
-
-#Forest
-
-ha.pred<-predict.gam(ha.gam4, newForest, se.fit = T, type="link")
-ha.pred<-cbind(newForest,ha.pred)
-ha.pred$lower<-ha.pred$fit-2*ha.pred$se.fit
-ha.pred$upper<-ha.pred$fit+2*ha.pred$se.fit
-
-ha.pred.forest<-ggplot(data=ha.pred, aes(Forest, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="lightgreen", alpha=0.6)+
-  geom_line(col="darkgreen")+
-  theme_classic()+
-  xlab(expression(paste("% Forest cover")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
-ha.pred.forest
-
-#Developed
-ha.pred<-predict.gam(ha.gam4, newDeveloped, se.fit = T, type="link")
-ha.pred<-cbind(newDeveloped,ha.pred)
-ha.pred$lower<-ha.pred$fit-2*ha.pred$se.fit
-ha.pred$upper<-ha.pred$fit+2*ha.pred$se.fit
-
-ha.pred.developed<-ggplot(data=ha.pred, aes(Developed, fit))+
-  geom_ribbon(aes(ymin=lower, ymax=upper), fill="slategray2", alpha=0.6)+
-  geom_line(col="slategray4")+
-  theme_classic()+
-  xlab(expression(paste("% Developed cover")))+ylab("Predicted captures")+
-  coord_cartesian(ylim=c(-0.1, NA))
-ha.pred.developed
 
 
 
 
-ha.predictions<-plot_grid(ha.pred.decade, noeffect, ha.pred.lat, 
-                      ha.pred.ap, noeffect, noeffect,
-                      noeffect, ha.pred.forest, ha.pred.developed,
-                      ncol=3, rel_widths=c(1,1,1), labels=c('A', 'B', 'C', 
-                                                            'D', 'E', 'F',
-                                                            'G', 'H', 'I'))
-ha.predictions
 
-pdf("plots/ha_predictions.pdf", height=12, width=9)
-grid.draw(ha.predictions)
-dev.off()
 
 ######################
 #build the big grid fig
@@ -954,6 +782,6 @@ megaplot<-plot_grid(titlerow, labelrow, adaliarow, c9row, cmacrow, hconrow, csti
 megaplot
 
 
-pdf("plots/predictions_megaplot.pdf", height=6, width=10)
+pdf("plots/predictions_megaplot_colorramp.pdf", height=6, width=10)
 grid.draw(megaplot)
 dev.off()
