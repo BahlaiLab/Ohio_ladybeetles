@@ -2142,10 +2142,17 @@ timeseries.stack.named<-plot_grid(abi.decade0 +
                                     ggtitle("All species")+
                                     theme(plot.title=element_text(size=14, face="bold",
                                                                   hjust = 0.5)),
-                                  
+                                  allN.decade0+ 
+                                    ggtitle("Native species")+
+                                    theme(plot.title=element_text(size=14, face="bold",
+                                                                  hjust = 0.5)),
+                                  allI.decade0+ 
+                                    ggtitle("Invasive species")+
+                                    theme(plot.title=element_text(size=14, face="bold",
+                                                                  hjust = 0.5)),
                             ncol=2, rel_widths=c(1, 1), label_fontface="italic",
                             labels=c('A', 'B', 'C','D', 'E', 'F',
-                                                                 'G', 'H'), align="v")
+                                                                 'G', 'H', 'I', 'J'), align="v")
 timeseries.stack.named
 
 pdf("plots/timeseries_stack_named.pdf", height=12, width=7)
