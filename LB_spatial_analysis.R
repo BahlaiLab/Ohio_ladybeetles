@@ -276,6 +276,9 @@ names(lb_all2) <- gsub(x = names(lb_all2), pattern = " ", replacement = ".")
 lb_all2$Totalinvasive<-lb_all2$Coccinella.septempunctata+lb_all2$Coccinella.undecimpunctata+
   lb_all2$Harmonia.axyridis+lb_all2$Hippodamia.variegata+lb_all2$Propylea.quatuordecimpunctata
 
+#total native
+lb_all2$Totalnative<-lb_all2$Totalcount-lb_all2$Totalinvasive
+
 #proportion invasive
 lb_all2$Propinvasive<-ifelse(lb_all2$Totalcount>0, lb_all2$Totalinvasive/lb_all2$Totalcount, 0)
 
@@ -2059,6 +2062,39 @@ all.decade0<-visreg(all.gam0, "Decade", ylab="",
   xlim(1930, 2010)+
   scale_y_continuous(trans='pseudo_log')
 all.decade0
+
+#all native
+allN.gam0<-gam(Totalnative~ s(Decade, sp=0.5, k=3), 
+              data=lb_all2)
+summary(allN.gam0)
+
+allN.decade0<-visreg(allN.gam0, "Decade", ylab="",
+                    xlab=expression(paste("")),
+                    gg=T,
+                    line=list(col="gray19"),
+                    fill=list(col="gray57", fill="gray57"),
+                    points=list(size=1, pch=21, fill="gray57", col="black"), jitter=TRUE)+
+  theme_classic()+
+  xlim(1930, 2010)+
+  scale_y_continuous(trans='pseudo_log')
+allN.decade0
+
+#all invasive
+
+allI.gam0<-gam(Totalinvasive~ s(Decade, sp=0.5, k=3), 
+               data=lb_all2)
+summary(allI.gam0)
+
+allI.decade0<-visreg(allI.gam0, "Decade", ylab="",
+                     xlab=expression(paste("")),
+                     gg=T,
+                     line=list(col="gray19"),
+                     fill=list(col="gray57", fill="gray57"),
+                     points=list(size=1, pch=21, fill="gray57", col="black"), jitter=TRUE)+
+  theme_classic()+
+  xlim(1930, 2010)+
+  scale_y_continuous(trans='pseudo_log')
+allI.decade0
 
 
 timeseries.stack<-plot_grid(abi.decade0, c9.decade0, cmac.decade0,
