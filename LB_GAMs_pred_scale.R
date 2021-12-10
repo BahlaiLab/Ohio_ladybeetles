@@ -107,7 +107,7 @@ d<-2000
 #stuff for creating heatmap scale for correlation coefficients
 
 #Create a function to generate a continuous color palette for 'hot' to 'cool' trends
-rbPal <- colorRampPalette(c('blue3', 'grey55','darkred'))
+rbPal <- colorRampPalette(c('blue', 'grey63','red'))
 #turn it into a discrete palette,
 discrbPal<-rbPal(181)
 #lighten the palette for ribbons
