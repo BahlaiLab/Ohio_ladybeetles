@@ -2147,7 +2147,7 @@ timeseries.stack.named<-plot_grid(abi.decade0 +
                                     theme(plot.title=element_text(size=14, face="bold",
                                                                   hjust = 0.5)),
                                   allI.decade0+ 
-                                    ggtitle("Invasive species")+
+                                    ggtitle("Alien species")+
                                     theme(plot.title=element_text(size=14, face="bold",
                                                                   hjust = 0.5)),
                             ncol=2, rel_widths=c(1, 1), label_fontface="italic",

@@ -164,7 +164,7 @@ cmac.pred.pi<-ggplot(data=cmac.pred, aes(Propinvasive, fit))+
   geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
   geom_line(color=discrbPal[colindex])+
   theme_classic()+
-  xlab(expression(paste("Proportion invasive")))+ylab("Predicted captures")+
+  xlab(expression(paste("Proportion alien")))+ylab("Predicted captures")+
   coord_cartesian(ylim=c(-0.1, fitspace))
 cmac.pred.pi
 
@@ -341,7 +341,7 @@ abi.pred.pi<-ggplot(data=abi.pred, aes(Propinvasive, fit))+
   geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
   geom_line(color=discrbPal[colindex])+
   theme_classic()+
-  xlab(expression(paste("Proportion invasive")))+ylab("Predicted captures")+
+  xlab(expression(paste("Proportion alien")))+ylab("Predicted captures")+
   coord_cartesian(ylim=c(-0.1, fitspace))
 abi.pred.pi
 
@@ -453,7 +453,7 @@ cstig.pred.pi<-ggplot(data=cstig.pred, aes(Propinvasive, fit))+
   geom_ribbon(aes(ymin=lower, ymax=upper), fill=discrbPallt[colindex], alpha=0.6)+
   geom_line(color=discrbPal[colindex])+
   theme_classic()+
-  xlab(expression(paste("Proportion invasive")))+ylab("Predicted captures")+
+  xlab(expression(paste("Proportion alien")))+ylab("Predicted captures")+
   coord_cartesian(ylim=c(-0.1, fitspace))
 cstig.pred.pi
 
@@ -666,7 +666,7 @@ cstigm<-text_grob(paste("Chilocorus \nstigma"), color="black", face="italic", si
 spatio<-text_grob(paste("Spatio-temporal parameters"), color="black", face="bold", size=13)
 landscape<-text_grob(paste("Landscape parameters"), color="black", face="bold", size=13)
 invasion<-text_grob(paste("Invasion parameters"), color="black", face="bold", size=13)
-prop.inv<-text_grob(paste("Proportion \ninvasive"), color="black", size=11)
+prop.inv<-text_grob(paste("Proportion \nalien"), color="black", size=11)
 csept<-text_grob(paste("Coccinella \nseptempunctata"), color="black", face="italic", size=11)
 haxy<-text_grob(paste("Harmonia \naxyridis"), color="black", face="italic", size=11)
 agri<-text_grob(paste("% Agriculture"), color="black", size=11)
