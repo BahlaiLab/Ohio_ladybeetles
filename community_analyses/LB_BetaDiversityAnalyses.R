@@ -13,10 +13,7 @@
 #
 ###################################################################################
 
-setwd("E:/Postdoc - Gardiner Lab/BLBB Project/Museum Files/Ohio_ladybeetles/community_analyses")
-setwd("G:/Postdoc - Gardiner Lab/BLBB Project/Museum Files/Ohio_ladybeetles/community_analyses")
-
-lb <- read.csv("LB_MuseumData_2020_v2.csv")
+lb <- read.csv("specimen_data/LB_MuseumData_2020_v2.csv")
 
 colnames(lb)
 levels(lb$Name)
@@ -28,12 +25,12 @@ library(reshape2)
 library(vegan)
 
 #install.packages("devtools")
-#library(devtools)
-#install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
-#library(pairwiseAdonis)
+library(devtools)
+install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
+library(pairwiseAdonis)
 
-#install.packages("remotes")
-#remotes::install_github("GuillemSalazar/EcolUtils")
+install.packages("remotes")
+remotes::install_github("GuillemSalazar/EcolUtils")
 library(EcolUtils)
 citation("EcolUtils")
 
