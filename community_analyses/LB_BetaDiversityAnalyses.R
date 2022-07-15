@@ -25,12 +25,12 @@ library(reshape2)
 library(vegan)
 
 #install.packages("devtools")
-library(devtools)
-install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
+#library(devtools)
+#install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
 library(pairwiseAdonis)
 
-install.packages("remotes")
-remotes::install_github("GuillemSalazar/EcolUtils")
+#install.packages("remotes")
+#remotes::install_github("GuillemSalazar/EcolUtils")
 library(EcolUtils)
 citation("EcolUtils")
 
@@ -350,9 +350,6 @@ t1112.a
 
 # outputs from beta.temp used to make figure 2B
 
-# remove all objects in workspace
-rm(list=ls())
-
 
 #####
 # Now, repeat these analyses with only native lady beetle species
@@ -497,7 +494,7 @@ t1011.n
 t1112.n <- beta.temp(t11.n, t12.n, index.family = "sorensen")
 t1112.n
 
-# outputs from beta.temp used to make figure 2B
+# outputs from beta.temp used to make figure 2C
 
 # remove all objects in workspace
 rm(list=ls())
