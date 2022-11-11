@@ -1,6 +1,7 @@
 #run ohio_context_data_processing.R and LB_spatial_analysis first
 
 #need to reshape LULC object in wide format, but with the original year timepoints preserved
+library(reshape2)
 
 LULC.raw.wide<-dcast(LULC, Year+County~Class, value.var="Percentage")
 
@@ -18,6 +19,13 @@ cutpoint<-rowSums(lb.wide.yeargroups[3:30])
 lb.wide.yeargroups<-lb.wide.yeargroups[which(cutpoint>2), ]
 #also very little data after 2017 so let's just cut that
 lb.wide.yeargroups<-lb.wide.yeargroups[which(lb.wide.yeargroups$YearGroup!="After 2017"), ]
+
+lb.wide.yeargroups.natives<-lb.wide.yeargroups[,-c(10,13,16,22,29)]
+#gotta cull out county/groups with insufficient observations to NMDS again!
+
+cutpoint1<-rowSums(lb.wide.yeargroups.natives[3:25])
+lb.wide.yeargroups.natives<-lb.wide.yeargroups.natives[which(cutpoint1>2), ]
+
 
 library(vegan)
 
@@ -40,3 +48,14 @@ points(lb.ord, display="sites", select=which(lb.wide.yeargroups$YearGroup=="1939
 points(lb.ord, display="sites", select=which(lb.wide.yeargroups$YearGroup=="1971-1992"), pch=19, col="green")
 points(lb.ord, display="sites", select=which(lb.wide.yeargroups$YearGroup=="1993-2016"), pch=19, col="blue")
 ordiellipse(lb.ord, lb.wide.yeargroups$YearGroup, draw="polygon", col=c("pink", "orange", "green", "blue"), kind="se", conf=0.999, label=TRUE)
+
+lb.ord.n<-metaMDS(lb.wide.yeargroups.natives[3:25])
+lb.ord.n
+
+plot(lb.ord.n, disp='sites', type="n")
+points(lb.ord.n, display="sites", select=which(lb.wide.yeargroups.natives$YearGroup=="Before 1938"), pch=19, col="pink")
+points(lb.ord.n, display="sites", select=which(lb.wide.yeargroups.natives$YearGroup=="1939-1970"), pch=19, col="orange")
+points(lb.ord.n, display="sites", select=which(lb.wide.yeargroups.natives$YearGroup=="1971-1992"), pch=19, col="green")
+points(lb.ord.n, display="sites", select=which(lb.wide.yeargroups.natives$YearGroup=="1993-2016"), pch=19, col="blue")
+ordiellipse(lb.ord.n, lb.wide.yeargroups.natives$YearGroup, draw="polygon", col=c("pink", "orange", "green", "blue"), kind="se", conf=0.999, label=TRUE)
+
