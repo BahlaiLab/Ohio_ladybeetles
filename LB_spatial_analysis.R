@@ -74,8 +74,7 @@ ladybeetle.allcombos$Totalcount<-rowSums(ladybeetle.allcombos[3:30])
 #also create a dataset that doesn't have the zero county-decades, which likely just means they weren't monitored at that time
 
 ladybeetle.notallcombos<-merge(county.decade, ladybeetle.wide, all.y=T, by=c("County", "Decade"))
-#now replace all those new NAs with zero
-ladybeetle.notallcombos[is.na(ladybeetle.allcombos)]<-0
+
 
 #total ladybeetles per countyXdecade, can use in model later
 ladybeetle.notallcombos$Totalcount<-rowSums(ladybeetle.notallcombos[3:30])
@@ -87,7 +86,7 @@ colnames(ladybeetle.long)<- c("County", "Decade", "Totalcount", "Name", "Count")
 
 
 
-#Want to allign census with County, Decade in ladybeetle data
+#Want to align census with County, Decade in ladybeetle data
 
 lb_census<-merge(ladybeetle.long, allcensus, by=c("County", "Decade"), all.x=T)
 
@@ -283,7 +282,7 @@ lb_all2$Totalnative<-lb_all2$Totalcount-lb_all2$Totalinvasive
 lb_all2$Propinvasive<-ifelse(lb_all2$Totalcount>0, lb_all2$Totalinvasive/lb_all2$Totalcount, 0)
 
 #total aphidophagous- first calculate non-aphidophagous and then subtract
-lb_all2$Nonaphidophagous<-lb_all2$`Hyperaspis undulata`+lb_all2$Neoharmonia.venusta+
+lb_all2$Nonaphidophagous<-lb_all2$'Hyperaspis\xa0undulata'+lb_all2$Neoharmonia.venusta+
   lb_all2$Psyllobora.vigintimaculata
 lb_all2$Aphidophagous<-lb_all2$Totalcount-lb_all2$Nonaphidophagous
 
@@ -1287,12 +1286,12 @@ summary(cstig.gam1)
 AIC(cstig.gam1)
 
 visreg(cstig.gam1, "Decade",  ylab="Captures")
-visreg(cstig.gam1, "lon",  ylab="Captures")
-visreg(cstig.gam1, "lat",  ylab="Captures")
-visreg(cstig.gam1, "Totalinvasive",  ylab="Captures")
-visreg(cstig.gam1, "Agriculture",  ylab="Captures")
-visreg(cstig.gam1, "Forest", ylab="Captures")
-visreg(cstig.gam1, "Developed",  ylab="Captures")
+#visreg(cstig.gam1, "lon",  ylab="Captures")
+#visreg(cstig.gam1, "lat",  ylab="Captures")
+#visreg(cstig.gam1, "Totalinvasive",  ylab="Captures")
+#visreg(cstig.gam1, "Agriculture",  ylab="Captures")
+#visreg(cstig.gam1, "Forest", ylab="Captures")
+#visreg(cstig.gam1, "Developed",  ylab="Captures")
 
 
 
@@ -1560,7 +1559,7 @@ AIC(c7.gam2)
 visreg(c7.gam2, "Decade",  ylab="Captures")
 #visreg(c7.gam2, "lon",  ylab="Captures")
 visreg(c7.gam2, "lat",  ylab="Captures")
-visreg(c7.gam2, "Propinvasive",  ylab="Captures")
+#visreg(c7.gam2, "Propinvasive",  ylab="Captures")
 #visreg(c7.gam2, "Coccinella.septempunctata",  ylab="Captures")
 #visreg(c7.gam2, "Harmonia.axyridis",  ylab="Captures")
 visreg(c7.gam2, "Agriculture",  ylab="Captures")
@@ -1802,7 +1801,7 @@ AIC(ha.gam2)
 visreg(ha.gam2, "Decade",  ylab="Captures")
 #visreg(ha.gam2, "lon",  ylab="Captures")
 visreg(ha.gam2, "lat",  ylab="Captures")
-visreg(ha.gam2, "Propinvasive",  ylab="Captures")
+#visreg(ha.gam2, "Propinvasive",  ylab="Captures")
 #visreg(ha.gam2, "Harmonia.axyridis",  ylab="Captures")
 #visreg(ha.gam2, "Harmonia.axyridis",  ylab="Captures")
 visreg(ha.gam2, "Agriculture",  ylab="Captures")
@@ -2151,8 +2150,8 @@ timeseries.stack.named<-plot_grid(abi.decade0 +
                                     theme(plot.title=element_text(size=14, face="bold",
                                                                   hjust = 0.5)),
                             ncol=2, rel_widths=c(1, 1), label_fontface="italic",
-                            labels=c('A', 'B', 'C','D', 'E', 'F',
-                                                                 'G', 'H', 'I', 'J'), align="v")
+                            labels=c('(a)', '(b)', '(c)','(d)', '(e)', '(f)',
+                                                                 '(g)', '(h)', '(i)', '(j)'), align="v")
 timeseries.stack.named
 
 pdf("plots/timeseries_stack_named.pdf", height=12, width=7)

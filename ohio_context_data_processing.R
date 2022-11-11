@@ -400,8 +400,12 @@ library(stringr)
 LULC$County<-str_to_sentence(LULC$COUNTY)
 LULC$COUNTY<-NULL
 
+#also Van Wert is capitalized elsewhere
+
+LULC$County<-gsub("Van wert", "Van Wert", LULC$County)
+
 # we have stop points at 1938, 1970, 1992 and 2016. We'll assume linear changes in landcover between each
-#of theser time points, but we want an estimate for each land cover type at each decade 1930 on- so let's make a loop to compute
+#of these time points, but we want an estimate for each land cover type at each decade 1930 on- so let's make a loop to compute
 
 landclass<-unique(LULC$Class)
 output<-data.frame(matrix(vector(), 0, 5,),
