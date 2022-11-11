@@ -13,13 +13,10 @@
 #
 ###################################################################################
 
-setwd("E:/Postdoc - Gardiner Lab/BLBB Project/Museum Files/Ohio_ladybeetles/community_analyses")
-setwd("G:/Postdoc - Gardiner Lab/BLBB Project/Museum Files/Ohio_ladybeetles/community_analyses")
-
-lb <- read.csv("LB_MuseumData_2020_v2.csv")
+lb <- read.csv("specimen_data/LB_MuseumData_2020_v2.csv")
 
 colnames(lb)
-levels(lb$Name)
+levels(as.factor(lb$Name))
 
 #install.packages("reshape2")
 library(reshape2)
@@ -30,7 +27,7 @@ library(vegan)
 #install.packages("devtools")
 #library(devtools)
 #install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
-#library(pairwiseAdonis)
+library(pairwiseAdonis)
 
 #install.packages("remotes")
 #remotes::install_github("GuillemSalazar/EcolUtils")
@@ -353,8 +350,155 @@ t1112.a
 
 # outputs from beta.temp used to make figure 2B
 
+
+#####
+# Now, repeat these analyses with only native lady beetle species
+
+str(lb.b.matrix)
+
+# remove the exotic species
+
+lb.b.matrix.n <- lb.b.matrix[,-9] # Coccinella septempunctata
+lb.b.matrix.n <- lb.b.matrix.n[,-11] # Coccinella undecimpunctata
+lb.b.matrix.n <- lb.b.matrix.n[,-13] # Harmonia axyridis
+lb.b.matrix.n <- lb.b.matrix.n[,-18] # Hippodamia variegata
+lb.b.matrix.n <- lb.b.matrix.n[,-23] # Propylea quatuordecimpunctata
+
+str(lb.b.matrix.n)
+
+#### Assess descriptive patterns for changes in native lady beetle beta diversity
+#### across decades in Ohio
+
+# pull out data from each decade
+# remove factor columns, change site to row names
+
+time1.n <- lb.b.matrix.n[which(lb.b.matrix.n$Decade == "1900"),]
+rownames(time1.n) <- time1.n[,24]
+time1.n <- time1.n[,-1]
+time1.n <- time1.n[,-23]
+str(time1.n)
+
+time2.n <- lb.b.matrix.n[which(lb.b.matrix.n$Decade == "1910"),]
+rownames(time2.n) <- time2.n[,24]
+time2.n <- time2.n[,-1]
+time2.n <- time2.n[,-23]
+str(time2.n)
+
+time3.n <- lb.b.matrix.n[which(lb.b.matrix.n$Decade == "1920"),]
+rownames(time3.n) <- time3.n[,24]
+time3.n <- time3.n[,-1]
+time3.n <- time3.n[,-23]
+str(time3.n)
+
+time4.n <- lb.b.matrix.n[which(lb.b.matrix.n$Decade == "1930"),]
+rownames(time4.n) <- time4.n[,24]
+time4.n <- time4.n[,-1]
+time4.n <- time4.n[,-23]
+str(time4.n)
+
+time5.n <- lb.b.matrix.n[which(lb.b.matrix.n$Decade == "1940"),]
+rownames(time5.n) <- time5.n[,24]
+time5.n <- time5.n[,-1]
+time5.n <- time5.n[,-23]
+str(time5.n)
+
+time6.n <- lb.b.matrix.n[which(lb.b.matrix.n$Decade == "1950"),]
+rownames(time6.n) <- time6.n[,24]
+time6.n <- time6.n[,-1]
+time6.n <- time6.n[,-23]
+str(time6.n)
+
+time7.n <- lb.b.matrix.n[which(lb.b.matrix.n$Decade == "1960"),]
+rownames(time7.n) <- time7.n[,24]
+time7.n <- time7.n[,-1]
+time7.n <- time7.n[,-23]
+str(time7.n)
+
+time8.n <- lb.b.matrix.n[which(lb.b.matrix.n$Decade == "1970"),]
+rownames(time8.n) <- time8.n[,24]
+time8.n <- time8.n[,-1]
+time8.n <- time8.n[,-23]
+str(time8.n)
+
+time9.n <- lb.b.matrix.n[which(lb.b.matrix.n$Decade == "1980"),]
+rownames(time9.n) <- time9.n[,24]
+time9.n <- time9.n[,-1]
+time9.n <- time9.n[,-23]
+str(time9.n)
+
+time10.n <- lb.b.matrix.n[which(lb.b.matrix.n$Decade == "1990"),]
+rownames(time10.n) <- time10.n[,24]
+time10.n <- time10.n[,-1]
+time10.n <- time10.n[,-23]
+str(time10.n)
+
+time11.n <- lb.b.matrix.n[which(lb.b.matrix.n$Decade == "2000"),]
+rownames(time11.n) <- time11.n[,24]
+time11.n <- time11.n[,-1]
+time11.n <- time11.n[,-23]
+str(time11.n)
+
+time12.n <- lb.b.matrix.n[which(lb.b.matrix.n$Decade == "1900"),]
+rownames(time12.n) <- time12.n[,24]
+time12.n <- time12.n[,-1]
+time12.n <- time12.n[,-23]
+str(time12.n)
+
+# create beta part object for each decade
+
+t1.n <- betapart.core(time1.n)
+t2.n <- betapart.core(time2.n)
+t3.n <- betapart.core(time3.n)
+t4.n <- betapart.core(time4.n)
+t5.n <- betapart.core(time5.n)
+t6.n <- betapart.core(time6.n)
+t7.n <- betapart.core(time7.n)
+t8.n <- betapart.core(time8.n)
+t9.n <- betapart.core(time9.n)
+t10.n <- betapart.core(time10.n)
+t11.n <- betapart.core(time11.n)
+t12.n <- betapart.core(time12.n)
+
+# assess temporal change in community composition among the decades for all of Ohio
+
+t12.n <- beta.temp(t1.n, t2.n, index.family = "sorensen")
+t12.n
+
+t23.n <- beta.temp(t2.n, t3.n, index.family = "sorensen")
+t23.n
+
+t34.n <- beta.temp(t3.n, t4.n, index.family = "sorensen")
+t34.n
+
+t45.n <- beta.temp(t4.n, t5.n, index.family = "sorensen")
+t45.n
+
+t56.n <- beta.temp(t5.n, t6.n, index.family = "sorensen")
+t56.n
+
+t67.n <- beta.temp(t6.n, t7.n, index.family = "sorensen")
+t67.n
+
+t78.n <- beta.temp(t7.n, t8.n, index.family = "sorensen")
+t78.n
+
+t89.n <- beta.temp(t8.n, t9.n, index.family = "sorensen")
+t89.n
+
+t910.n <- beta.temp(t9.n, t10.n, index.family = "sorensen")
+t910.n
+
+t1011.n <- beta.temp(t10.n, t11.n, index.family = "sorensen")
+t1011.n
+
+t1112.n <- beta.temp(t11.n, t12.n, index.family = "sorensen")
+t1112.n
+
+# outputs from beta.temp used to make figure 2C
+
 # remove all objects in workspace
 rm(list=ls())
+
 
 #########################################################################################
 #########################################################################################
