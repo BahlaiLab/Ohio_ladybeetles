@@ -37,6 +37,7 @@ points(landscape.ord, display="sites", select=which(LULC.raw.wide$Year=="1938"),
 points(landscape.ord, display="sites", select=which(LULC.raw.wide$Year=="1970"), pch=19, col="orange")
 points(landscape.ord, display="sites", select=which(LULC.raw.wide$Year=="1992"), pch=19, col="green")
 points(landscape.ord, display="sites", select=which(LULC.raw.wide$Year=="2016"), pch=19, col="blue")
+text(landscape.ord, display="species", col="red", pch=1)
 ordiellipse(landscape.ord, LULC.raw.wide$Year, draw="polygon", col=c("pink", "orange", "green", "blue"), kind="se", conf=0.999, label=TRUE)
 
 lb.ord<-metaMDS(lb.wide.yeargroups[3:30])
@@ -59,3 +60,38 @@ points(lb.ord.n, display="sites", select=which(lb.wide.yeargroups.natives$YearGr
 points(lb.ord.n, display="sites", select=which(lb.wide.yeargroups.natives$YearGroup=="1993-2016"), pch=19, col="blue")
 ordiellipse(lb.ord.n, lb.wide.yeargroups.natives$YearGroup, draw="polygon", col=c("pink", "orange", "green", "blue"), kind="se", conf=0.999, label=TRUE)
 
+
+#ok let's make this all prettier with a GGplot multipanel figure
+library(ggplot2)
+
+#install.packages("remotes")
+#remotes::install_github("jfq3/ggordiplots")
+library(ggordiplots)
+
+#start with landscape data
+
+
+fudgexl<-c(0.05, 0.06, 0.015, 0.07)#jitter the vector labels a bit
+fudgeyl<-c(0, 0.03, 0.07, 0.02)
+
+landnmds<-gg_ordiplot(landscape.ord, groups= LULC.raw.wide$Year, kind="se", conf=0.99, pt.size=-1)
+
+gglandnmds<-landnmds$plot+  
+  geom_point(data=landnmds$df_ord, aes(x=x,y=y, color=Group, shape=Group))+
+  scale_colour_manual(values=c("1938" = "darkred", "1970" = "darkorange", "1992"= "yellow3", "2016"="darkgreen"), 
+                      labels=c("1938", "1970", "1992", "2016"), title("Year"))+
+  scale_fill_manual(values=c("1938" = "darkred", "1970" = "darkorange", "1992"= "yellow3", "2016"="darkgreen"), 
+                      labels=c("1938", "1970", "1992", "2016"), title("Year"))+
+  scale_shape_manual(values=c("1938" = 1, "1970" = 2, "1992"= 3, "2016"=4), 
+                     labels=c("1938", "1970", "1992", "2016"), title("Year"))+
+  geom_polygon(data = landnmds$df_ellipse, aes(x = x, y = y,  fill=Group), show.legend = FALSE, color="black", alpha =0.25)+
+  geom_label(data = landnmds$df_mean.ord, aes(x = x+fudgexl, y = y+fudgeyl, label = Group, color = Group), 
+             show.legend = FALSE, fill="white", color="black", alpha=0.9)+
+  geom_path(data = landnmds$df_mean.ord, aes(x = x, y = y), 
+             show.legend = FALSE, color="black")+
+  geom_point(data = landnmds$df_mean.ord, aes(x = x, y = y), 
+            show.legend = FALSE, color="black", pch=16)+
+  theme_classic()+
+  labs(x="NMDS1", y="NMDS2")
+
+gglandnmds
