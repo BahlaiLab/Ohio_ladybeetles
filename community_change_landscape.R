@@ -70,6 +70,9 @@ library(ggordiplots)
 
 #start with landscape data
 
+landscape.centroids<-as.data.frame(scores(landscape.ord, "species"))
+landscape.centroids$landuse <- rownames(landscape.centroids)
+
 
 fudgexl<-c(0.05, 0.06, 0.015, 0.07)#jitter the vector labels a bit
 fudgeyl<-c(0, 0.03, 0.07, 0.02)
@@ -91,7 +94,10 @@ gglandnmds<-landnmds$plot+
              show.legend = FALSE, color="black")+
   geom_point(data = landnmds$df_mean.ord, aes(x = x, y = y), 
             show.legend = FALSE, color="black", pch=16)+
+  geom_label(data = landscape.centroids, aes(x = NMDS1, y = NMDS2, label = landuse), 
+             show.legend = FALSE, color="black", size=3, alpha=0.1, label.size = NA)+
   theme_classic()+
   labs(x="NMDS1", y="NMDS2")
 
 gglandnmds
+
