@@ -77,8 +77,8 @@ landscape.centroids<-as.data.frame(scores(landscape.ord, "species"))
 landscape.centroids$landuse <- rownames(landscape.centroids)
 
 
-fudgexl<-c(0.05, 0.06, 0.015, 0.07)#jitter the vector labels a bit
-fudgeyl<-c(0, 0.03, 0.07, 0.02)
+fudgexl<-c(0.1, -0.04, 0.15, 0.16)#jitter the vector labels a bit
+fudgeyl<-c(-0.04, -0.09, 0.075, 0.03)
 
 landnmds<-gg_ordiplot(landscape.ord, groups= LULC.raw.wide$Year, kind="se", conf=0.99, pt.size=-1, plot=F)
 
@@ -100,9 +100,12 @@ gglandnmds<-landnmds$plot+
   geom_label(data = landscape.centroids, aes(x = NMDS1, y = NMDS2, label = landuse), 
              show.legend = FALSE, color="black", size=3, alpha=0.1, label.size = NA)+
   theme_classic()+
+  #theme(aspect.ratio = 0.9)+
   labs(x="NMDS1", y="NMDS2")
 
 gglandnmds
+gglandnmds.noleg<-gglandnmds+theme(legend.position ="none")
+
 
 #all lbs
 
@@ -121,16 +124,18 @@ gglbnmds<-lbnmds$plot+
   scale_shape_manual(values=c("1938" = 1, "1970" = 2, "1992"= 3, "2016"=4), 
                      labels=c("Before 1938", "1939-1970", "1971-1992", "1993-2016"), title("Year"))+
   geom_polygon(data = lbnmds$df_ellipse, aes(x = x, y = y,  fill=Group), show.legend = FALSE, color="black", alpha =0.25)+
-  geom_label(data = lbnmds$df_mean.ord, aes(x = x+fudgexa, y = y+fudgeya, label = Group, color = Group), 
-             show.legend = FALSE, fill="white", color="black", alpha=0.9)+
+  #geom_label(data = lbnmds$df_mean.ord, aes(x = x+fudgexa, y = y+fudgeya, label = Group, color = Group), 
+            # show.legend = FALSE, fill="white", color="black", alpha=0.9)+
   geom_path(data = lbnmds$df_mean.ord, aes(x = x, y = y), 
             show.legend = FALSE, color="black")+
   geom_point(data = lbnmds$df_mean.ord, aes(x = x, y = y), 
              show.legend = FALSE, color="black", pch=16)+
   theme_classic()+
+  theme(aspect.ratio = 0.9)+
   labs(x="NMDS1", y="NMDS2")
 
 gglbnmds
+gglbnmds.noleg<-gglbnmds+theme(legend.position ="none")
 
 
 #native lbs only
@@ -150,15 +155,53 @@ gglbnnmds<-lbnnmds$plot+
   scale_shape_manual(values=c("1938" = 1, "1970" = 2, "1992"= 3, "2016"=4), 
                      labels=c("Before 1938", "1939-1970", "1971-1992", "1993-2016"), title("Year"))+
   geom_polygon(data = lbnnmds$df_ellipse, aes(x = x, y = y,  fill=Group), show.legend = FALSE, color="black", alpha =0.25)+
-  geom_label(data = lbnnmds$df_mean.ord, aes(x = x+fudgexn, y = y+fudgeyn, label = Group, color = Group), 
-             show.legend = FALSE, fill="white", color="black", alpha=0.9)+
+  #geom_label(data = lbnnmds$df_mean.ord, aes(x = x+fudgexn, y = y+fudgeyn, label = Group, color = Group), 
+            # show.legend = FALSE, fill="white", color="black", alpha=0.9)+
   geom_path(data = lbnnmds$df_mean.ord, aes(x = x, y = y), 
             show.legend = FALSE, color="black")+
   geom_point(data = lbnnmds$df_mean.ord, aes(x = x, y = y), 
              show.legend = FALSE, color="black", pch=16)+
   theme_classic()+
+  theme(aspect.ratio = 0.9)+
   labs(x="NMDS1", y="NMDS2")
 
 gglbnnmds
+gglbnnmds.noleg<-gglbnnmds+theme(legend.position ="none")
+
+#pull legend so it can be its own grob
+
+g_legend <- function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+
+leg1<-g_legend(gglbnnmds)
+leg2<-g_legend(gglandnmds)
+
+library(ggpubr)
+blankspace<-text_grob(paste(""), color="black")
+
+#aiight. stackin' time
+
+library(cowplot)
 
 
+nmds.land<-plot_grid(gglandnmds.noleg, leg2, blankspace,
+              ncol=3, rel_widths=c(2, 0.5, 0.1), labels=c('A', '', ''), align="h", axis="b")
+
+nmds.land
+
+nmds.beetles<-plot_grid(gglbnmds.noleg,gglbnnmds.noleg, leg1,
+                        ncol=3, rel_widths=c(1, 1, 0.5), labels=c('B', 'C', ''), align="h", axis="b")
+nmds.beetles
+
+
+
+nmds.all<-plot_grid(nmds.land, nmds.beetles, ncol=1, rel_heights = c(1.3, 1), labels=c('A', ''), align="v", axis="btl")
+
+nmds.all
+
+pdf("plots/NMDS_timepoints.pdf", height=7, width=6)
+grid.draw(nmds.all)
+dev.off()
