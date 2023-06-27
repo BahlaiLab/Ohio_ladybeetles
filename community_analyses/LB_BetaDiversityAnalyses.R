@@ -3316,10 +3316,9 @@ dev.off()
 # to museum specimens collected from the same years
 
 
-lb <- read.csv("LB_MuseumData_2020_v2.csv")
+lb <- read.csv("specimen_data/LB_MuseumData_2020_v2.csv")
 
 colnames(lb)
-levels(lb$Name)
 
 Yr09 <- lb[which(lb$Year == "2009"),]
 Yr10 <- lb[which(lb$Year == "2010"),]
@@ -3334,8 +3333,13 @@ colnames(blbb.lb)
 blbb.matrix <- dcast(blbb.lb, Regions + Source + Year ~ Name, length)
 str(blbb.matrix)
 
+## double check counts for BLBB and museum specimens by species and year
+blbb.counts <- dcast(blbb.lb, Source + Year ~ Name, length)
+
 # make sure predictor variables are factors
 blbb.matrix$Year <- as.factor(blbb.matrix$Year)
+blbb.matrix$Regions <- as.factor(blbb.matrix$Regions)
+blbb.matrix$Source <- as.factor(blbb.matrix$Source)
 
 levels(blbb.matrix$Year)
 levels(blbb.matrix$Regions)
@@ -3645,3 +3649,90 @@ text(0.64, 0.5, "D", pos = 4, font = 2, cex = 1.8)
 text(0.0, 0.5, "p=0.009", font = 1.5, cex = 1.5)
 
 dev.off()
+
+###################################################################################
+# Question: Does lady beetle taxonomic beta-diversity change over time, and if so, are these
+# patterns driven by species turnover, species nestedness, or both?
+# revising analysis by binning across time intervals
+
+lb <- read.csv("specimen_data/LB_MuseumData_2020_v2.csv")
+
+# subset data to look at only museum specimens (i.e. remove BLBB data)
+lb.b <- lb[c(1:4210),]
+
+lb.b$YearGroup <-cut (lb.b$Year, breaks=c(-Inf, 1938, 1970, 1992,  Inf), labels=c("1938","1970","1992","2018"))
+
+str(lb.b)
+lb.b$Name <- as.factor(lb.b$Name)
+levels(lb.b$Name)
+
+# not enough data from each county even if we pool over these time periods. Have to pool across geographic regions
+lb.b <- dcast(lb.b, YearGroup+Regions~Name, length)
+
+colSums(lb.b[3:30])
+# remove single collection of Mulsantina luteodorsa because it hasn't been
+# verified by LB experts
+lb.b <- lb.b[,-24]
+
+rowSums(lb.b[3:29])
+
+str(lb.b)
+
+# change regions variable to factor
+lb.b$Regions <- as.factor(lb.b$Regions)
+str(lb.b)
+
+# save a copy with total counts
+lb2 <- lb.b
+
+# change dataset to presence/absence (1/0)
+lb.b[lb.b>0]<-1
+str(lb.b)
+
+
+# pull out data from each time period
+# remove factor columns, change site to row names
+
+time1 <- lb.b[which(lb.b$YearGroup == "1938"),]
+rownames(time1) <- time1[,2]
+time1 <- time1[,-1]
+time1 <- time1[,-1]
+str(time1)
+
+time2 <- lb.b[which(lb.b$YearGroup == "1970"),]
+rownames(time2) <- time2[,2]
+time2 <- time2[,-1]
+time2 <- time2[,-1]
+str(time2)
+
+time3 <- lb.b[which(lb.b$YearGroup == "1992"),]
+rownames(time3) <- time3[,2]
+time3 <- time3[,-1]
+time3 <- time3[,-1]
+str(time3)
+
+time4 <- lb.b[which(lb.b$YearGroup == "2018"),]
+rownames(time4) <- time4[,2]
+time4 <- time4[,-1]
+time4 <- time4[,-1]
+str(time4)
+
+
+# create beta part object for each decade
+
+t1 <- betapart.core(time1)
+t2 <- betapart.core(time2)
+t3 <- betapart.core(time3)
+t4 <- betapart.core(time4)
+
+
+# assess temporal change in community composition among the decades for all of Ohio
+
+t12 <- beta.temp(t1, t2, index.family = "sorensen")
+t12$beta.sim
+
+t23 <- beta.temp(t2, t3, index.family = "sorensen")
+t23
+
+t34 <- beta.temp(t3, t4, index.family = "sorensen")
+t34
